@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 """
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                      NIU CAST MINI                                        ║
-║                 Pure Python - No GUI Dependencies                           ║
+║                        NIU CAST - MINI (CLI)                                ║
+║                    Lightweight Command Line Interface                       ║
 ║                                                                            ║
-║  Compatible dengan:                                                         ║
-║  - Python 3.6+ tanpa PyQt5                                                  ║
-║  - Lightweight version untuk CLI environments                               ║
+║  Gaming Edition - No GUI dependencies                                       ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 """
 
@@ -18,32 +16,64 @@ import argparse
 from datetime import datetime
 
 # ═══════════════════════════════════════════════════════════════════════════════
-#                              COLORS
+#                              COLORS & STYLING
 # ═══════════════════════════════════════════════════════════════════════════════
 
 class Colors:
-    HEADER = '\033[95m'
-    BLUE = '\033[94m'
-    CYAN = '\033[96m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    RED = '\033[91m'
-    ENDC = '\033[0m'
+    # Gaming Theme Colors
+    BG = '\033[0;48;5;17m'      # Dark background
+    CYAN = '\033[0;96m'         # Bright cyan
+    MAGENTA = '\033[0;95m'      # Magenta
+    GOLD = '\033[0;93m'         # Gold
+    GREEN = '\033[0;92m'        # Green (connected)
+    RED = '\033[0;91m'          # Red (error)
+    YELLOW = '\033[0;93m'       # Yellow (warning)
+    WHITE = '\033[0;97m'        # White text
     BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+    DIM = '\033[2m'
+    RESET = '\033[0m'
+    
+    # Box drawing
+    VERT = '║'
+    HORIZ = '═'
+    CROSS = '╬'
+    TOP_LEFT = '╔'
+    TOP_RIGHT = '╗'
+    BOTTOM_LEFT = '╚'
+    BOTTOM_RIGHT = '╝'
+    T_DOWN = '╦'
+    T_UP = '╩'
+    T_RIGHT = '╠'
+    T_LEFT = '╣'
 
-def print_color(color, text, end='\n'):
-    print(f"{color}{text}{Colors.ENDC}", end=end)
+def print_box(text, width=60, color=Colors.CYAN, align='center'):
+    """Print text in a styled box"""
+    padding = (width - len(text) - 2) // 2
+    if align == 'center':
+        print(f"{color}{Colors.TOP_LEFT}{Colors.HORIZ * width}{Colors.TOP_RIGHT}{Colors.RESET}")
+        print(f"{color}{Colors.VERT}{Colors.RESET}{' ' * padding}{Colors.BOLD}{text}{Colors.RESET}{' ' * (width - padding - len(text))}{color}{Colors.VERT}{Colors.RESET}")
+        print(f"{color}{Colors.BOTTOM_LEFT}{Colors.HORIZ * width}{Colors.BOTTOM_RIGHT}{Colors.RESET}")
+    elif align == 'left':
+        print(f"{color}{Colors.TOP_LEFT}{Colors.HORIZ * width}{Colors.TOP_RIGHT}{Colors.RESET}")
+        print(f"{color}{Colors.VERT}{Colors.RESET} {text}{' ' * (width - len(text) - 1)}{color}{Colors.VERT}{Colors.RESET}")
+        print(f"{color}{Colors.BOTTOM_LEFT}{Colors.HORIZ * width}{Colors.BOTTOM_RIGHT}{Colors.RESET}")
 
 def print_header(text):
-    print()
-    print_color(Colors.CYAN, "═" * 60)
-    print_color(Colors.CYAN, f"  {text}", end='')
-    print()
-    print_color(Colors.CYAN, "═" * 60)
+    """Print section header"""
+    print(f"\n{Colors.CYAN}{Colors.BOLD}═══ {text} ═══{Colors.RESET}")
 
-def print_subheader(text):
-    print_color(Colors.YELLOW, f"\n▶ {text}")
+def print_success(text):
+    print(f"{Colors.GREEN}✓ {text}{Colors.RESET}")
+
+def print_error(text):
+    print(f"{Colors.RED}✗ {text}{Colors.RESET}")
+
+def print_warning(text):
+    print(f"{Colors.YELLOW}⚠ {text}{Colors.RESET}")
+
+def print_info(text):
+    print(f"{Colors.CYAN}ℹ {text}{Colors.RESET}")
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 #                              ADB CLASS
@@ -53,8 +83,9 @@ class ADB:
     def __init__(self):
         self.adb_path = self._find_adb()
         self.device = None
+        self.device_ip = None
         
-    def _find_adb(self) -> str:
+    def _find_adb(self):
         paths = ['adb', '/usr/local/bin/adb', '/opt/android-sdk/platform-tools/adb']
         for path in paths:
             if os.path.exists(path):
@@ -112,143 +143,162 @@ class ADB:
             return False
         rc, out, err = self._run(['-s', self.device, 'install', '-r', apk_path], timeout=300)
         return rc == 0
+    
+    def get_device_info(self):
+        info = {}
+        
+        rc, model, _ = self.shell('getprop ro.product.model')
+        info['model'] = model.strip() if rc == 0 else 'Unknown'
+        
+        rc, manufacturer, _ = self.shell('getprop ro.product.manufacturer')
+        info['manufacturer'] = manufacturer.strip() if rc == 0 else 'Unknown'
+        
+        rc, android, _ = self.shell('getprop ro.build.version.release')
+        info['android'] = android.strip() if rc == 0 else 'Unknown'
+        
+        rc, sdk, _ = self.shell('getprop ro.build.version.sdk')
+        info['sdk'] = sdk.strip() if rc == 0 else 'Unknown'
+        
+        rc, size, _ = self.shell('wm size')
+        if rc == 0:
+            try:
+                parts = size.strip().split(':')[-1].strip().split('x')
+                info['width'] = int(parts[0])
+                info['height'] = int(parts[1])
+            except:
+                info['width'], info['height'] = 1080, 2400
+        else:
+            info['width'], info['height'] = 1080, 2400
+        
+        # Get WiFi IP
+        rc, ip_out, _ = self.shell('ip route')
+        if rc == 0:
+            import re
+            ip_match = re.search(r'wlan0.*?src (\d+\.\d+\.\d+\.\d+)', ip_out)
+            if ip_match:
+                self.device_ip = ip_match.group(1)
+                info['ip'] = self.device_ip
+        
+        return info
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 #                              FUNCTIONS
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def check_adb(adb):
-    print_subheader("Checking ADB...")
+    """Check if ADB is available"""
     rc, out, _ = adb._run(['version'])
     if rc == 0:
-        print_color(Colors.GREEN, f"  ✓ ADB Found: {out.strip()}")
+        print_success(f"ADB Found: {out.strip()}")
         return True
-    else:
-        print_color(Colors.RED, "  ✗ ADB not found!")
-        return False
+    print_error("ADB not found! Install Android SDK Platform Tools.")
+    return False
 
 def check_device(adb):
-    print_subheader("Checking Devices...")
+    """Check for connected devices"""
     devices = adb.devices()
     if devices:
-        print_color(Colors.GREEN, f"  ✓ Found {len(devices)} device(s): {', '.join(devices)}")
+        print_success(f"Found {len(devices)} device(s): {', '.join(devices)}")
         return True
-    else:
-        print_color(Colors.RED, "  ✗ No devices found!")
-        print("    Make sure:")
-        print("    - USB debugging is enabled")
-        print("    - Device is connected")
-        print("    - USB debugging is authorized")
-        return False
+    print_error("No devices found!")
+    print_info("Enable USB debugging and authorize this computer on your device.")
+    return False
 
-def get_device_info(adb):
-    print_subheader("Device Information")
-    info = {}
+def show_device_info(adb):
+    """Show device information"""
+    print_header("DEVICE INFORMATION")
     
-    rc, model, _ = adb.shell('getprop ro.product.model')
-    info['model'] = model.strip() if rc == 0 else 'Unknown'
+    info = adb.get_device_info()
     
-    rc, manufacturer, _ = adb.shell('getprop ro.product.manufacturer')
-    info['manufacturer'] = manufacturer.strip() if rc == 0 else 'Unknown'
+    print(f"\n  {Colors.CYAN}Manufacturer:{Colors.RESET} {info['manufacturer']}")
+    print(f"  {Colors.CYAN}Model:{Colors.RESET}        {info['model']}")
+    print(f"  {Colors.CYAN}Android:{Colors.RESET}      {info['android']} (SDK {info['sdk']})")
+    print(f"  {Colors.CYAN}Resolution:{Colors.RESET}   {info['width']} x {info['height']}")
     
-    rc, android, _ = adb.shell('getprop ro.build.version.release')
-    info['android'] = android.strip() if rc == 0 else 'Unknown'
-    
-    rc, sdk, _ = adb.shell('getprop ro.build.version.sdk')
-    info['sdk'] = sdk.strip() if rc == 0 else 'Unknown'
-    
-    rc, size, _ = adb.shell('wm size')
-    info['size'] = size.strip() if rc == 0 else 'Unknown'
-    
-    print(f"  Manufacturer: {info['manufacturer']}")
-    print(f"  Model:        {info['model']}")
-    print(f"  Android:      {info['android']} (SDK {info['sdk']})")
-    print(f"  Screen:       {info['size']}")
+    if 'ip' in info:
+        print(f"  {Colors.CYAN}WiFi IP:{Colors.RESET}      {info['ip']}")
 
-def take_screenshot(adb, save_dir=None):
-    print_subheader("Taking Screenshot...")
+def screenshot(adb, save_dir=None):
+    """Take screenshot"""
+    print_header("SCREENSHOT")
     
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    remote_path = '/sdcard/screenshot.png'
     save_dir = save_dir or os.path.expanduser('~/Pictures')
     local_path = os.path.join(save_dir, f'niu_screenshot_{timestamp}.png')
     
     os.makedirs(save_dir, exist_ok=True)
     
-    # Capture
-    adb.shell('screencap -p /sdcard/screenshot.png', timeout=5)
+    print_info(f"Capturing screenshot...")
     
-    # Pull
-    if adb.pull(remote_path, local_path):
-        print_color(Colors.GREEN, f"  ✓ Screenshot saved: {local_path}")
+    adb.shell('screencap -p /sdcard/.niu_screenshot.png', timeout=5)
+    
+    if adb.pull('/sdcard/.niu_screenshot.png', local_path):
+        print_success(f"Saved: {local_path}")
         
-        # Try to open
-        if sys.platform == 'darwin':
-            subprocess.run(['open', local_path])
-        elif sys.platform == 'linux':
-            subprocess.run(['xdg-open', local_path])
+        # Open screenshot
+        try:
+            if sys.platform == 'darwin':
+                subprocess.run(['open', local_path])
+            elif sys.platform == 'linux':
+                subprocess.run(['xdg-open', local_path])
+        except:
+            pass
     else:
-        print_color(Colors.RED, "  ✗ Failed to capture screenshot")
+        print_error("Failed to capture screenshot")
 
-def screen_record(adb, duration=30, save_dir=None):
-    print_subheader(f"Recording Screen for {duration} seconds...")
+def screen_record(adb, duration=30):
+    """Record screen"""
+    print_header("SCREEN RECORDING")
     
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    remote_path = '/sdcard/recording.mp4'
-    save_dir = save_dir or os.path.expanduser('~/Videos')
+    save_dir = os.path.expanduser('~/Videos')
     local_path = os.path.join(save_dir, f'niu_recording_{timestamp}.mp4')
     
     os.makedirs(save_dir, exist_ok=True)
     
-    # Start recording
-    print(f"  Recording to {remote_path}...")
-    adb.shell(f'screenrecord --time-limit {duration} {remote_path}', timeout=duration + 10)
+    print_info(f"Recording for {duration} seconds...")
+    print_info(f"Output: {local_path}")
     
-    # Pull
-    print("  Pulling recording...")
-    if adb.pull(remote_path, local_path):
-        print_color(Colors.GREEN, f"  ✓ Recording saved: {local_path}")
+    adb.shell(f'screenrecord --time-limit {duration} /sdcard/.niu_recording.mp4', timeout=duration + 10)
+    
+    print_info("Pulling recording...")
+    
+    if adb.pull('/sdcard/.niu_recording.mp4', local_path):
+        print_success(f"Saved: {local_path}")
         
-        # Open
-        if sys.platform == 'darwin':
-            subprocess.run(['open', local_path])
-        elif sys.platform == 'linux':
-            subprocess.run(['xdg-open', local_path])
+        try:
+            if sys.platform == 'darwin':
+                subprocess.run(['open', local_path])
+            elif sys.platform == 'linux':
+                subprocess.run(['xdg-open', local_path])
+        except:
+            pass
     else:
-        print_color(Colors.RED, "  ✗ Failed to save recording")
-
-def send_keyevent(adb, keyevent):
-    print_subheader(f"Sending Keyevent: {keyevent}")
-    rc, _, _ = adb.shell(f'input keyevent {keyevent}')
-    if rc == 0:
-        print_color(Colors.GREEN, f"  ✓ Sent {keyevent}")
-    else:
-        print_color(Colors.RED, f"  ✗ Failed to send {keyevent}")
-
-def install_apk(adb):
-    print_subheader("Install APK")
-    print("  Enter path to APK file:", end=' ')
-    apk_path = input().strip()
-    
-    if not os.path.exists(apk_path):
-        print_color(Colors.RED, f"  ✗ File not found: {apk_path}")
-        return
-    
-    print(f"  Installing {apk_path}...")
-    if adb.install(apk_path):
-        print_color(Colors.GREEN, "  ✓ Installation complete!")
-    else:
-        print_color(Colors.RED, "  ✗ Installation failed")
+        print_error("Failed to save recording")
 
 def interactive_control(adb):
-    print_subheader("Interactive Control Mode")
-    print("Commands:")
-    print("  home, back, menu, power")
-    print("  vol-up, vol-down, mute")
-    print("  tap X Y, swipe X1 Y1 X2 Y2")
-    print("  type TEXT, screenshot, record")
-    print("  exit")
-    print()
+    """Interactive control mode"""
+    print_header("INTERACTIVE CONTROL MODE")
+    
+    print(f"""
+  {Colors.GOLD}Key Commands:{Colors.RESET}
+    home, back, menu, power
+    vol-up, vol-down, mute
+    search, camera, screenshot
+    
+  {Colors.GOLD}Touch Commands:{Colors.RESET}
+    tap X Y         - Tap at coordinates
+    swipe X1 Y1 X2 Y2 [duration]
+    type TEXT       - Type text
+    
+  {Colors.GOLD}Utilities:{Colors.RESET}
+    record [sec]    - Record screen
+    screenshot      - Take screenshot
+    info            - Show device info
+    wireless        - Enable WiFi ADB
+    exit            - Exit control mode
+""")
     
     keyevents = {
         'home': 'KEYCODE_HOME',
@@ -264,159 +314,126 @@ def interactive_control(adb):
     
     while True:
         try:
-            cmd = input("niu> ").strip().split()
+            cmd = input(f"{Colors.CYAN}niu>{Colors.RESET} ").strip().split()
             if not cmd:
                 continue
             
             action = cmd[0].lower()
             
             if action == 'exit':
+                print_info("Exiting control mode...")
                 break
             elif action in keyevents:
                 adb.shell(f'input keyevent {keyevents[action]}')
-            elif action == 'screenshot':
-                take_screenshot(adb)
-            elif action == 'record':
-                screen_record(adb)
-            elif action == 'tap' and len(cmd) == 3:
-                adb.shell(f'input tap {cmd[1]} {cmd[2]}')
-            elif action == 'swipe' and len(cmd) == 5:
-                adb.shell(f'input swipe {cmd[1]} {cmd[2]} {cmd[3]} {cmd[4]}')
+                print_success(f"Sent: {action}")
+            elif action == 'tap' and len(cmd) >= 3:
+                x, y = cmd[1], cmd[2]
+                adb.shell(f'input tap {x} {y}')
+                print_success(f"Tapped: {x}, {y}")
+            elif action == 'swipe' and len(cmd) >= 5:
+                x1, y1, x2, y2 = cmd[1], cmd[2], cmd[3], cmd[4]
+                duration = cmd[5] if len(cmd) > 5 else 300
+                adb.shell(f'input swipe {x1} {y1} {x2} {y2} {duration}')
+                print_success(f"Swiped: {x1},{y1} → {x2},{y2}")
             elif action == 'type' and len(cmd) > 1:
                 text = ' '.join(cmd[1:]).replace(' ', '%s')
                 adb.shell(f'input text {text}')
+                print_success(f"Typed: {' '.join(cmd[1:])}")
+            elif action == 'screenshot':
+                screenshot(adb)
+            elif action == 'record':
+                duration = int(cmd[1]) if len(cmd) > 1 else 30
+                screen_record(adb, duration)
+            elif action == 'info':
+                show_device_info(adb)
+            elif action == 'wireless':
+                enable_wireless(adb)
             else:
-                print(f"Unknown command: {action}")
+                print_warning(f"Unknown command: {action}")
                 
         except KeyboardInterrupt:
-            print("\nExiting...")
+            print(f"\n{Colors.YELLOW}Exiting...{Colors.RESET}")
             break
         except EOFError:
             break
 
-def wireless_connect(adb):
-    """Wireless ADB — auto-detect IP dan enable TCP mode"""
-    print_subheader("Wireless Connection Setup")
-    print("  Metode: deteksi IP dari interface aktif + adb tcpip")
+def install_apk(adb):
+    """Install APK"""
+    print_header("INSTALL APK")
+    
+    print("Enter APK path:", end=' ')
+    apk_path = input().strip()
+    
+    if not os.path.exists(apk_path):
+        print_error(f"File not found: {apk_path}")
+        return
+    
+    print_info(f"Installing {apk_path}...")
+    
+    if adb.install(apk_path):
+        print_success("Installation complete!")
+    else:
+        print_error("Installation failed")
+
+def enable_wireless(adb):
+    """Enable ADB over WiFi"""
+    print_header("WIRELESS CONNECTION")
+    
+    info = adb.get_device_info()
+    
+    if 'ip' not in info:
+        print_error("No WiFi IP found. Connect device to WiFi first.")
+        return
+    
+    print_info(f"Device WiFi IP: {info['ip']}")
+    print_info("Enabling ADB over TCP...")
+    
+    adb.shell('setprop service.adb.tcpip 5555', timeout=5)
+    time.sleep(2)
+    
+    rc, _, _ = adb._run(['connect', f"{info['ip']}:5555"])
+    
+    if rc == 0:
+        print_success(f"Wireless enabled!")
+        print_info(f"Connect: adb connect {info['ip']}:5555")
+    else:
+        print_error("Failed to enable wireless")
+
+def live_preview(adb):
+    """Live screen preview (terminal version)"""
+    print_header("LIVE PREVIEW")
+    print_info("Press Ctrl+C to exit")
     print()
     
-    import re
+    frame_count = 0
+    start_time = time.time()
     
-    # Step 1: Cek apakah sudah di TCP mode
-    rc, port_out, _ = adb.shell('getprop service.adb.tcp.port')
-    already_tcp = (rc == 0 and port_out.strip() == '5555')
-    
-    if already_tcp:
-        print_color(Colors.GREEN, "  ✓ ADB sudah dalam TCP mode (port 5555)")
-    else:
-        # Step 2: Enable TCP mode via USB (tanpa root)
-        print("  Mengaktifkan ADB over TCP...")
-        rc_tcp, out_tcp, err_tcp = adb._run(['tcpip', '5555'])
-        if rc_tcp != 0:
-            print_color(Colors.RED, f"  ✗ Gagal enable TCP: {err_tcp}")
-            print("  Coba metode alternatif (setprop)...")
-            adb.shell('setprop service.adb.tcp.port 5555')
-            adb.shell('stop adbd')
-            adb.shell('start adbd')
-            time.sleep(2)
-        else:
-            print_color(Colors.GREEN, "  ✓ ADB TCP mode enabled (via adb tcpip 5555)")
-            time.sleep(2)
-    
-    # Step 3: Auto-detect IP dari berbagai interface
-    print()
-    print("  Mendeteksi IP device...")
-    
-    # Coba beberapa interface umum
-    interfaces = ['wlan0', 'wlan1', 'eth0', 'ccmni0', 'ccmni1', 'ccmni2']
-    ip_found = None
-    
-    for iface in interfaces:
-        rc, output, _ = adb.shell(f'ip addr show {iface}')
-        if rc == 0:
-            ip_match = re.search(r'inet (\d+\.\d+\.\d+\.\d+)', output)
-            if ip_match:
-                ip = ip_match.group(1)
-                if ip != '127.0.0.1' and not ip.startswith('172.'):
-                    ip_found = ip
-                    print_color(Colors.GREEN, f"  ✓ Ditemukan IP di {iface}: {ip}")
-                    break
-                elif ip != '127.0.0.1':
-                    ip_found = ip
-                    print(f"    IP di {iface}: {ip} (Hotspot/NAT — mungkin tidak reachable)")
-    
-    # Fallback: ambil IP pertama dari interface mana pun
-    if not ip_found:
-        rc, output, _ = adb.shell('ip addr show')
-        if rc == 0:
-            ips = re.findall(r'inet (\d+\.\d+\.\d+\.\d+)', output)
-            for ip in ips:
-                if ip != '127.0.0.1' and not ip.startswith('172.'):
-                    ip_found = ip
-                    print_color(Colors.GREEN, f"  ✓ Ditemukan IP: {ip}")
-                    break
-    
-    # Step 4: Konek
-    if ip_found:
-        print()
-        print(f"  Menghubungkan ke {ip_found}:5555...")
-        
-        # Coba langsung
-        rc, out, err = adb._run(['connect', f'{ip_found}:5555'])
-        
-        if rc == 0 and 'connected' in out.lower():
-            print_color(Colors.GREEN, f"  ✓ Wireless connected! → {ip_found}:5555")
-            adb.device = f'{ip_found}:5555'
-        else:
-            # Coba dengan usb fallback
-            print(f"  ⚠ Gagal: {err.strip()}")
-            print("  Mencoba connect ulang...")
-            time.sleep(1)
-            rc2, out2, err2 = adb._run(['connect', f'{ip_found}:5555'])
-            if rc2 == 0 and 'connected' in out2.lower():
-                print_color(Colors.GREEN, f"  ✓ Wireless connected! → {ip_found}:5555")
-                adb.device = f'{ip_found}:5555'
-            else:
-                print_color(Colors.RED, f"  ✗ Wireless failed: {err2.strip()}")
-                print()
-                print("  💡 Tips:")
-                print("  1. Pastikan HP & Mac di jaringan yang SAMA")
-                print("  2. Coba manual: adb connect <IP>:5555")
-                print("  3. Atau input IP manual di menu ini:")
-                manual_ip = input("  Masukkan IP device: ").strip()
-                if manual_ip:
-                    rc3, out3, err3 = adb._run(['connect', f'{manual_ip}:5555'])
-                    if rc3 == 0 and 'connected' in out3.lower():
-                        print_color(Colors.GREEN, f"  ✓ Connected via manual IP: {manual_ip}:5555")
-                        adb.device = f'{manual_ip}:5555'
-                    else:
-                        print_color(Colors.RED, f"  ✗ Gagal: {err3.strip()}")
-    else:
-        print_color(Colors.RED, "  ✗ Tidak ada IP terdeteksi")
-        print()
-        print("  💡 Coba manual:")
-        print("  1. Cek IP HP: Settings → About → Status → IP Address")
-        print("  2. Jalankan: adb connect <IP>:5555")
-        print()
-        manual_ip = input("  Atau masukkan IP device: ").strip()
-        if manual_ip:
-            rc, out, err = adb._run(['connect', f'{manual_ip}:5555'])
-            if rc == 0 and 'connected' in out.lower():
-                print_color(Colors.GREEN, f"  ✓ Connected via manual IP: {manual_ip}:5555")
-                adb.device = f'{manual_ip}:5555'
-            else:
-                print_color(Colors.RED, f"  ✗ Gagal: {err.strip()}")
-    
-    # Step 5: Verify
-    if adb.device and ':' in str(adb.device):
-        print()
-        print("  Memverifikasi koneksi...")
-        rc_v, out_v, _ = adb._run(['devices'])
-        if str(adb.device) in out_v:
-            print_color(Colors.GREEN, f"  ✅ Wireless ADB aktif! Device: {adb.device}")
-            print("  📌 USB bisa dicabut sekarang")
-        else:
-            print_color(Colors.RED, "  ✗ Device tidak muncul di daftar ADB")
+    try:
+        while True:
+            timestamp = datetime.now().strftime("%H:%M:%S")
+            
+            # Capture frame
+            adb.shell('screencap -p /sdcard/.niu_preview.png', timeout=2)
+            
+            if adb.pull('/sdcard/.niu_preview.png', '/tmp/niu_preview.png'):
+                # Get file size as approximate activity indicator
+                try:
+                    size = os.path.getsize('/tmp/niu_preview.png')
+                    frame_count += 1
+                    
+                    elapsed = time.time() - start_time
+                    fps = frame_count / elapsed if elapsed > 0 else 0
+                    
+                    print(f"\r{timestamp} | Frame: {frame_count} | FPS: {fps:.1f} | Size: {size/1024:.1f}KB", end='')
+                except:
+                    pass
+            
+            time.sleep(0.033)  # ~30 FPS
+            
+    except KeyboardInterrupt:
+        print(f"\n\n{Colors.GREEN}Preview ended.{Colors.RESET}")
+        print_info(f"Total frames: {frame_count}")
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 #                              MAIN
@@ -424,34 +441,48 @@ def wireless_connect(adb):
 
 def main():
     parser = argparse.ArgumentParser(
-        description='NiuCast Mini - Lightweight Screen Mirroring Tool',
+        description=f'{Colors.CYAN}{Colors.BOLD}NIU CAST MINI{Colors.RESET} - Gaming Edition CLI',
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  %(prog)s --screenshot           Take a screenshot
-  %(prog)s --record 60            Record for 60 seconds
-  %(prog)s --install app.apk      Install APK
-  %(prog)s --control              Interactive control mode
-  %(prog)s --info                 Show device info
+        epilog=f"""
+{Colors.GOLD}Examples:{Colors.RESET}
+  {Colors.WHITE}%(prog)s --info{Colors.RESET}             Show device info
+  {Colors.WHITE}%(prog)s --screenshot{Colors.RESET}       Take screenshot
+  {Colors.WHITE}%(prog)s --record 60{Colors.RESET}        Record for 60 seconds
+  {Colors.WHITE}%(prog)s --control{Colors.RESET}          Interactive control
+  {Colors.WHITE}%(prog)s --wireless{Colors.RESET}         Enable WiFi ADB
+  {Colors.WHITE}%(prog)s --preview{Colors.RESET}          Live preview
         """
     )
     
-    parser.add_argument('--screenshot', action='store_true', help='Take screenshot')
-    parser.add_argument('--record', type=int, nargs='?', const=30, help='Record screen (duration in seconds)')
-    parser.add_argument('--install', metavar='APK', help='Install APK file')
-    parser.add_argument('--control', action='store_true', help='Interactive control mode')
     parser.add_argument('--info', action='store_true', help='Show device information')
-    parser.add_argument('--wireless', action='store_true', help='Setup wireless connection')
-    parser.add_argument('--keyevent', metavar='KEY', help='Send keyevent (e.g., KEYCODE_HOME)')
-    parser.add_argument('--reboot', metavar='MODE', nargs='?', const='normal', help='Reboot device (normal/recovery/bootloader)')
+    parser.add_argument('--screenshot', action='store_true', help='Take screenshot')
+    parser.add_argument('--record', type=int, nargs='?', const=30, help='Record screen (seconds)')
+    parser.add_argument('--control', action='store_true', help='Interactive control mode')
+    parser.add_argument('--wireless', action='store_true', help='Enable ADB over WiFi')
+    parser.add_argument('--preview', action='store_true', help='Live screen preview')
+    parser.add_argument('--install', metavar='APK', help='Install APK file')
     parser.add_argument('--device', metavar='SERIAL', help='Specify device serial')
     
     args = parser.parse_args()
     
-    print_header("NIU CAST MINI")
-    print(f"Python: {sys.version.split()[0]}")
-    print(f"Platform: {sys.platform}")
-    print()
+    # Print banner
+    print(f"""
+{Colors.BG}{Colors.CYAN}
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║     ██╗   ██╗ ██████╗ ██╗██████╗     ████████╗███████╗███╗   ███╗  ║
+║     ╚██╗ ██╔╝██╔═══██╗██║██╔══██╗    ╚══██╔══╝██╔════╝████╗ ████║  ║
+║      ╚████╔╝ ██║   ██║██║██║  ██║       ██║   █████╗  ██╔████╔██║  ║
+║       ╚██╔╝  ██║   ██║██║██║  ██║       ██║   ██╔══╝  ██║╚██╔╝██║  ║
+║        ██║   ╚██████╔╝██║██████╔╝       ██║   ███████╗██║ ╚═╝ ██║  ║
+║        ╚═╝    ╚═════╝ ╚═╝╚═════╝        ╚═╝   ╚══════╝╚═╝     ╚═╝  ║
+║                                                                      ║
+║              {Colors.MAGENTA}✦ Gaming Edition CLI ✦{Colors.CYAN}                              ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝{Colors.RESET}
+    """)
+    
+    print(f"  {Colors.DIM}Python: {sys.version.split()[0]} | Platform: {sys.platform}{Colors.RESET}\n")
     
     adb = ADB()
     
@@ -464,79 +495,76 @@ Examples:
     
     # Connect to device
     if not adb.connect(args.device):
-        print_color(Colors.RED, "✗ Failed to connect to device")
+        print_error("Failed to connect to device")
         return 1
     
-    print_color(Colors.GREEN, f"✓ Connected to {adb.device}")
-    print()
+    print_success(f"Connected to {adb.device}")
     
     # Execute commands
+    if args.info:
+        show_device_info(adb)
+    
     if args.screenshot:
-        take_screenshot(adb)
+        screenshot(adb)
     
     if args.record:
         screen_record(adb, args.record)
-    
-    if args.install:
-        if adb.install(args.install):
-            print_color(Colors.GREEN, "✓ Installation complete!")
-        else:
-            print_color(Colors.RED, "✗ Installation failed")
-    
-    if args.info:
-        get_device_info(adb)
     
     if args.control:
         interactive_control(adb)
     
     if args.wireless:
-        wireless_connect(adb)
+        enable_wireless(adb)
     
-    if args.keyevent:
-        send_keyevent(adb, args.keyevent)
+    if args.preview:
+        live_preview(adb)
     
-    if args.reboot:
-        mode = args.reboot
-        if mode == 'normal':
-            adb.shell('reboot')
-        elif mode == 'recovery':
-            adb._run(['reboot', 'recovery'])
-        elif mode == 'bootloader':
-            adb._run(['reboot', 'bootloader'])
-        print_color(Colors.YELLOW, f"  Rebooting to {mode}...")
+    if args.install:
+        if adb.install(args.install):
+            print_success("Installation complete!")
+        else:
+            print_error("Installation failed")
     
     # If no args, show menu
     if len(sys.argv) == 1:
-        while True:
-            print()
-            print("Select action:")
-            print("  1) Device Info")
-            print("  2) Screenshot")
-            print("  3) Screen Record")
-            print("  4) Interactive Control")
-            print("  5) Install APK")
-            print("  6) Wireless Setup")
-            print("  7) Exit")
-            print()
-            choice = input("Choice [1-7]: ").strip()
-            
-            if choice == '1':
-                get_device_info(adb)
-            elif choice == '2':
-                take_screenshot(adb)
-            elif choice == '3':
-                screen_record(adb)
-            elif choice == '4':
-                interactive_control(adb)
-            elif choice == '5':
-                install_apk(adb)
-            elif choice == '6':
-                wireless_connect(adb)
-            elif choice == '7':
-                print("Goodbye!")
-                break
-    
-    return 0
+        show_menu(adb)
+
+
+def show_menu(adb):
+    """Interactive menu"""
+    while True:
+        print_header("MAIN MENU")
+        print(f"""
+  {Colors.CYAN}1){Colors.RESET} Device Information
+  {Colors.CYAN}2){Colors.RESET} Screenshot
+  {Colors.CYAN}3){Colors.RESET} Screen Record
+  {Colors.CYAN}4){Colors.RESET} Interactive Control
+  {Colors.CYAN}5){Colors.RESET} Install APK
+  {Colors.CYAN}6){Colors.RESET} Wireless Setup
+  {Colors.CYAN}7){Colors.RESET} Live Preview
+  {Colors.CYAN}0){Colors.RESET} Exit
+        """)
+        
+        choice = input(f"{Colors.CYAN}niu-menu>{Colors.RESET} ").strip()
+        
+        if choice == '1':
+            show_device_info(adb)
+        elif choice == '2':
+            screenshot(adb)
+        elif choice == '3':
+            screen_record(adb)
+        elif choice == '4':
+            interactive_control(adb)
+        elif choice == '5':
+            install_apk(adb)
+        elif choice == '6':
+            enable_wireless(adb)
+        elif choice == '7':
+            live_preview(adb)
+        elif choice == '0':
+            print_info("Goodbye!")
+            break
+
 
 if __name__ == '__main__':
     sys.exit(main())

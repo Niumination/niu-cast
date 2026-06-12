@@ -1,626 +1,1282 @@
 #!/usr/bin/env python3
 """
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                        NIU CAST - Screen Mirroring                        ║
+║                        NIU CAST - CORE                                      ║
+║                    Gaming Edition UI                                        ║
 ║                                                                            ║
-║  Author: niumination                                ║
+║  UI Inspiration: Genshin Impact, Xarena, Cyberpunk 2077                    ║
+║  Features: Real-time mirroring, touch simulation, gaming aesthetics         ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
-
-Features:
-- Screen mirroring Android ke Mac
-- Kontrol sentuh dari Mac ke Android
-- Wireless connection (WiFi)
-- USB debugging support
-- Recording screen
-- Multi-device support
 """
 
 import sys
 import os
 import time
-import signal
-import subprocess
 import socket
 import threading
-import logging
-from pathlib import Path
-
-# Set up logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger('NiuCast')
-
-# Version
-VERSION = "1.0.0"
+import subprocess
+import base64
+import struct
+import io
+from datetime import datetime
 
 try:
     from PyQt5.QtWidgets import (
         QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-        QPushButton, QLabel, QComboBox, QTextEdit, QSlider, QGroupBox,
-        QStatusBar, QMenuBar, QMenu, QAction, QFileDialog, QMessageBox,
-        QTabWidget, QCheckBox, QProgressBar
+        QPushButton, QLabel, QComboBox, QSlider, QGroupBox, QStatusBar,
+        QMenuBar, QMenu, QAction, QFileDialog, QMessageBox, QTabWidget,
+        QCheckBox, QFrame, QGraphicsDropShadowEffect,
+        QSizePolicy, QSpacerItem, QProgressBar, QToolButton, QStackedWidget
     )
-    from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QThread, QSize
-    from PyQt5.QtGui import QImage, QPixmap, QIcon, QPainter, QPen, QColor
+    from PyQt5.QtCore import (
+        Qt, QTimer, pyqtSignal, QThread, QSize, QRect,
+        QParallelAnimationGroup, QEasingCurve, QPoint, pyqtProperty,
+        QPropertyAnimation
+    )
+    from PyQt5.QtGui import (
+        QImage, QPixmap, QIcon, QPainter, QPen, QColor, QBrush, QFont,
+        QLinearGradient, QRadialGradient, QConicalGradient, QPalette,
+        QMovie, QPainterPath, QTransform, QCursor
+    )
     PYQT5_AVAILABLE = True
 except ImportError:
     PYQT5_AVAILABLE = False
-    logger.warning("PyQt5 not available, running in CLI mode")
+    print("PyQt5 not available. Please install: pip install PyQt5")
 
 import numpy as np
-from PIL import Image
 import cv2
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-#                           ADB CONTROLLER CLASS
+#                           GAMING THEME PALETTE
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class GamingTheme:
+    """Genshin/Xarena inspired color palette"""
+    
+    # Primary Colors
+    BG_DARK = "#0D0D1A"           # Deep space black
+    BG_CARD = "#1A1A2E"           # Card background
+    BG_PANEL = "#16162A"          # Panel background
+    
+    # Accent Colors (Cyberpunk inspired)
+    CYAN_PRIMARY = "#00F5FF"      # Bright cyan (like Genshin elemental)
+    CYAN_GLOW = "#00D4E5"         # Cyan glow
+    MAGENTA_ACCENT = "#FF00FF"    # Magenta (energy/power)
+    PURPLE_HIGHLIGHT = "#9D4EDD"  # Purple highlight
+    GOLD_ACCENT = "#FFD700"       # Gold (premium feel)
+    
+    # Gradients
+    GRADIENT_CYAN = [(0, "#00F5FF"), (1, "#0066FF")]
+    GRADIENT_MAGENTA = [(0, "#FF00FF"), (1, "#FF6B00")]
+    GRADIENT_GOLD = [(0, "#FFD700"), (1, "#FF8C00")]
+    
+    # Text Colors
+    TEXT_PRIMARY = "#FFFFFF"
+    TEXT_SECONDARY = "#A0A0B0"
+    TEXT_MUTED = "#606070"
+    
+    # Status Colors
+    STATUS_CONNECTED = "#00FF88"
+    STATUS_DISCONNECTED = "#FF4444"
+    STATUS_WARNING = "#FFAA00"
+    
+    # Effects
+    BORDER_GLOW = 2
+    SHADOW_BLUR = 15
+    SHADOW_COLOR = QColor(0, 245, 255, 100)
+    
+    @classmethod
+    def get_gradient(cls, gradient_type='cyan'):
+        """Get QLinearGradient based on type"""
+        if gradient_type == 'cyan':
+            stops = cls.GRADIENT_CYAN
+        elif gradient_type == 'magenta':
+            stops = cls.GRADIENT_MAGENTA
+        elif gradient_type == 'gold':
+            stops = cls.GRADIENT_GOLD
+        else:
+            stops = cls.GRADIENT_CYAN
+        
+        gradient = QLinearGradient(0, 0, 1, 0)
+        for pos, color in stops:
+            gradient.setColorAt(pos, QColor(color))
+        return gradient
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#                           CUSTOM WIDGETS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class GamingButton(QPushButton):
+    """Gaming-styled button with glow effect"""
+    
+    def __init__(self, text="", icon=None, theme='cyan', parent=None):
+        super().__init__(text, parent)
+        self.theme = GamingTheme
+        self.gradient_type = theme
+        self.setCursor(QCursor(Qt.PointingHandCursor))
+        self._setup_style()
+    
+    def _setup_style(self):
+        self.setMinimumHeight(40)
+        self.setFont(QFont("Segoe UI", 10, QFont.Bold))
+        
+        # Color mapping
+        colors = {
+            'cyan': GamingTheme.CYAN_PRIMARY,
+            'magenta': GamingTheme.MAGENTA_ACCENT,
+            'gold': GamingTheme.GOLD_ACCENT,
+            'red': GamingTheme.STATUS_DISCONNECTED,
+            'green': GamingTheme.STATUS_CONNECTED,
+        }
+        color = colors.get(self.gradient_type, GamingTheme.CYAN_PRIMARY)
+        
+        self.setStyleSheet(f"""
+            QPushButton {{
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 {color}, stop:1 {GamingTheme.BG_CARD});
+                color: {GamingTheme.TEXT_PRIMARY};
+                border: 1px solid {color};
+                border-radius: 5px;
+                padding: 8px 20px;
+                font-weight: bold;
+                letter-spacing: 1px;
+            }}
+            QPushButton:hover {{
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 {color}, stop:1 {color}40);
+                border: 2px solid {color};
+                padding: 7px 19px;
+            }}
+            QPushButton:pressed {{
+                background: {GamingTheme.BG_DARK};
+                border: 2px solid {color};
+            }}
+            QPushButton:disabled {{
+                background: {GamingTheme.BG_PANEL};
+                color: {GamingTheme.TEXT_MUTED};
+                border: 1px solid {GamingTheme.TEXT_MUTED};
+            }}
+        """)
+
+
+class GamingCard(QFrame):
+    """Gaming-styled card with glow border"""
+    
+    def __init__(self, title="", glow_color=None, parent=None):
+        super().__init__(parent)
+        self.glow_color = glow_color or GamingTheme.CYAN_PRIMARY
+        self.title_text = title
+        self.setFrameStyle(QFrame.StyledPanel | QFrame.Raised)
+        self._setup_style()
+    
+    def _setup_style(self):
+        self.setStyleSheet(f"""
+            QFrame {{
+                background: {GamingTheme.BG_CARD};
+                border: 1px solid {self.glow_color}40;
+                border-radius: 10px;
+            }}
+        """)
+        
+        # Add shadow effect
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(15)
+        shadow.setColor(QColor(self.glow_color).lighter(150))
+        shadow.setOffset(0, 0)
+        self.setGraphicsEffect(shadow)
+    
+    def paintEvent(self, event):
+        """Custom paint for gradient border glow"""
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        
+        # Draw gradient border
+        rect = self.rect().adjusted(1, 1, -1, -1)
+        
+        # Background
+        painter.fillRect(rect, QColor(GamingTheme.BG_CARD))
+        
+        # Glow effect on border
+        pen = QPen(QColor(self.glow_color).lighter(180))
+        pen.setWidth(2)
+        painter.setPen(pen)
+        painter.drawRoundedRect(rect, 10, 10)
+
+
+class AnimatedLabel(QLabel):
+    """Label with typing/pulse animation"""
+    
+    def __init__(self, text="", parent=None):
+        super().__init__(text, parent)
+        self.setFont(QFont("Segoe UI", 11))
+        self.setStyleSheet(f"color: {GamingTheme.TEXT_PRIMARY};")
+        
+        # Pulse animation
+        self._opacity = 1.0
+        self._direction = -0.05
+        self._timer = QTimer()
+        self._timer.timeout.connect(self._pulse)
+    
+    def start_pulse(self, speed=50):
+        self._timer.start(speed)
+    
+    def stop_pulse(self):
+        self._timer.stop()
+        self.setStyleSheet(f"color: {GamingTheme.TEXT_PRIMARY};")
+    
+    def _pulse(self):
+        self._opacity += self._direction
+        if self._opacity <= 0.5 or self._opacity >= 1.0:
+            self._direction *= -1
+        color = f"rgba(255, 255, 255, {int(self._opacity * 255)})"
+        self.setStyleSheet(f"color: {color};")
+
+
+class StatusIndicator(QLabel):
+    """Animated status indicator dot"""
+    
+    def __init__(self, status='disconnected', parent=None):
+        super().__init__(parent)
+        self.status = status
+        self._setup_ui()
+        self._start_animation()
+    
+    def _setup_ui(self):
+        self.setFixedSize(12, 12)
+        self.update_color()
+    
+    def update_color(self):
+        colors = {
+            'connected': GamingTheme.STATUS_CONNECTED,
+            'disconnected': GamingTheme.STATUS_DISCONNECTED,
+            'warning': GamingTheme.STATUS_WARNING,
+            'syncing': GamingTheme.CYAN_PRIMARY,
+        }
+        color = colors.get(self.status, GamingTheme.STATUS_DISCONNECTED)
+        self.setStyleSheet(f"""
+            QLabel {{
+                background: {color};
+                border-radius: 6px;
+            }}
+        """)
+    
+    def _start_animation(self):
+        self._timer = QTimer()
+        self._timer.timeout.connect(self._animate)
+        self._angle = 0
+        self._timer.start(50)
+    
+    def _animate(self):
+        self._angle += 10
+        glow = abs(int(128 + 127 * (self._angle % 360) / 180 - 63.5))
+        
+        colors = {
+            'connected': f"rgb(0, {glow}, 136)",
+            'disconnected': f"rgb({glow}, 68, 68)",
+            'warning': f"rgb({glow}, 170, 0)",
+            'syncing': f"rgb(0, {glow}, 255)",
+        }
+        color = colors.get(self.status, colors['disconnected'])
+        self.setStyleSheet(f"background: {color}; border-radius: 6px;")
+
+
+class GlowingLine(QFrame):
+    """Horizontal glowing divider"""
+    
+    def __init__(self, color=GamingTheme.CYAN_PRIMARY, parent=None):
+        super().__init__(parent)
+        self.glow_color = color
+        self.setFixedHeight(2)
+        self.setFrameShape(QFrame.HLine)
+        self.setStyleSheet(f"background: transparent; border: none;")
+    
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        
+        gradient = QLinearGradient(0, 0, self.width(), 0)
+        gradient.setColorAt(0, QColor(self.glow_color).lighter(200).lighter(200))
+        gradient.setColorAt(0.5, QColor(self.glow_color))
+        gradient.setColorAt(1, QColor(self.glow_color).lighter(200).lighter(200))
+        
+        painter.setPen(QPen(QBrush(gradient), 2))
+        painter.drawLine(0, 1, self.width(), 1)
+
+
+class CircularButton(QPushButton):
+    """Circular icon button with glow"""
+    
+    def __init__(self, icon_text="", size=50, color=GamingTheme.CYAN_PRIMARY, parent=None):
+        super().__init__(parent)
+        self.glow_color = color
+        self.setFixedSize(size, size)
+        self.setText(icon_text)
+        self.setCursor(QCursor(Qt.PointingHandCursor))
+        self._setup_style()
+    
+    def _setup_style(self):
+        self.setStyleSheet(f"""
+            QPushButton {{
+                background: {GamingTheme.BG_PANEL};
+                color: {self.glow_color};
+                border: 2px solid {self.glow_color};
+                border-radius: {self.width()//2}px;
+                font-size: 18px;
+                font-weight: bold;
+            }}
+            QPushButton:hover {{
+                background: {self.glow_color}30;
+                border: 3px solid {self.glow_color};
+            }}
+            QPushButton:pressed {{
+                background: {self.glow_color};
+                color: {GamingTheme.BG_DARK};
+            }}
+        """)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#                           ADB CONTROLLER
 # ═══════════════════════════════════════════════════════════════════════════════
 
 class ADBController:
-    """Controller untuk komunikasi dengan Android device via ADB"""
+    """ADB communication controller with streaming support"""
     
     def __init__(self):
         self.adb_path = self._find_adb()
-        self.connected_device = None
         self.device_serial = None
+        self.device_ip = None
+        self.streaming = False
         
-    def _find_adb(self) -> str:
-        """Cari ADB binary di sistem"""
-        common_paths = [
-            'adb',
-            '/usr/bin/adb',
-            '/usr/local/bin/adb',
-            '/opt/android-sdk/platform-tools/adb',
-            os.path.expanduser('~/Android/Sdk/platform-tools/adb'),
-            os.path.expanduser('~/android-sdk/platform-tools/adb'),
-        ]
-        
-        for path in common_paths:
+    def _find_adb(self):
+        paths = ['adb', '/usr/local/bin/adb', '/opt/android-sdk/platform-tools/adb']
+        for path in paths:
             if os.path.exists(path):
                 return path
-        
-        # Try to find via which
-        try:
-            result = subprocess.run(['which', 'adb'], capture_output=True, text=True)
-            if result.returncode == 0:
-                return result.stdout.strip()
-        except:
-            pass
-            
-        return 'adb'  # Default fallback
+        return 'adb'
     
-    def execute_command(self, args, timeout=30):
-        """Execute ADB command"""
+    def _run(self, args, timeout=30):
         cmd = [self.adb_path] + args
         try:
-            result = subprocess.run(
-                cmd, 
-                capture_output=True, 
-                text=True, 
-                timeout=timeout
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
             return result.returncode, result.stdout, result.stderr
-        except subprocess.TimeoutExpired:
-            return -1, "", "Command timeout"
         except Exception as e:
             return -1, "", str(e)
     
-    def devices(self) -> list:
-        """List semua connected devices"""
-        returncode, stdout, stderr = self.execute_command(['devices', '-l'])
+    def devices(self):
+        rc, out, _ = self._run(['devices', '-l'])
         devices = []
-        if returncode == 0:
-            for line in stdout.splitlines()[1:]:  # Skip header
-                if line.strip() and not line.startswith('*'):
+        if rc == 0:
+            for line in out.splitlines()[1:]:
+                if line.strip() and 'device' in line and 'unauthorized' not in line:
                     parts = line.split()
                     if parts:
                         devices.append(parts[0])
         return devices
     
-    def connect(self, device_serial=None):
-        """Connect ke device"""
-        if device_serial:
-            returncode, stdout, stderr = self.execute_command(['-s', device_serial, 'get-state'])
-            if returncode == 0 and 'device' in stdout:
-                self.device_serial = device_serial
-                self.connected_device = device_serial
-                logger.info(f"Connected to device: {device_serial}")
+    def connect(self, serial=None):
+        if serial:
+            rc, _, _ = self._run(['-s', serial, 'get-state'])
+            if rc == 0:
+                self.device_serial = serial
                 return True
-        
-        # Auto-detect first available device
         devices = self.devices()
         if devices:
             self.device_serial = devices[0]
-            self.connected_device = devices[0]
-            logger.info(f"Auto-connected to: {devices[0]}")
             return True
-        
         return False
     
-    def shell(self, command, timeout=30):
-        """Execute shell command di device"""
+    def shell(self, cmd, timeout=30):
         if not self.device_serial:
-            return -1, "", "No device connected"
-        args = ['-s', self.device_serial, 'shell', command]
-        return self.execute_command(args, timeout)
+            return -1, "", "No device"
+        return self._run(['-s', self.device_serial, 'shell', cmd], timeout)
     
-    def pull(self, remote_path, local_path):
-        """Pull file dari device"""
+    def pull(self, remote, local):
         if not self.device_serial:
             return False
-        args = ['-s', self.device_serial, 'pull', remote_path, local_path]
-        returncode, stdout, stderr = self.execute_command(args, timeout=120)
-        return returncode == 0
+        rc, _, _ = self._run(['-s', self.device_serial, 'pull', remote, local], timeout=120)
+        return rc == 0
     
-    def push(self, local_path, remote_path):
-        """Push file ke device"""
+    def push(self, local, remote):
         if not self.device_serial:
             return False
-        args = ['-s', self.device_serial, 'push', local_path, remote_path]
-        returncode, stdout, stderr = self.execute_command(args, timeout=120)
-        return returncode == 0
+        rc, _, _ = self._run(['-s', self.device_serial, 'push', local, remote], timeout=120)
+        return rc == 0
     
     def forward(self, local_port, remote_port):
-        """Setup port forwarding"""
         if not self.device_serial:
             return False
-        args = ['-s', self.device_serial, 'forward', f'tcp:{local_port}', f'tcp:{remote_port}']
-        returncode, stdout, stderr = self.execute_command(args)
-        return returncode == 0
+        rc, _, _ = self._run(['-s', self.device_serial, 'forward', f'tcp:{local_port}', f'tcp:{remote_port}'])
+        return rc == 0
     
     def reverse(self, remote_port, local_port):
-        """Setup reverse port forwarding"""
         if not self.device_serial:
             return False
-        args = ['-s', self.device_serial, 'reverse', f'tcp:{remote_port}', f'tcp:{local_port}']
-        returncode, stdout, stderr = self.execute_command(args)
-        return returncode == 0
+        rc, _, _ = self._run(['-s', self.device_serial, 'reverse', f'tcp:{remote_port}', f'tcp:{local_port}'])
+        return rc == 0
     
-    def get_device_info(self) -> dict:
-        """Ambil info device"""
+    def get_device_info(self):
         info = {}
+        rc, model, _ = self.shell('getprop ro.product.model')
+        info['model'] = model.strip() if rc == 0 else 'Unknown'
         
-        # Get model
-        returncode, model, _ = self.shell('getprop ro.product.model')
-        info['model'] = model.strip() if returncode == 0 else 'Unknown'
+        rc, manufacturer, _ = self.shell('getprop ro.product.manufacturer')
+        info['manufacturer'] = manufacturer.strip() if rc == 0 else 'Unknown'
         
-        # Get Android version
-        returncode, version, _ = self.shell('getprop ro.build.version.release')
-        info['android_version'] = version.strip() if returncode == 0 else 'Unknown'
+        rc, android, _ = self.shell('getprop ro.build.version.release')
+        info['android'] = android.strip() if rc == 0 else 'Unknown'
         
-        # Get manufacturer
-        returncode, manufacturer, _ = self.shell('getprop ro.product.manufacturer')
-        info['manufacturer'] = manufacturer.strip() if returncode == 0 else 'Unknown'
+        rc, size, _ = self.shell('wm size')
+        if rc == 0:
+            try:
+                parts = size.strip().split(':')[-1].strip().split('x')
+                info['width'] = int(parts[0])
+                info['height'] = int(parts[1])
+            except:
+                info['width'], info['height'] = 1080, 2400
+        else:
+            info['width'], info['height'] = 1080, 2400
         
-        # Get screen size
-        returncode, wm_size, _ = self.shell('wm size')
-        info['screen_size'] = wm_size.strip() if returncode == 0 else 'Unknown'
+        # Get IP for wireless
+        rc, ip_out, _ = self.shell('ip route')
+        if rc == 0:
+            import re
+            ip_match = re.search(r'wlan0.*?src (\d+\.\d+\.\d+\.\d+)', ip_out)
+            if ip_match:
+                self.device_ip = ip_match.group(1)
+                info['ip'] = self.device_ip
         
         return info
     
-    def screen_resolution(self) -> tuple:
-        """Get screen resolution"""
-        returncode, output, _ = self.shell('wm size')
-        if returncode == 0:
-            try:
-                # Parse output like "Physical size: 1080x2400"
-                parts = output.strip().split(':')[-1].strip().split('x')
-                if len(parts) == 2:
-                    return int(parts[0]), int(parts[1])
-            except:
-                pass
+    def send_keyevent(self, keycode):
+        self.shell(f'input keyevent {keycode}')
+    
+    def send_tap(self, x, y):
+        self.shell(f'input tap {x} {y}')
+    
+    def send_swipe(self, x1, y1, x2, y2, duration=300):
+        self.shell(f'input swipe {x1} {y1} {x2} {y2} {duration}')
+    
+    def send_text(self, text):
+        text = text.replace(' ', '%s')
+        self.shell(f'input text {text}')
+    
+    def enable_wireless(self):
+        """Enable ADB over WiFi"""
+        # Get IP first
+        self.get_device_info()
+        
+        # Restart ADB in TCP mode
+        self.shell('setprop service.adb.tcpip 5555', timeout=5)
+        time.sleep(2)
+        
+        # If we have IP, connect
+        if self.device_ip:
+            self._run(['connect', f'{self.device_ip}:5555'])
+            return True
+        return False
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-#                        SCREEN CAPTURE THREAD
+#                           VIDEO STREAM THREAD
 # ═══════════════════════════════════════════════════════════════════════════════
 
-class NiuCaptureThread(QThread):
-    """Thread untuk capture screen dari Android"""
+class VideoStreamThread(QThread):
+    """High-performance video streaming via ADB tunnel"""
     
     frame_ready = pyqtSignal(np.ndarray)
     error_occurred = pyqtSignal(str)
+    fps_updated = pyqtSignal(float)
     
     def __init__(self, adb: ADBController):
         super().__init__()
         self.adb = adb
         self.running = False
         self.daemon = True
+        self.fps = 0
+        self._frame_count = 0
+        self._start_time = time.time()
         
     def run(self):
-        """Capture screen loop"""
+        """Optimized screencap loop with FPS tracking"""
         self.running = True
         
         while self.running:
             try:
-                # Use screencap via ADB
-                returncode, stdout, stderr = self.adb.shell(
-                    'screencap -p /sdcard/screen.png',
-                    timeout=5
-                )
+                start = time.time()
                 
-                if returncode != 0:
-                    self.error_occurred.emit(f" screencap failed: {stderr}")
-                    time.sleep(0.5)
+                # Screencap to temp file
+                rc, _, _ = self.adb.shell('screencap -p /sdcard/.niu_stream.png', timeout=5)
+                
+                if rc != 0:
+                    self.error_occurred.emit("Failed to capture frame")
+                    time.sleep(0.1)
                     continue
                 
-                # Pull the screenshot
-                local_temp = '/tmp/niu_screen.png'
-                if self.adb.pull('/sdcard/screen.png', local_temp):
-                    # Read and emit frame
-                    img = cv2.imread(local_temp)
+                # Pull frame
+                if self.adb.pull('/sdcard/.niu_stream.png', '/tmp/niu_frame.png'):
+                    img = cv2.imread('/tmp/niu_frame.png')
                     if img is not None:
+                        # Calculate FPS
+                        self._frame_count += 1
+                        elapsed = time.time() - self._start_time
+                        if elapsed >= 1.0:
+                            self.fps = self._frame_count / elapsed
+                            self.fps_updated.emit(self.fps)
+                            self._frame_count = 0
+                            self._start_time = time.time()
+                        
                         self.frame_ready.emit(img)
                     else:
                         self.error_occurred.emit("Failed to decode image")
                 else:
-                    self.error_occurred.emit("Failed to pull screenshot")
+                    self.error_occurred.emit("Failed to pull frame")
                     
             except Exception as e:
-                self.error_occurred.emit(f"Capture error: {str(e)}")
+                self.error_occurred.emit(f"Stream error: {str(e)}")
             
-            time.sleep(0.033)  # ~30 FPS default
+            # Target ~60 FPS
+            elapsed = time.time() - start
+            sleep_time = max(0.016 - elapsed, 0.001)  # ~60 FPS max
+            time.sleep(sleep_time)
         
     def stop(self):
-        """Stop capture"""
         self.running = False
         self.wait()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-#                        NIU CAST MAIN WINDOW
+#                           TOUCH INPUT HANDLER
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class TouchInputHandler:
+    """Handle touch input from mirrored screen"""
+    
+    def __init__(self, adb: ADBController, screen_label):
+        self.adb = adb
+        self.screen_label = screen_label
+        self.enabled = True
+        self.device_width = 1080
+        self.device_height = 2400
+        
+    def set_device_resolution(self, width, height):
+        self.device_width = width
+        self.device_height = height
+    
+    def handle_click(self, event):
+        """Convert click position to device coordinates"""
+        if not self.enabled:
+            return
+        
+        # Get label geometry
+        label_rect = self.screen_label.rect()
+        
+        # Get click position relative to label
+        x = event.x()
+        y = event.y()
+        
+        # Calculate scale
+        scale_x = self.device_width / label_rect.width()
+        scale_y = self.device_height / label_rect.height()
+        
+        # Convert to device coordinates
+        device_x = int(x * scale_x)
+        device_y = int(y * scale_y)
+        
+        # Send tap
+        self.adb.send_tap(device_x, device_y)
+        
+    def handle_drag(self, start_pos, end_pos):
+        """Handle drag gesture"""
+        if not self.enabled:
+            return
+        
+        label_rect = self.screen_label.rect()
+        scale_x = self.device_width / label_rect.width()
+        scale_y = self.device_height / label_rect.height()
+        
+        x1, y1 = int(start_pos.x() * scale_x), int(start_pos.y() * scale_y)
+        x2, y2 = int(end_pos.x() * scale_x), int(end_pos.y() * scale_y)
+        
+        self.adb.send_swipe(x1, y1, x2, y2, duration=500)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#                           MAIN WINDOW
 # ═══════════════════════════════════════════════════════════════════════════════
 
 class NiuCastWindow(QMainWindow):
-    """Main window untuk NiuCast"""
+    """Main gaming-styled window"""
     
     def __init__(self):
         super().__init__()
         self.adb = ADBController()
-        self.capture_thread = None
+        self.stream_thread = None
+        self.touch_handler = None
         self.recording = False
         self.record_writer = None
+        self.drag_start = None
         
-        self.init_ui()
-        self.setup_connections()
+        self._init_ui()
+        self._setup_connections()
+        self._start_animations()
+    
+    def _init_ui(self):
+        """Initialize gaming-styled UI"""
+        self.setWindowTitle("✦ NIU CAST • Gaming Edition ✦")
+        self.setGeometry(100, 50, 1400, 900)
+        self.setMinimumSize(1200, 700)
         
-    def init_ui(self):
-        """Initialize UI"""
-        self.setWindowTitle(f"NiuCast v{VERSION} - Screen Mirroring")
-        self.setGeometry(100, 100, 1200, 800)
+        # Dark theme background
+        self.setStyleSheet(f"""
+            QMainWindow {{
+                background: {GamingTheme.BG_DARK};
+            }}
+            QWidget {{
+                background: {GamingTheme.BG_DARK};
+                color: {GamingTheme.TEXT_PRIMARY};
+            }}
+        """)
         
         # Central widget
         central = QWidget()
         self.setCentralWidget(central)
         
         # Main layout
-        main_layout = QVBoxLayout(central)
+        main_layout = QHBoxLayout(central)
+        main_layout.setContentsMargins(0, 0, 0, 0)
         
-        # ===== Device Selection =====
-        device_group = QGroupBox("Device Connection")
-        device_layout = QHBoxLayout()
+        # ===== LEFT SIDEBAR =====
+        sidebar = self._create_sidebar()
+        main_layout.addWidget(sidebar, 0)
         
+        # ===== MAIN CONTENT =====
+        content = self._create_main_content()
+        main_layout.addWidget(content, 1)
+        
+        # ===== STATUS BAR =====
+        self._create_status_bar()
+    
+    def _create_sidebar(self):
+        """Create gaming-styled sidebar"""
+        sidebar = QFrame()
+        sidebar.setFixedWidth(280)
+        sidebar.setStyleSheet(f"""
+            QFrame {{
+                background: {GamingTheme.BG_PANEL};
+                border-right: 1px solid {GamingTheme.CYAN_PRIMARY}30;
+            }}
+        """)
+        
+        layout = QVBoxLayout(sidebar)
+        layout.setContentsMargins(15, 20, 15, 20)
+        layout.setSpacing(15)
+        
+        # Logo/Title
+        title = QLabel("⚡ NIU CAST")
+        title.setFont(QFont("Segoe UI", 20, QFont.Bold))
+        title.setAlignment(Qt.AlignCenter)
+        title.setStyleSheet(f"""
+            color: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                stop:0 {GamingTheme.CYAN_PRIMARY},
+                stop:1 {GamingTheme.MAGENTA_ACCENT});
+            letter-spacing: 3px;
+        """)
+        layout.addWidget(title)
+        
+        # Version
+        version = QLabel("v1.1.0 • Gaming Edition")
+        version.setFont(QFont("Segoe UI", 9))
+        version.setAlignment(Qt.AlignCenter)
+        version.setStyleSheet(f"color: {GamingTheme.TEXT_MUTED};")
+        layout.addWidget(version)
+        
+        layout.addWidget(GlowingLine(GamingTheme.CYAN_PRIMARY))
+        
+        # Device Connection Card
+        device_card = self._create_device_card()
+        layout.addWidget(device_card)
+        
+        # Connection Status
+        status_card = self._create_status_card()
+        layout.addWidget(status_card)
+        
+        layout.addWidget(GlowingLine(GamingTheme.CYAN_PRIMARY))
+        
+        # Quick Controls
+        controls_label = QLabel("⚙️ QUICK CONTROLS")
+        controls_label.setFont(QFont("Segoe UI", 10, QFont.Bold))
+        controls_label.setStyleSheet(f"color: {GamingTheme.TEXT_SECONDARY}; letter-spacing: 2px;")
+        layout.addWidget(controls_label)
+        
+        controls_card = self._create_quick_controls()
+        layout.addWidget(controls_card)
+        
+        layout.addStretch()
+        
+        # Footer
+        footer = QLabel("Niumination © 2024")
+        footer.setFont(QFont("Segoe UI", 8))
+        footer.setAlignment(Qt.AlignCenter)
+        footer.setStyleSheet(f"color: {GamingTheme.TEXT_MUTED};")
+        layout.addWidget(footer)
+        
+        return sidebar
+    
+    def _create_device_card(self):
+        """Device selection card"""
+        card = QFrame()
+        card.setStyleSheet(f"""
+            QFrame {{
+                background: {GamingTheme.BG_CARD};
+                border: 1px solid {GamingTheme.CYAN_PRIMARY}30;
+                border-radius: 8px;
+                padding: 10px;
+            }}
+        """)
+        
+        layout = QVBoxLayout(card)
+        layout.setSpacing(10)
+        
+        # Header
+        header = QLabel("📱 DEVICE CONNECTION")
+        header.setFont(QFont("Segoe UI", 9, QFont.Bold))
+        header.setStyleSheet(f"color: {GamingTheme.CYAN_PRIMARY}; letter-spacing: 1px;")
+        layout.addWidget(header)
+        
+        # Device dropdown
         self.device_combo = QComboBox()
-        self.device_combo.setMinimumWidth(200)
-        self.refresh_btn = QPushButton("🔄 Refresh Devices")
-        self.connect_btn = QPushButton("🔗 Connect")
-        self.disconnect_btn = QPushButton("❌ Disconnect")
+        self.device_combo.setStyleSheet(f"""
+            QComboBox {{
+                background: {GamingTheme.BG_DARK};
+                color: {GamingTheme.TEXT_PRIMARY};
+                border: 1px solid {GamingTheme.CYAN_PRIMARY}50;
+                border-radius: 5px;
+                padding: 8px;
+                font-size: 12px;
+            }}
+            QComboBox:hover {{
+                border: 1px solid {GamingTheme.CYAN_PRIMARY};
+            }}
+            QComboBox::drop-down {{
+                border: none;
+                width: 30px;
+            }}
+            QComboBox QAbstractItemView {{
+                background: {GamingTheme.BG_DARK};
+                color: {GamingTheme.TEXT_PRIMARY};
+                border: 1px solid {GamingTheme.CYAN_PRIMARY};
+                selection-background-color: {GamingTheme.CYAN_PRIMARY}40;
+            }}
+        """)
+        layout.addWidget(self.device_combo)
         
-        device_layout.addWidget(QLabel("Device:"))
-        device_layout.addWidget(self.device_combo)
-        device_layout.addWidget(self.refresh_btn)
-        device_layout.addWidget(self.connect_btn)
-        device_layout.addWidget(self.disconnect_btn)
-        device_layout.addStretch()
+        # Buttons
+        btn_layout = QHBoxLayout()
         
-        device_group.setLayout(device_layout)
-        main_layout.addWidget(device_group)
+        self.btn_refresh = GamingButton("🔄", theme='cyan')
+        self.btn_refresh.setFixedSize(40, 35)
+        self.btn_refresh.clicked.connect(self._refresh_devices)
         
-        # ===== Device Info =====
-        self.info_label = QLabel("No device connected")
-        self.info_label.setStyleSheet("padding: 5px; background: #2a2a2a; color: #00ff00;")
-        main_layout.addWidget(self.info_label)
+        self.btn_connect = GamingButton("CONNECT", theme='green')
+        self.btn_connect.clicked.connect(self._connect_device)
         
-        # ===== Tab Widget =====
-        tabs = QTabWidget()
+        btn_layout.addWidget(self.btn_refresh)
+        btn_layout.addWidget(self.btn_connect)
         
-        # Mirror Tab
-        mirror_tab = QWidget()
-        mirror_layout = QVBoxLayout(mirror_tab)
+        layout.addLayout(btn_layout)
         
-        # Video display
-        self.video_label = QLabel()
-        self.video_label.setMinimumSize(360, 800)
-        self.video_label.setAlignment(Qt.AlignCenter)
-        self.video_label.setStyleSheet("background: #000; color: #fff;")
-        self.video_label.setText("📱 Connect to device to start mirroring\n\nWaiting for device...")
+        return card
+    
+    def _create_status_card(self):
+        """Connection status card"""
+        card = QFrame()
+        card.setStyleSheet(f"""
+            QFrame {{
+                background: {GamingTheme.BG_CARD};
+                border: 1px solid {GamingTheme.CYAN_PRIMARY}30;
+                border-radius: 8px;
+                padding: 10px;
+            }}
+        """)
         
-        mirror_layout.addWidget(self.video_label)
-        main_layout.addWidget(mirror_tab)
-        tabs.addTab(mirror_tab, "📱 Mirror")
+        layout = QVBoxLayout(card)
+        layout.setSpacing(8)
         
-        # Control Tab
-        control_tab = QWidget()
-        control_layout = QVBoxLayout(control_tab)
+        # Connection status
+        status_layout = QHBoxLayout()
+        status_layout.addWidget(QLabel("Status:"))
+        self.status_indicator = StatusIndicator('disconnected')
+        self.status_text = QLabel("Disconnected")
+        self.status_text.setStyleSheet(f"color: {GamingTheme.STATUS_DISCONNECTED}; font-weight: bold;")
+        status_layout.addWidget(self.status_indicator)
+        status_layout.addWidget(self.status_text)
+        status_layout.addStretch()
+        layout.addLayout(status_layout)
         
-        # Input controls
-        control_group = QGroupBox("Remote Control")
-        control_box = QVBoxLayout()
+        # Device info
+        self.info_label = QLabel("No device info")
+        self.info_label.setStyleSheet(f"color: {GamingTheme.TEXT_SECONDARY}; font-size: 10px;")
+        layout.addWidget(self.info_label)
         
-        self.home_btn = QPushButton("🏠 Home")
-        self.back_btn = QPushButton("⬅️ Back")
-        self.recents_btn = QPushButton("📋 Recents")
-        self.power_btn = QPushButton("⏻ Power")
-        self.volume_up = QPushButton("🔊 Volume Up")
-        self.volume_down = QPushButton("🔉 Volume Down")
+        # FPS counter
+        fps_layout = QHBoxLayout()
+        fps_layout.addWidget(QLabel("FPS:"))
+        self.fps_label = QLabel("--")
+        self.fps_label.setStyleSheet(f"color: {GamingTheme.CYAN_PRIMARY}; font-weight: bold; font-size: 14px;")
+        fps_layout.addWidget(self.fps_label)
+        fps_layout.addStretch()
+        layout.addLayout(fps_layout)
         
-        btn_row1 = QHBoxLayout()
-        btn_row1.addWidget(self.home_btn)
-        btn_row1.addWidget(self.back_btn)
-        btn_row1.addWidget(self.recents_btn)
+        return card
+    
+    def _create_quick_controls(self):
+        """Quick control buttons card"""
+        card = QFrame()
+        card.setStyleSheet(f"""
+            QFrame {{
+                background: {GamingTheme.BG_CARD};
+                border: 1px solid {GamingTheme.CYAN_PRIMARY}30;
+                border-radius: 8px;
+                padding: 10px;
+            }}
+        """)
         
-        btn_row2 = QHBoxLayout()
-        btn_row2.addWidget(self.power_btn)
-        btn_row2.addWidget(self.volume_up)
-        btn_row2.addWidget(self.volume_down)
+        layout = QVBoxLayout(card)
+        layout.setSpacing(8)
         
-        control_box.addLayout(btn_row1)
-        control_box.addLayout(btn_row2)
-        control_group.setLayout(control_box)
-        control_layout.addWidget(control_group)
+        # Row 1: Key controls
+        row1 = QHBoxLayout()
+        self.btn_home = CircularButton("🏠", 40, GamingTheme.CYAN_PRIMARY)
+        self.btn_back = CircularButton("⬅️", 40, GamingTheme.CYAN_PRIMARY)
+        self.btn_power = CircularButton("⏻", 40, GamingTheme.MAGENTA_ACCENT)
+        row1.addWidget(self.btn_home)
+        row1.addWidget(self.btn_back)
+        row1.addWidget(self.btn_power)
+        row1.addStretch()
+        layout.addLayout(row1)
         
-        # Quick actions
-        action_group = QGroupBox("Quick Actions")
-        action_box = QVBoxLayout()
+        # Row 2: Volume controls
+        row2 = QHBoxLayout()
+        self.btn_vol_up = CircularButton("🔊", 40, GamingTheme.GOLD_ACCENT)
+        self.btn_vol_down = CircularButton("🔉", 40, GamingTheme.GOLD_ACCENT)
+        self.btn_screenshot = CircularButton("📷", 40, GamingTheme.GOLD_ACCENT)
+        row2.addWidget(self.btn_vol_up)
+        row2.addWidget(self.btn_vol_down)
+        row2.addWidget(self.btn_screenshot)
+        row2.addStretch()
+        layout.addLayout(row2)
         
-        self.screenshot_btn = QPushButton("📷 Take Screenshot")
-        self.record_btn = QPushButton("⏺ Start Recording")
-        self.install_btn = QPushButton("📦 Install APK")
+        return card
+    
+    def _create_main_content(self):
+        """Create main content area"""
+        content = QFrame()
+        content.setStyleSheet(f"background: {GamingTheme.BG_DARK};")
         
-        action_box.addWidget(self.screenshot_btn)
-        action_box.addWidget(self.record_btn)
-        action_box.addWidget(self.install_btn)
-        action_group.setLayout(action_box)
-        control_layout.addWidget(action_group)
+        layout = QVBoxLayout(content)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(15)
         
-        tabs.addTab(control_tab, "🎮 Control")
+        # ===== HEADER =====
+        header = self._create_header()
+        layout.addWidget(header)
         
-        # Log Tab
-        log_tab = QWidget()
-        log_layout = QVBoxLayout(log_tab)
+        # ===== STREAM VIEW =====
+        stream_container = self._create_stream_view()
+        layout.addWidget(stream_container, 1)
         
-        self.log_text = QTextEdit()
-        self.log_text.setReadOnly(True)
-        self.log_text.setStyleSheet("font-family: monospace; background: #1e1e1e; color: #0f0;")
-        log_layout.addWidget(self.log_text)
+        # ===== BOTTOM BAR =====
+        bottom_bar = self._create_bottom_bar()
+        layout.addWidget(bottom_bar)
         
-        tabs.addTab(log_tab, "📋 Logs")
+        return content
+    
+    def _create_header(self):
+        """Header with stream info"""
+        header = QFrame()
+        header.setFixedHeight(50)
+        header.setStyleSheet(f"""
+            QFrame {{
+                background: {GamingTheme.BG_PANEL};
+                border-radius: 8px;
+                border: 1px solid {GamingTheme.CYAN_PRIMARY}30;
+            }}
+        """)
         
-        main_layout.addWidget(tabs)
+        layout = QHBoxLayout(header)
+        layout.setContentsMargins(15, 0, 15, 0)
         
-        # ===== Status Bar =====
-        self.status_bar = QStatusBar()
-        self.setStatusBar(self.status_bar)
-        self.status_bar.showMessage("Ready - Select a device to connect")
+        # Left: Title
+        title = QLabel("📺 LIVE STREAM")
+        title.setFont(QFont("Segoe UI", 12, QFont.Bold))
+        title.setStyleSheet(f"color: {GamingTheme.CYAN_PRIMARY}; letter-spacing: 2px;")
+        layout.addWidget(title)
         
-        # ===== Menu Bar =====
-        self.create_menu_bar()
+        # Center: Resolution info
+        self.resolution_label = QLabel("Resolution: --")
+        self.resolution_label.setStyleSheet(f"color: {GamingTheme.TEXT_SECONDARY};")
+        layout.addWidget(self.resolution_label)
         
-    def create_menu_bar(self):
-        """Create menu bar"""
-        menubar = self.menuBar()
+        # Right: Touch toggle
+        self.touch_toggle = QCheckBox("🖱️ Touch Input")
+        self.touch_toggle.setChecked(True)
+        self.touch_toggle.setStyleSheet(f"""
+            QCheckBox {{
+                color: {GamingTheme.TEXT_PRIMARY};
+                spacing: 8px;
+            }}
+            QCheckBox::indicator {{
+                width: 18px;
+                height: 18px;
+                border: 2px solid {GamingTheme.CYAN_PRIMARY};
+                border-radius: 4px;
+                background: {GamingTheme.BG_DARK};
+            }}
+            QCheckBox::indicator:checked {{
+                background: {GamingTheme.CYAN_PRIMARY};
+            }}
+        """)
+        layout.addWidget(self.touch_toggle)
         
-        # File menu
-        file_menu = menubar.addMenu("File")
+        return header
+    
+    def _create_stream_view(self):
+        """Video stream display area"""
+        container = QFrame()
+        container.setStyleSheet(f"""
+            QFrame {{
+                background: {GamingTheme.BG_CARD};
+                border: 2px solid {GamingTheme.CYAN_PRIMARY}30;
+                border-radius: 10px;
+            }}
+        """)
         
-        refresh_action = QAction("Refresh Devices", self)
-        refresh_action.setShortcut("Ctrl+R")
-        file_menu.addAction(refresh_action)
-        refresh_action.triggered.connect(self.refresh_devices)
+        layout = QVBoxLayout(container)
+        layout.setContentsMargins(5, 5, 5, 5)
         
-        file_menu.addSeparator()
+        # Stream label (clickable for touch input)
+        self.stream_label = QLabel()
+        self.stream_label.setAlignment(Qt.AlignCenter)
+        self.stream_label.setMinimumSize(400, 600)
+        self.stream_label.setStyleSheet(f"""
+            QLabel {{
+                background: {GamingTheme.BG_DARK};
+                color: {GamingTheme.TEXT_MUTED};
+                border: 1px solid {GamingTheme.TEXT_MUTED}30;
+                border-radius: 5px;
+                font-size: 16px;
+            }}
+        """)
+        self.stream_label.setText("\n\n\n\n📱 CONNECT TO DEVICE\nTO START STREAMING\n\n\n\n")
         
-        exit_action = QAction("Exit", self)
-        exit_action.setShortcut("Ctrl+Q")
-        file_menu.addAction(exit_action)
-        exit_action.triggered.connect(self.close)
+        # Enable mouse tracking for touch input
+        self.stream_label.setMouseTracking(True)
+        self.stream_label.mousePressEvent = self._on_stream_click
+        self.stream_label.mouseMoveEvent = self._on_stream_drag_start
+        self.stream_label.mouseReleaseEvent = self._on_stream_drag_end
         
-        # Tools menu
-        tools_menu = menubar.addMenu("Tools")
+        layout.addWidget(self.stream_label, 1)
         
-        screenshot_action = QAction("Screenshot", self)
-        screenshot_action.setShortcut("Ctrl+S")
-        tools_menu.addAction(screenshot_action)
-        screenshot_action.triggered.connect(self.take_screenshot)
+        return container
+    
+    def _create_bottom_bar(self):
+        """Bottom action bar"""
+        bar = QFrame()
+        bar.setFixedHeight(60)
+        bar.setStyleSheet(f"""
+            QFrame {{
+                background: {GamingTheme.BG_PANEL};
+                border-radius: 8px;
+                border: 1px solid {GamingTheme.CYAN_PRIMARY}30;
+            }}
+        """)
         
-        record_action = QAction("Toggle Recording", self)
-        record_action.setShortcut("Ctrl+Shift+R")
-        tools_menu.addAction(record_action)
-        record_action.triggered.connect(self.toggle_recording)
+        layout = QHBoxLayout(bar)
+        layout.setContentsMargins(15, 0, 15, 0)
         
-        # Help menu
-        help_menu = menubar.addMenu("Help")
+        # Recording button
+        self.btn_record = GamingButton("⏺ REC", theme='magenta')
+        self.btn_record.setIcon(QIcon())
+        self.btn_record.clicked.connect(self._toggle_recording)
         
-        about_action = QAction("About NiuCast", self)
-        help_menu.addAction(about_action)
-        about_action.triggered.connect(self.show_about)
+        # Install APK
+        self.btn_install = GamingButton("📦 INSTALL APK", theme='gold')
+        self.btn_install.clicked.connect(self._install_apk)
         
-    def setup_connections(self):
-        """Setup signal/slot connections"""
-        self.refresh_btn.clicked.connect(self.refresh_devices)
-        self.connect_btn.clicked.connect(self.connect_device)
-        self.disconnect_btn.clicked.connect(self.disconnect_device)
+        # Wireless toggle
+        self.btn_wireless = GamingButton("🔗 WIRELESS", theme='cyan')
+        self.btn_wireless.clicked.connect(self._toggle_wireless)
         
-        # Control buttons
-        self.home_btn.clicked.connect(lambda: self.send_keyevent('KEYCODE_HOME'))
-        self.back_btn.clicked.connect(lambda: self.send_keyevent('KEYCODE_BACK'))
-        self.recents_btn.clicked.connect(lambda: self.send_keyevent('KEYCODE_APP_SWITCH'))
-        self.power_btn.clicked.connect(lambda: self.send_keyevent('KEYCODE_POWER'))
-        self.volume_up.clicked.connect(lambda: self.send_keyevent('KEYCODE_VOLUME_UP'))
-        self.volume_down.clicked.connect(lambda: self.send_keyevent('KEYCODE_VOLUME_DOWN'))
+        # Quit button
+        self.btn_quit = GamingButton("✕ EXIT", theme='red')
+        self.btn_quit.clicked.connect(self.close)
         
-        # Action buttons
-        self.screenshot_btn.clicked.connect(self.take_screenshot)
-        self.record_btn.clicked.connect(self.toggle_recording)
-        self.install_btn.clicked.connect(self.install_apk)
+        layout.addWidget(self.btn_record)
+        layout.addWidget(self.btn_install)
+        layout.addWidget(self.btn_wireless)
+        layout.addStretch()
+        layout.addWidget(self.btn_quit)
         
-        # Timer for refreshing device list
+        return bar
+    
+    def _create_status_bar(self):
+        """Custom status bar"""
+        self.statusBar().setStyleSheet(f"""
+            QStatusBar {{
+                background: {GamingTheme.BG_PANEL};
+                color: {GamingTheme.TEXT_SECONDARY};
+                border-top: 1px solid {GamingTheme.CYAN_PRIMARY}30;
+            }}
+        """)
+        self.statusBar().showMessage("Ready • Select a device to connect")
+    
+    def _setup_connections(self):
+        """Setup signal connections"""
+        # Device controls
+        self.btn_refresh.clicked.connect(self._refresh_devices)
+        self.btn_connect.clicked.connect(self._connect_device)
+        
+        # Quick controls
+        self.btn_home.clicked.connect(lambda: self.adb.send_keyevent('KEYCODE_HOME'))
+        self.btn_back.clicked.connect(lambda: self.adb.send_keyevent('KEYCODE_BACK'))
+        self.btn_power.clicked.connect(lambda: self.adb.send_keyevent('KEYCODE_POWER'))
+        self.btn_vol_up.clicked.connect(lambda: self.adb.send_keyevent('KEYCODE_VOLUME_UP'))
+        self.btn_vol_down.clicked.connect(lambda: self.adb.send_keyevent('KEYCODE_VOLUME_DOWN'))
+        self.btn_screenshot.clicked.connect(self._take_screenshot)
+        
+        # Touch toggle
+        self.touch_toggle.toggled.connect(self._toggle_touch)
+        
+        # Timer for device refresh
         self.device_timer = QTimer()
-        self.device_timer.timeout.connect(self.check_devices)
-        self.device_timer.start(5000)  # Check every 5 seconds
-        
-    def refresh_devices(self):
+        self.device_timer.timeout.connect(self._check_devices)
+        self.device_timer.start(5000)
+    
+    def _start_animations(self):
+        """Start UI animations"""
+        # Title pulse animation
+        pass
+    
+    # ═══════════════════════════════════════════════════════════════════════════
+    #                           EVENT HANDLERS
+    # ═══════════════════════════════════════════════════════════════════════════
+    
+    def _refresh_devices(self):
         """Refresh device list"""
         devices = self.adb.devices()
         self.device_combo.clear()
         
         if devices:
             self.device_combo.addItems(devices)
-            self.log(f"Found {len(devices)} device(s): {', '.join(devices)}")
+            self.statusBar().showMessage(f"Found {len(devices)} device(s)")
         else:
             self.device_combo.addItem("No devices found")
-            self.log("⚠️ No devices connected. Make sure USB debugging is enabled.")
-        
-    def connect_device(self):
+            self.statusBar().showMessage("No devices • Enable USB debugging")
+    
+    def _connect_device(self):
         """Connect to selected device"""
         serial = self.device_combo.currentText()
+        
         if serial == "No devices found" or not serial:
-            self.log("❌ No device to connect")
+            QMessageBox.warning(self, "No Device", 
+                "No device connected.\n\n"
+                "Please ensure:\n"
+                "1. USB debugging is enabled\n"
+                "2. Device is connected via USB\n"
+                "3. USB debugging is authorized")
             return
         
         if self.adb.connect(serial):
-            self.log(f"✅ Connected to {serial}")
-            
-            # Get device info
-            info = self.adb.get_device_info()
-            info_text = f"{info['manufacturer']} {info['model']} (Android {info['android_version']}) - {info['screen_size']}"
-            self.info_label.setText(info_text)
-            self.status_bar.showMessage(f"Connected: {info_text}")
-            
-            # Start screen capture
-            self.start_capture()
+            self._on_connected()
         else:
-            self.log("❌ Failed to connect to device")
-            QMessageBox.warning(self, "Connection Failed", 
-                              "Could not connect to device. Make sure:\n"
-                              "1. USB debugging is enabled\n"
-                              "2. USB cable is connected\n"
-                              "3. You authorized the computer on the device")
+            QMessageBox.critical(self, "Connection Failed",
+                "Could not connect to device.\n"
+                "Please check USB debugging authorization.")
     
-    def disconnect_device(self):
+    def _on_connected(self):
+        """Handle successful connection"""
+        # Update status
+        self.status_indicator.status = 'connected'
+        self.status_indicator.update_color()
+        self.status_text.setText("Connected")
+        self.status_text.setStyleSheet(f"color: {GamingTheme.STATUS_CONNECTED}; font-weight: bold;")
+        
+        # Get device info
+        info = self.adb.get_device_info()
+        info_text = f"{info['manufacturer']} {info['model']}\nAndroid {info['android']}"
+        if 'ip' in info:
+            info_text += f" • IP: {info['ip']}"
+        self.info_label.setText(info_text)
+        
+        # Update resolution label
+        self.resolution_label.setText(f"Resolution: {info['width']}x{info['height']}")
+        
+        # Create touch handler
+        self.touch_handler = TouchInputHandler(self.adb, self.stream_label)
+        self.touch_handler.set_device_resolution(info['width'], info['height'])
+        
+        # Start video stream
+        self._start_stream()
+        
+        # Update status bar
+        self.statusBar().showMessage(f"Connected to {info['model']} • Streaming...")
+        
+        # Update button
+        self.btn_connect.setText("DISCONNECT")
+        self.btn_connect.setStyleSheet("""
+            QPushButton {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #FF4444, stop:1 #AA0000);
+                color: white;
+                border: 1px solid #FF4444;
+                border-radius: 5px;
+                padding: 8px 20px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #FF6666, stop:1 #CC0000);
+            }
+        """)
+        self.btn_connect.clicked.disconnect()
+        self.btn_connect.clicked.connect(self._disconnect_device)
+    
+    def _disconnect_device(self):
         """Disconnect from device"""
-        if self.capture_thread:
-            self.capture_thread.stop()
-            self.capture_thread = None
+        if self.stream_thread:
+            self.stream_thread.stop()
+            self.stream_thread = None
         
         self.adb.device_serial = None
-        self.adb.connected_device = None
         
-        self.log("🔌 Disconnected from device")
-        self.info_label.setText("No device connected")
-        self.video_label.setText("📱 Connect to device to start mirroring\n\nWaiting for device...")
-        self.status_bar.showMessage("Disconnected")
+        # Reset UI
+        self.status_indicator.status = 'disconnected'
+        self.status_indicator.update_color()
+        self.status_text.setText("Disconnected")
+        self.status_text.setStyleSheet(f"color: {GamingTheme.STATUS_DISCONNECTED}; font-weight: bold;")
+        self.info_label.setText("No device info")
+        self.resolution_label.setText("Resolution: --")
+        self.fps_label.setText("--")
+        self.stream_label.setText("\n\n\n\n📱 CONNECT TO DEVICE\nTO START STREAMING\n\n\n\n")
+        
+        self.statusBar().showMessage("Disconnected")
+        
+        # Reset button
+        self.btn_connect.setText("CONNECT")
+        self.btn_connect.setStyleSheet("""
+            QPushButton {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #00FF88, stop:1 #00AA55);
+                color: white;
+                border: 1px solid #00FF88;
+                border-radius: 5px;
+                padding: 8px 20px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #33FF99, stop:1 #00CC66);
+            }
+        """)
+        self.btn_connect.clicked.disconnect()
+        self.btn_connect.clicked.connect(self._connect_device)
     
-    def start_capture(self):
-        """Start screen capture"""
-        if self.capture_thread:
-            self.capture_thread.stop()
+    def _start_stream(self):
+        """Start video streaming"""
+        if self.stream_thread:
+            self.stream_thread.stop()
         
-        self.capture_thread = NiuCaptureThread(self.adb)
-        self.capture_thread.frame_ready.connect(self.display_frame)
-        self.capture_thread.error_occurred.connect(self.handle_capture_error)
-        self.capture_thread.start()
+        self.stream_thread = VideoStreamThread(self.adb)
+        self.stream_thread.frame_ready.connect(self._display_frame)
+        self.stream_thread.error_occurred.connect(self._handle_stream_error)
+        self.stream_thread.fps_updated.connect(self._update_fps)
+        self.stream_thread.start()
         
-        self.log("📹 Screen capture started")
+        # Update status
+        self.status_indicator.status = 'syncing'
     
-    def display_frame(self, frame: np.ndarray):
-        """Display captured frame"""
-        # Resize for display
-        display_frame = cv2.resize(frame, (540, int(540 * frame.shape[0] / frame.shape[1])))
+    def _display_frame(self, frame):
+        """Display video frame"""
+        # Resize for display while maintaining aspect ratio
+        display_h, display_w = self.stream_label.height(), self.stream_label.width()
         
-        # Convert to Qt format
+        if display_w > 0 and display_h > 0:
+            scale = min(display_w / frame.shape[1], display_h / frame.shape[0])
+            new_w = int(frame.shape[1] * scale)
+            new_h = int(frame.shape[0] * scale)
+            
+            display_frame = cv2.resize(frame, (new_w, new_h))
+        else:
+            display_frame = cv2.resize(frame, (540, 960))
+        
+        # Convert to RGB and then to QPixmap
         rgb_frame = cv2.cvtColor(display_frame, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb_frame.shape
         bytes_per_line = ch * w
         qt_image = QImage(rgb_frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
         
-        # Scale pixmap to fit label
+        # Set pixmap
         pixmap = QPixmap.fromImage(qt_image)
-        scaled_pixmap = pixmap.scaled(
-            self.video_label.size(), 
-            Qt.KeepAspectRatio, 
-            Qt.SmoothTransformation
-        )
-        
-        self.video_label.setPixmap(scaled_pixmap)
+        self.stream_label.setPixmap(pixmap)
         
         # Record if active
         if self.recording and self.record_writer:
             self.record_writer.write(frame)
     
-    def handle_capture_error(self, error: str):
-        """Handle capture errors"""
-        self.log(f"⚠️ {error}")
+    def _handle_stream_error(self, error):
+        """Handle stream errors"""
+        self.statusBar().showMessage(f"Stream error: {error}")
     
-    def check_devices(self):
-        """Periodically check for connected devices"""
-        if not self.adb.connected_device:
-            self.refresh_devices()
+    def _update_fps(self, fps):
+        """Update FPS display"""
+        color = GamingTheme.STATUS_CONNECTED if fps > 20 else GamingTheme.STATUS_WARNING
+        self.fps_label.setText(f"{fps:.1f}")
+        self.fps_label.setStyleSheet(f"color: {color}; font-weight: bold; font-size: 14px;")
     
-    def send_keyevent(self, keycode: str):
-        """Send keyevent ke device"""
-        if not self.adb.connected_device:
-            self.log("❌ No device connected")
-            return
-        
-        returncode, stdout, stderr = self.adb.shell(f"input keyevent {keycode}")
-        if returncode == 0:
-            self.log(f"✅ Sent keyevent: {keycode}")
-        else:
-            self.log(f"❌ Failed to send keyevent: {stderr}")
+    def _on_stream_click(self, event):
+        """Handle click on stream for touch input"""
+        if self.touch_handler and self.touch_toggle.isChecked():
+            self.touch_handler.handle_click(event)
     
-    def take_screenshot(self):
-        """Ambil screenshot"""
-        if not self.adb.connected_device:
-            self.log("❌ No device connected")
-            return
-        
-        timestamp = time.strftime("%Y%m%d_%H%M%S")
-        local_path = f"/tmp/niu_screenshot_{timestamp}.png"
-        
-        # Capture and pull
-        self.adb.shell("screencap -p /sdcard/screenshot.png", timeout=5)
-        
-        if self.adb.pull("/sdcard/screenshot.png", local_path):
-            self.log(f"📷 Screenshot saved: {local_path}")
-            QMessageBox.information(self, "Screenshot", f"Screenshot saved to:\n{local_path}")
-        else:
-            self.log("❌ Failed to capture screenshot")
+    def _on_stream_drag_start(self, event):
+        """Handle drag start"""
+        if event.buttons() & Qt.LeftButton:
+            self.drag_start = event.pos()
     
-    def toggle_recording(self):
+    def _on_stream_drag_end(self, event):
+        """Handle drag end for swipe gesture"""
+        if self.drag_start and self.touch_handler and self.touch_toggle.isChecked():
+            self.touch_handler.handle_drag(self.drag_start, event.pos())
+        self.drag_start = None
+    
+    def _toggle_touch(self, checked):
+        """Toggle touch input"""
+        if self.touch_handler:
+            self.touch_handler.enabled = checked
+    
+    def _toggle_recording(self):
         """Toggle screen recording"""
-        if not self.adb.connected_device:
-            self.log("❌ No device connected")
+        if not self.adb.device_serial:
+            QMessageBox.warning(self, "No Device", "Please connect a device first")
             return
         
         if not self.recording:
             # Start recording
-            timestamp = time.strftime("%Y%m%d_%H%M%S")
-            self.record_path = f"/tmp/niu_recording_{timestamp}.mp4"
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            self.record_path = os.path.expanduser(f"~/Videos/niu_record_{timestamp}.mp4")
             
-            # Get resolution
-            width, height = self.adb.screen_resolution()
+            os.makedirs(os.path.expanduser("~/Videos"), exist_ok=True)
             
-            # Create video writer
+            info = self.adb.get_device_info()
             fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-            self.record_writer = cv2.VideoWriter(self.record_path, fourcc, 30.0, (width, height))
+            self.record_writer = cv2.VideoWriter(self.record_path, fourcc, 30.0, (info['width'], info['height']))
             
             self.recording = True
-            self.record_btn.setText("⏹ Stop Recording")
-            self.log(f"⏺ Recording started: {self.record_path}")
-            self.status_bar.showMessage("🔴 Recording...")
+            self.btn_record.setText("⏹ STOP")
+            self.statusBar().showMessage(f"Recording... {self.record_path}")
         else:
             # Stop recording
             self.recording = False
@@ -628,132 +1284,115 @@ class NiuCastWindow(QMainWindow):
                 self.record_writer.release()
                 self.record_writer = None
             
-            self.record_btn.setText("⏺ Start Recording")
-            self.log(f"✅ Recording saved: {self.record_path}")
-            self.status_bar.showMessage("Ready")
-            QMessageBox.information(self, "Recording Saved", 
-                                  f"Recording saved to:\n{self.record_path}")
+            self.btn_record.setText("⏺ REC")
+            self.statusBar().showMessage(f"Recording saved: {self.record_path}")
+            QMessageBox.information(self, "Recording Complete", f"Video saved to:\n{self.record_path}")
     
-    def install_apk(self):
-        """Install APK file"""
-        if not self.adb.connected_device:
-            self.log("❌ No device connected")
+    def _take_screenshot(self):
+        """Take screenshot"""
+        if not self.adb.device_serial:
+            QMessageBox.warning(self, "No Device", "Please connect a device first")
             return
         
-        file_path, _ = QFileDialog.getOpenFileName(
-            self, "Select APK file", "", "APK Files (*.apk)"
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        path = os.path.expanduser(f"~/Pictures/niu_screenshot_{timestamp}.png")
+        
+        os.makedirs(os.path.expanduser("~/Pictures"), exist_ok=True)
+        
+        self.adb.shell('screencap -p /sdcard/.niu_screenshot.png', timeout=5)
+        
+        if self.adb.pull('/sdcard/.niu_screenshot.png', path):
+            self.statusBar().showMessage(f"Screenshot saved: {path}")
+            QMessageBox.information(self, "Screenshot", f"Saved to:\n{path}")
+        else:
+            QMessageBox.critical(self, "Error", "Failed to capture screenshot")
+    
+    def _install_apk(self):
+        """Install APK file"""
+        if not self.adb.device_serial:
+            QMessageBox.warning(self, "No Device", "Please connect a device first")
+            return
+        
+        file_path, _ = QFileDialog.getOpenName(
+            self, "Select APK", "", "APK Files (*.apk)"
         )
         
         if file_path:
-            self.log(f"📦 Installing: {file_path}")
-            self.status_bar.showMessage(f"Installing {os.path.basename(file_path)}...")
+            self.statusBar().showMessage(f"Installing {os.path.basename(file_path)}...")
             
-            # Install APK
-            returncode, stdout, stderr = self.adb.execute_command([
+            rc, out, err = self.adb._run([
                 '-s', self.adb.device_serial, 'install', '-r', file_path
             ], timeout=300)
             
-            if returncode == 0:
-                self.log("✅ APK installed successfully")
-                QMessageBox.information(self, "Installation Complete", "APK installed successfully!")
+            if rc == 0:
+                self.statusBar().showMessage("Installation complete!")
+                QMessageBox.information(self, "Success", "APK installed successfully!")
             else:
-                self.log(f"❌ Installation failed: {stderr}")
-                QMessageBox.critical(self, "Installation Failed", f"Failed to install APK:\n{stderr}")
-            
-            self.status_bar.showMessage("Ready")
+                self.statusBar().showMessage("Installation failed")
+                QMessageBox.critical(self, "Error", f"Installation failed:\n{err}")
     
-    def log(self, message: str):
-        """Add log message"""
-        timestamp = time.strftime("%H:%M:%S")
-        self.log_text.append(f"[{timestamp}] {message}")
+    def _toggle_wireless(self):
+        """Toggle wireless connection"""
+        if not self.adb.device_serial:
+            QMessageBox.warning(self, "No Device", "Please connect via USB first")
+            return
+        
+        # Get device IP
+        info = self.adb.get_device_info()
+        
+        if 'ip' not in info or not info['ip']:
+            QMessageBox.warning(self, "No WiFi", 
+                "Could not detect WiFi IP.\n"
+                "Please connect device to WiFi first.")
+            return
+        
+        # Enable wireless
+        self.statusBar().showMessage(f"Enabling ADB over WiFi on {info['ip']}...")
+        
+        if self.adb.enable_wireless():
+            self.statusBar().showMessage(f"Wireless enabled! Connect: adb connect {info['ip']}:5555")
+            QMessageBox.information(self, "Wireless Enabled", 
+                f"ADB over WiFi enabled!\n\n"
+                f"Connect with:\n"
+                f"  adb connect {info['ip']}:5555")
+        else:
+            QMessageBox.critical(self, "Error", "Failed to enable wireless ADB")
     
-    def show_about(self):
-        """Show about dialog"""
-        QMessageBox.about(self, "About NiuCast",
-                        f"<h2>NiuCast v{VERSION}</h2>"
-                        f"<p>Screen mirroring application for Android devices</p>"
-                        f"<p>Agent: NiuCast</p>")
+    def _check_devices(self):
+        """Periodically check device connection"""
+        if not self.adb.device_serial:
+            self._refresh_devices()
     
     def closeEvent(self, event):
         """Cleanup on close"""
-        if self.capture_thread:
-            self.capture_thread.stop()
+        if self.stream_thread:
+            self.stream_thread.stop()
         if self.recording and self.record_writer:
             self.record_writer.release()
         event.accept()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-#                           CLI MODE (No GUI)
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def run_cli_mode():
-    """Run in CLI mode (no GUI)"""
-    print("╔════════════════════════════════════════════════════════════╗")
-    print("║              NIU CAST - CLI Mode                        ║")
-    print("╠════════════════════════════════════════════════════════════╣")
-    print("╚════════════════════════════════════════════════════════════╝")
-    print()
-    
-    adb = ADBController()
-    
-    print("[*] Checking for ADB...")
-    returncode, _, _ = adb.execute_command(['version'])
-    if returncode != 0:
-        print("[!] ADB not found. Please install Android SDK platform-tools.")
-        return
-    
-    print("[*] Scanning for devices...")
-    devices = adb.devices()
-    
-    if not devices:
-        print("[!] No devices found.")
-        print("    Make sure:")
-        print("    2. Connect USB cable")
-        print("    3. Authorize USB debugging on the device")
-        return
-    
-    print(f"[+] Found {len(devices)} device(s)")
-    for d in devices:
-        print(f"    - {d}")
-    
-    print(f"\n[*] Connecting to {devices[0]}...")
-    if adb.connect(devices[0]):
-        print(f"[+] Connected to {devices[0]}")
-        
-        info = adb.get_device_info()
-        print(f"\n[+] Device Info:")
-        print(f"    Model: {info['manufacturer']} {info['model']}")
-        print(f"    Android: {info['android_version']}")
-        print(f"    Screen: {info['screen_size']}")
-        
-        print("\n[*] Testing screen capture...")
-        adb.shell("screencap -p /sdcard/screen.png", timeout=5)
-        
-        print("\n[+] All systems ready!")
-        print("\n[*] For full GUI with screen mirroring, run with PyQt5:")
-        print("    pip install PyQt5 opencv-python")
-        print("    python niu_cast.py")
-    else:
-        print("[!] Failed to connect")
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-#                              MAIN ENTRY POINT
+#                              ENTRY POINT
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def main():
-    """Entry point for 'niu-cast' command"""
-    if PYQT5_AVAILABLE:
-        app = QApplication(sys.argv)
-        window = NiuCastWindow()
-        window.show()
-        return app.exec_()
-    else:
-        print("PyQt5 not available, running in CLI mode...")
-        run_cli_mode()
-        return 0
+    if not PYQT5_AVAILABLE:
+        print("ERROR: PyQt5 is required. Install with: pip install PyQt5")
+        return 1
+    
+    app = QApplication(sys.argv)
+    app.setApplicationName("NiuCast")
+    app.setApplicationVersion("1.1.0")
+    
+    # Apply dark theme
+    app.setStyle('Fusion')
+    
+    window = NiuCastWindow()
+    window.show()
+    
+    return app.exec_()
 
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    sys.exit(main())

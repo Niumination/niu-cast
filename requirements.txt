@@ -1,22 +1,18 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+#                    NIU CAST - Requirements (Gaming Edition)
+# ═══════════════════════════════════════════════════════════════════════════════
+
 # Core dependencies
-opencv-python>=4.8.0
-numpy>=1.24.0
-Pillow>=10.0.0
-pyqtgraph>=0.13.3
+PyQt5>=5.15.0               # GUI framework
+opencv-python>=4.8.0        # Video processing
+numpy>=1.24.0               # Numerical operations
+Pillow>=10.0.0              # Image processing
 
-# ADB communication
-pure-python-adb>=0.3.0
-adb-shell>=0.4.4
+# Optional for better performance
+# mssc>=6.1.0               # Fast screen capture
+# pywin32; platform == 'win32'  # Windows support
 
-# Network (for future WiFi connection)
-websockets>=11.0.0
-
-# Optional: for better performance
-mss>=6.1.0
-av>=10.0.0  # For video encoding/decoding
-
-# GUI
-PyQt5>=5.15.0
-
-# Utilities
-cryptography>=41.0.0
+# Development
+pytest>=7.0.0               # Testing
+black>=23.0.0               # Code formatting
+flake8>=6.0.0               # Linting
