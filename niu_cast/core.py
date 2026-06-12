@@ -46,6 +46,11 @@ except ImportError:
 import numpy as np
 import cv2
 
+# Gaming Edition modules
+from .theme_manager import ThemeManager
+from .game_mode import GameMode, PerformanceMonitor, GameLauncher
+from .shortcuts import KeyboardShortcuts
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 #                           GAMING THEME PALETTE
@@ -619,6 +624,13 @@ class NiuCastWindow(QMainWindow):
         self.record_writer = None
         self.drag_start = None
         
+        # Gaming Edition modules
+        self.game_mode = GameMode(self.adb)
+        self.perf_monitor = PerformanceMonitor(self.adb)
+        self.launcher = GameLauncher(self.adb)
+        self.current_theme = 'cyberpunk'
+        self.perf_labels = {}
+        
         self._init_ui()
         self._setup_connections()
         self._start_animations()
@@ -713,6 +725,11 @@ class NiuCastWindow(QMainWindow):
         
         controls_card = self._create_quick_controls()
         layout.addWidget(controls_card)
+        
+        # Game Launcher
+        self.btn_launcher = GamingButton("🎮 LAUNCH GAME", theme='gold')
+        self.btn_launcher.clicked.connect(self._show_game_launcher)
+        layout.addWidget(self.btn_launcher)
         
         layout.addStretch()
         
@@ -1010,6 +1027,41 @@ class NiuCastWindow(QMainWindow):
         self.btn_wireless = GamingButton("🔗 WIRELESS", theme='cyan')
         self.btn_wireless.clicked.connect(self._toggle_wireless)
         
+        # Theme selector
+        from PyQt5.QtWidgets import QComboBox
+        self.theme_combo = QComboBox()
+        for tid, tname in ThemeManager.list_themes():
+            self.theme_combo.addItem(tname, tid)
+        self.theme_combo.setFixedWidth(160)
+        self.theme_combo.setStyleSheet(f"""
+            QComboBox {{
+                background: {GamingTheme.BG_DARK};
+                color: {GamingTheme.TEXT_PRIMARY};
+                border: 1px solid {GamingTheme.CYAN_PRIMARY}50;
+                border-radius: 5px;
+                padding: 6px 10px;
+                font-family: 'Segoe UI';
+                font-size: 12px;
+            }}
+            QComboBox::drop-down {{
+                border: none;
+                width: 25px;
+            }}
+            QComboBox QAbstractItemView {{
+                background: {GamingTheme.BG_DARK};
+                color: {GamingTheme.TEXT_PRIMARY};
+                border: 1px solid {GamingTheme.CYAN_PRIMARY};
+                selection-background-color: {GamingTheme.CYAN_PRIMARY}40;
+            }}
+        """)
+        self.theme_combo.currentIndexChanged.connect(self._on_theme_changed)
+        
+        # Game Mode toggle
+        self.btn_game_mode = GamingButton("🎮 GAME MODE OFF", theme='cyan')
+        self.btn_game_mode.setCheckable(True)
+        self.btn_game_mode.clicked.connect(self._toggle_game_mode)
+        self.btn_game_mode.setFixedWidth(170)
+        
         # Quit button
         self.btn_quit = GamingButton("✕ EXIT", theme='red')
         self.btn_quit.clicked.connect(self.close)
@@ -1017,6 +1069,8 @@ class NiuCastWindow(QMainWindow):
         layout.addWidget(self.btn_record)
         layout.addWidget(self.btn_install)
         layout.addWidget(self.btn_wireless)
+        layout.addWidget(self.theme_combo)
+        layout.addWidget(self.btn_game_mode)
         layout.addStretch()
         layout.addWidget(self.btn_quit)
         
@@ -1054,6 +1108,9 @@ class NiuCastWindow(QMainWindow):
         self.device_timer = QTimer()
         self.device_timer.timeout.connect(self._check_devices)
         self.device_timer.start(5000)
+        
+        # Gaming Edition: keyboard shortcuts
+        KeyboardShortcuts.register_shortcuts(self, self.adb)
     
     def _start_animations(self):
         """Start UI animations"""
@@ -1096,6 +1153,137 @@ class NiuCastWindow(QMainWindow):
                 "Could not connect to device.\n"
                 "Please check USB debugging authorization.")
     
+    # ═══════════════════════════════════════════════════════════════════════════
+    #                    GAMING EDITION METHODS
+    # ═══════════════════════════════════════════════════════════════════════════
+    
+    def _on_theme_changed(self, index):
+        """Change UI theme"""
+        theme_id = self.theme_combo.itemData(index)
+        if theme_id:
+            self.current_theme = theme_id
+            ThemeManager.apply_theme(self, theme_id)
+            self.statusBar().showMessage(f"Theme: {self.theme_combo.currentText()}")
+    
+    def _toggle_game_mode(self, checked):
+        """Toggle game mode optimizations"""
+        if checked:
+            self.btn_game_mode.setText("🎮 GAME MODE ON")
+            self.btn_game_mode.set_theme('green')
+            self.game_mode.enable()
+            self.perf_monitor.start(self._update_perf_display)
+            self.statusBar().showMessage("🎮 Game Mode ENABLED • Performance monitoring active")
+        else:
+            self.btn_game_mode.setText("🎮 GAME MODE OFF")
+            self.btn_game_mode.set_theme('cyan')
+            self.perf_monitor.stop()
+            self.game_mode.disable()
+            self._clear_perf_display()
+            self.statusBar().showMessage("Game Mode DISABLED")
+    
+    def _update_perf_display(self, stats):
+        """Update performance stats in status bar"""
+        parts = []
+        if 'cpu_temp' in stats:
+            parts.append(f"🌡 CPU: {stats['cpu_temp']['current']:.1f}°C")
+        if 'battery' in stats:
+            parts.append(f"🔋 Bat: {stats['battery']['current']:.1f}°C")
+        if 'memory' in stats:
+            parts.append(f"💾 RAM: {stats['memory']['current']:.0f}MB")
+        if parts:
+            self.statusBar().showMessage(" | ".join(parts))
+    
+    def _clear_perf_display(self):
+        """Clear performance stats"""
+        self.perf_labels = {}
+    
+    def _launch_game(self, game_name):
+        """Launch a game from the GameLauncher"""
+        if not self.adb or not self.adb.device_serial:
+            QMessageBox.warning(self, "Warning", "Please connect a device first.")
+            return
+        success = self.launcher.launch_game(game_name)
+        if success:
+            self.statusBar().showMessage(f"🎮 {game_name} launched!")
+    
+    def _show_game_launcher(self):
+        """Show game launcher dialog"""
+        from PyQt5.QtWidgets import QDialog, QVBoxLayout, QPushButton, QLabel, QScrollArea
+        
+        dialog = QDialog(self)
+        dialog.setWindowTitle("🎮 Game Launcher")
+        dialog.setGeometry(200, 200, 400, 500)
+        dialog.setStyleSheet(f"""
+            QDialog {{ background: {GamingTheme.BG_DARK}; color: {GamingTheme.TEXT_PRIMARY}; }}
+            QPushButton {{
+                background: {GamingTheme.BG_CARD};
+                color: {GamingTheme.TEXT_PRIMARY};
+                border: 1px solid {GamingTheme.CYAN_PRIMARY}50;
+                border-radius: 5px;
+                padding: 10px;
+                font-size: 14px;
+                text-align: left;
+            }}
+            QPushButton:hover {{
+                border: 1px solid {GamingTheme.CYAN_PRIMARY};
+                background: {GamingTheme.CYAN_PRIMARY}20;
+            }}
+        """)
+        
+        layout = QVBoxLayout(dialog)
+        
+        title = QLabel("🎮 Select a Game to Launch")
+        title.setStyleSheet(f"font-size: 16px; font-weight: bold; color: {GamingTheme.CYAN_PRIMARY}; padding: 10px;")
+        layout.addWidget(title)
+        
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll_widget = QWidget()
+        scroll_layout = QVBoxLayout(scroll_widget)
+        
+        # Add installed games first, then all games
+        installed = self.launcher.search_installed_games()
+        added = set()
+        
+        if installed:
+            installed_label = QLabel("📱 Installed Games")
+            installed_label.setStyleSheet(f"color: {GamingTheme.GOLD_ACCENT}; padding: 5px;")
+            scroll_layout.addWidget(installed_label)
+            for game, pkg in installed:
+                btn = QPushButton(f"  {game}")
+                btn.clicked.connect(lambda checked, g=game: (self._launch_game(g), dialog.close()))
+                scroll_layout.addWidget(btn)
+                added.add(game)
+        
+        all_label = QLabel("\n📋 All Games")
+        all_label.setStyleSheet(f"color: {GamingTheme.TEXT_MUTED}; padding: 5px;")
+        scroll_layout.addWidget(all_label)
+        
+        for game, pkg in GameLauncher.GAMES.items():
+            if game not in added:
+                btn = QPushButton(f"  {game}")
+                btn.clicked.connect(lambda checked, g=game: (self._launch_game(g), dialog.close()))
+                scroll_layout.addWidget(btn)
+        
+        scroll_layout.addStretch()
+        scroll.setWidget(scroll_widget)
+        layout.addWidget(scroll)
+        
+        close_btn = QPushButton("✕ Close")
+        close_btn.setStyleSheet(f"""
+            QPushButton {{
+                background: {GamingTheme.STATUS_DISCONNECTED}40;
+                color: {GamingTheme.TEXT_PRIMARY};
+                border: 1px solid {GamingTheme.STATUS_DISCONNECTED};
+                border-radius: 5px;
+                padding: 8px;
+            }}
+        """)
+        close_btn.clicked.connect(dialog.close)
+        layout.addWidget(close_btn)
+        
+        dialog.exec_()
+    
     def _on_connected(self):
         """Handle successful connection"""
         # Update status
@@ -1103,6 +1291,10 @@ class NiuCastWindow(QMainWindow):
         self.status_indicator.update_color()
         self.status_text.setText("Connected")
         self.status_text.setStyleSheet(f"color: {GamingTheme.STATUS_CONNECTED}; font-weight: bold;")
+        
+        # Start performance monitoring if game mode already on
+        if hasattr(self, 'perf_monitor') and self.btn_game_mode.isChecked():
+            self.perf_monitor.start(self._update_perf_display)
         
         # Get device info
         info = self.adb.get_device_info()
@@ -1148,7 +1340,14 @@ class NiuCastWindow(QMainWindow):
         """Disconnect from device"""
         if self.stream_thread:
             self.stream_thread.stop()
-            self.stream_thread = None
+        
+        # Stop performance monitoring
+        if hasattr(self, 'perf_monitor'):
+            self.perf_monitor.stop()
+        if hasattr(self, 'game_mode'):
+            self.game_mode.disable()
+        self._clear_perf_display()
+        self.stream_thread = None
         
         self.adb.device_serial = None
         
@@ -1369,6 +1568,13 @@ class NiuCastWindow(QMainWindow):
             self.stream_thread.stop()
         if self.recording and self.record_writer:
             self.record_writer.release()
+        
+        # Gaming Edition cleanup
+        if hasattr(self, 'perf_monitor'):
+            self.perf_monitor.stop()
+        if hasattr(self, 'game_mode'):
+            self.game_mode.disable()
+        
         event.accept()
 
 

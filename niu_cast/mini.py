@@ -15,6 +15,9 @@ import subprocess
 import argparse
 from datetime import datetime
 
+# Gaming Edition modules
+from .game_mode import GameMode, PerformanceMonitor
+
 # ═══════════════════════════════════════════════════════════════════════════════
 #                              COLORS & STYLING
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -462,6 +465,8 @@ def main():
     parser.add_argument('--preview', action='store_true', help='Live screen preview')
     parser.add_argument('--install', metavar='APK', help='Install APK file')
     parser.add_argument('--device', metavar='SERIAL', help='Specify device serial')
+    parser.add_argument('--game-mode', type=str, choices=['on', 'off'], help='Enable/disable game mode optimizations')
+    parser.add_argument('--monitor', type=int, nargs='?', const=10, help='Monitor device performance (seconds, default 10)')
     
     args = parser.parse_args()
     
@@ -525,6 +530,39 @@ def main():
         else:
             print_error("Installation failed")
     
+    # Gaming Edition: game mode
+    if args.game_mode:
+        gm = GameMode(adb)
+        if args.game_mode == 'on':
+            gm.enable()
+            print_success("🎮 Game Mode ENABLED")
+        else:
+            gm.disable()
+            print_success("Game Mode DISABLED")
+    
+    # Gaming Edition: performance monitor
+    if args.monitor is not None:
+        pm = PerformanceMonitor(adb)
+        def display_monitor(stats):
+            parts = []
+            if 'cpu_temp' in stats:
+                parts.append(f"🌡 CPU: {stats['cpu_temp']['current']:.1f}°C")
+            if 'battery' in stats:
+                parts.append(f"🔋 Bat: {stats['battery']['current']:.1f}°C")
+            if 'memory' in stats:
+                parts.append(f"💾 RAM: {stats['memory']['current']:.0f}MB")
+            return ' | '.join(parts)
+        
+        print_header(f"PERFORMANCE MONITOR ({args.monitor}s)")
+        pm.start(lambda s: print(f"  {display_monitor(s)}"))
+        try:
+            time.sleep(args.monitor)
+        except KeyboardInterrupt:
+            pass
+        finally:
+            pm.stop()
+        print_success("Monitoring stopped")
+    
     # If no args, show menu
     if len(sys.argv) == 1:
         show_menu(adb)
@@ -542,6 +580,8 @@ def show_menu(adb):
   {Colors.CYAN}5){Colors.RESET} Install APK
   {Colors.CYAN}6){Colors.RESET} Wireless Setup
   {Colors.CYAN}7){Colors.RESET} Live Preview
+  {Colors.CYAN}8){Colors.RESET} 🎮 Game Mode (on/off)
+  {Colors.CYAN}9){Colors.RESET} 📊 Performance Monitor
   {Colors.CYAN}0){Colors.RESET} Exit
         """)
         
@@ -561,6 +601,40 @@ def show_menu(adb):
             enable_wireless(adb)
         elif choice == '7':
             live_preview(adb)
+        elif choice == '8':
+            sub_choice = input("  Game Mode (on/off): ").strip().lower()
+            if sub_choice in ('on', 'off'):
+                gm = GameMode(adb)
+                if sub_choice == 'on':
+                    gm.enable()
+                    print_success("🎮 Game Mode ENABLED")
+                else:
+                    gm.disable()
+                    print_success("Game Mode DISABLED")
+            else:
+                print_error("Invalid choice. Use 'on' or 'off'")
+        elif choice == '9':
+            duration = input("  Monitor duration (seconds) [10]: ").strip()
+            duration = int(duration) if duration.isdigit() else 10
+            pm = PerformanceMonitor(adb)
+            def show_stats(stats):
+                parts = []
+                if 'cpu_temp' in parts:
+                    parts.append(f"🌡 CPU: {stats['cpu_temp']['current']:.1f}°C")
+                if 'battery' in parts:
+                    parts.append(f"🔋 Bat: {stats['battery']['current']:.1f}°C")
+                if 'memory' in parts:
+                    parts.append(f"💾 RAM: {stats['memory']['current']:.0f}MB")
+                print(f"  {' | '.join(parts)}")
+            print_header(f"PERFORMANCE MONITOR ({duration}s)")
+            pm.start(lambda s: show_stats(s))
+            try:
+                time.sleep(duration)
+            except KeyboardInterrupt:
+                pass
+            finally:
+                pm.stop()
+            print_success("Monitoring stopped")
         elif choice == '0':
             print_info("Goodbye!")
             break
