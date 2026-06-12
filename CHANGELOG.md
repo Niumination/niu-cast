@@ -4,6 +4,26 @@ All notable changes to NiuCast Gaming Edition will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.1.1] - Module Integration - 2024-06-13
+
+### 🔧 Integrated
+- **Game Mode** → GUI (`core.py`): Toggle button di bottom bar + sidebar integration
+- **Game Mode** → CLI (`mini.py`): `--game-mode on/off` + menu option 8
+- **Performance Monitor** → GUI: Live CPU temp, battery, RAM di status bar
+- **Performance Monitor** → CLI: `--monitor [sec]` + menu option 9
+- **Theme Switcher** → GUI: QComboBox di bottom bar, 6 themes via ThemeManager
+- **Keyboard Shortcuts** → GUI: 15 hotkeys via shortcuts.py registered to QShortcut
+- **Game Launcher** → GUI: Dialog popup + LAUNCH GAME button di sidebar
+
+### 🧹 Cleanup
+- Graceful cleanup on device disconnect — perf_monitor stop, game_mode disable
+- Graceful cleanup on window close — all monitors stopped
+- Removed `_import .mini` from `__init__.py` to prevent RuntimeWarning
+- Fixed indent error in `_disconnect_device`
+
+### 📝 Updated
+- README.md — complete rewrite with Gaming Edition features, updated CLI flags, keyboard shortcuts, themes table
+
 ## [1.1.0] - Gaming Edition - 2024-06-12
 
 ### 🎨 Added

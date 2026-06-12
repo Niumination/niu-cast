@@ -9,7 +9,7 @@
 ╚══════════════════════════════════════════════════════════════════════════════╝
 """
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 __author__ = "Niumination"
 __theme__ = "gaming-cyberpunk"
 __python_version__ = "3.8+"
