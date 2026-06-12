@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 """
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                        HERMES CAST - Screen Mirroring                        ║
-║                    For Android ↔ Hackintosh (Mac Tahoe)                      ║
+║                        NIU CAST - Screen Mirroring                        ║
 ║                                                                            ║
-║  Author: Hermes Agent with DeepSeek-V4-Flash                                ║
-║  Device: Infinix GT 30 Pro ↔ ThinkPad X13 Yoga Gen 1                        ║
+║  Author: niumination                                ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
 Features:
@@ -32,7 +30,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger('HermesCast')
+logger = logging.getLogger('NiuCast')
 
 # Version
 VERSION = "1.0.0"
@@ -213,14 +211,13 @@ class ADBController:
                     return int(parts[0]), int(parts[1])
             except:
                 pass
-        return 1080, 2400  # Default untuk Infinix GT 30 Pro
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 #                        SCREEN CAPTURE THREAD
 # ═══════════════════════════════════════════════════════════════════════════════
 
-class ScreenCaptureThread(QThread):
+class NiuCaptureThread(QThread):
     """Thread untuk capture screen dari Android"""
     
     frame_ready = pyqtSignal(np.ndarray)
@@ -250,7 +247,7 @@ class ScreenCaptureThread(QThread):
                     continue
                 
                 # Pull the screenshot
-                local_temp = '/tmp/hermes_screen.png'
+                local_temp = '/tmp/niu_screen.png'
                 if self.adb.pull('/sdcard/screen.png', local_temp):
                     # Read and emit frame
                     img = cv2.imread(local_temp)
@@ -273,11 +270,11 @@ class ScreenCaptureThread(QThread):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-#                        HERMES CAST MAIN WINDOW
+#                        NIU CAST MAIN WINDOW
 # ═══════════════════════════════════════════════════════════════════════════════
 
-class HermesCastWindow(QMainWindow):
-    """Main window untuk HermesCast"""
+class NiuCastWindow(QMainWindow):
+    """Main window untuk NiuCast"""
     
     def __init__(self):
         super().__init__()
@@ -291,7 +288,7 @@ class HermesCastWindow(QMainWindow):
         
     def init_ui(self):
         """Initialize UI"""
-        self.setWindowTitle(f"HermesCast v{VERSION} - Screen Mirroring")
+        self.setWindowTitle(f"NiuCast v{VERSION} - Screen Mirroring")
         self.setGeometry(100, 100, 1200, 800)
         
         # Central widget
@@ -446,7 +443,7 @@ class HermesCastWindow(QMainWindow):
         # Help menu
         help_menu = menubar.addMenu("Help")
         
-        about_action = QAction("About HermesCast", self)
+        about_action = QAction("About NiuCast", self)
         help_menu.addAction(about_action)
         about_action.triggered.connect(self.show_about)
         
@@ -531,7 +528,7 @@ class HermesCastWindow(QMainWindow):
         if self.capture_thread:
             self.capture_thread.stop()
         
-        self.capture_thread = ScreenCaptureThread(self.adb)
+        self.capture_thread = NiuCaptureThread(self.adb)
         self.capture_thread.frame_ready.connect(self.display_frame)
         self.capture_thread.error_occurred.connect(self.handle_capture_error)
         self.capture_thread.start()
@@ -591,7 +588,7 @@ class HermesCastWindow(QMainWindow):
             return
         
         timestamp = time.strftime("%Y%m%d_%H%M%S")
-        local_path = f"/tmp/hermes_screenshot_{timestamp}.png"
+        local_path = f"/tmp/niu_screenshot_{timestamp}.png"
         
         # Capture and pull
         self.adb.shell("screencap -p /sdcard/screenshot.png", timeout=5)
@@ -611,7 +608,7 @@ class HermesCastWindow(QMainWindow):
         if not self.recording:
             # Start recording
             timestamp = time.strftime("%Y%m%d_%H%M%S")
-            self.record_path = f"/tmp/hermes_recording_{timestamp}.mp4"
+            self.record_path = f"/tmp/niu_recording_{timestamp}.mp4"
             
             # Get resolution
             width, height = self.adb.screen_resolution()
@@ -672,12 +669,10 @@ class HermesCastWindow(QMainWindow):
     
     def show_about(self):
         """Show about dialog"""
-        QMessageBox.about(self, "About HermesCast",
-                        f"<h2>HermesCast v{VERSION}</h2>"
+        QMessageBox.about(self, "About NiuCast",
+                        f"<h2>NiuCast v{VERSION}</h2>"
                         f"<p>Screen mirroring application for Android devices</p>"
-                        f"<p>Target Device: Infinix GT 30 Pro</p>"
-                        f"<p>Host: ThinkPad X13 Yoga Gen 1 (Hackintosh)</p>"
-                        f"<p>Agent: Hermes with DeepSeek-V4-Flash</p>")
+                        f"<p>Agent: NiuCast</p>")
     
     def closeEvent(self, event):
         """Cleanup on close"""
@@ -695,9 +690,8 @@ class HermesCastWindow(QMainWindow):
 def run_cli_mode():
     """Run in CLI mode (no GUI)"""
     print("╔════════════════════════════════════════════════════════════╗")
-    print("║              HERMES CAST - CLI Mode                        ║")
+    print("║              NIU CAST - CLI Mode                        ║")
     print("╠════════════════════════════════════════════════════════════╣")
-    print("║ Device: Infinix GT 30 Pro → ThinkPad X13 Yoga Gen 1        ║")
     print("╚════════════════════════════════════════════════════════════╝")
     print()
     
@@ -715,7 +709,6 @@ def run_cli_mode():
     if not devices:
         print("[!] No devices found.")
         print("    Make sure:")
-        print("    1. USB debugging is enabled on your Infinix GT 30 Pro")
         print("    2. Connect USB cable")
         print("    3. Authorize USB debugging on the device")
         return
@@ -740,7 +733,7 @@ def run_cli_mode():
         print("\n[+] All systems ready!")
         print("\n[*] For full GUI with screen mirroring, run with PyQt5:")
         print("    pip install PyQt5 opencv-python")
-        print("    python hermes_cast.py")
+        print("    python niu_cast.py")
     else:
         print("[!] Failed to connect")
 
@@ -749,14 +742,18 @@ def run_cli_mode():
 #                              MAIN ENTRY POINT
 # ═══════════════════════════════════════════════════════════════════════════════
 
-if __name__ == "__main__":
-    print("Loading HermesCast...")
-    
+def main():
+    """Entry point for 'niu-cast' command"""
     if PYQT5_AVAILABLE:
         app = QApplication(sys.argv)
-        window = HermesCastWindow()
+        window = NiuCastWindow()
         window.show()
-        sys.exit(app.exec_())
+        return app.exec_()
     else:
         print("PyQt5 not available, running in CLI mode...")
         run_cli_mode()
+        return 0
+
+
+if __name__ == "__main__":
+    main()

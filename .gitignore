@@ -1,27 +1,6 @@
-# Python
+.venv/
 __pycache__/
-*.py[cod]
-*.so
-*.egg-info/
-venv/
-env/
-.env
-
-# OS
+*.pyc
 .DS_Store
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-
-# Screenshots / recordings (generated)
 *.png
 *.mp4
-
-# Project specific
-hermes-cast/venv/
-
-# Git
-*.patch
-*.diff

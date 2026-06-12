@@ -9,12 +9,11 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 setup(
     name="hermes-cast",
     version="1.0.0",
-    author="Hermes Agent",
-    author_email="hermes@arena.ai",
-    description="Screen mirroring application for Android to Hackintosh",
+    author="Niumination",
+    author_email="",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/hermes-agent/hermes-cast",
+    url="https://github.com/niumination/niu-cast",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -32,9 +31,9 @@ setup(
     install_requires=requirements,
     entry_points={
         "console_scripts": [
-            "hermes-cast=hermes_cast:main",
-            "hermes-mini=hermes_mini:main",
-            "hermes-batch=batch_executor:main",
+            "hermes-cast=niu_cast:main",
+            "hermes-mini=niu_mini:main",
+            "niu-batch=niu_cast.batch:main",
         ],
     },
     include_package_data=True,

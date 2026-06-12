@@ -2,7 +2,6 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 #                    QUICK MIRROR - Simple Screen Mirroring
 # ═══════════════════════════════════════════════════════════════════════════════
-# Quick script untuk mirror layar Infinix GT 30 Pro ke ThinkPad X13 Yoga
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Colors
@@ -15,10 +14,8 @@ NC='\033[0m'
 clear
 echo -e "${CYAN}"
 echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║          HERMES CAST - Quick Mirror                            ║"
+echo "║          NIU CAST - Quick Mirror                            ║"
 echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ Device: Infinix GT 30 Pro (Android)                           ║"
-echo "║ Host:   ThinkPad X13 Yoga Gen 1 (Hackintosh)                  ║"
 echo "╚════════════════════════════════════════════════════════════════╝"
 echo -e "${NC}"
 
@@ -38,7 +35,6 @@ check_device() {
     if [ "$DEVICES" -eq 0 ]; then
         echo -e "${RED}✗ No device connected!${NC}"
         echo ""
-        echo "Please connect your Infinix GT 30 Pro via USB and:"
         echo "  1. Enable USB Debugging in Developer Options"
         echo "  2. Authorize this computer for USB debugging"
         echo ""

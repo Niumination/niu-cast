@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                      HERMES CAST MINI                                        ║
+║                      NIU CAST MINI                                        ║
 ║                 Pure Python - No GUI Dependencies                           ║
 ║                                                                            ║
 ║  Compatible dengan:                                                         ║
@@ -171,7 +171,7 @@ def take_screenshot(adb, save_dir=None):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     remote_path = '/sdcard/screenshot.png'
     save_dir = save_dir or os.path.expanduser('~/Pictures')
-    local_path = os.path.join(save_dir, f'hermes_screenshot_{timestamp}.png')
+    local_path = os.path.join(save_dir, f'niu_screenshot_{timestamp}.png')
     
     os.makedirs(save_dir, exist_ok=True)
     
@@ -196,7 +196,7 @@ def screen_record(adb, duration=30, save_dir=None):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     remote_path = '/sdcard/recording.mp4'
     save_dir = save_dir or os.path.expanduser('~/Videos')
-    local_path = os.path.join(save_dir, f'hermes_recording_{timestamp}.mp4')
+    local_path = os.path.join(save_dir, f'niu_recording_{timestamp}.mp4')
     
     os.makedirs(save_dir, exist_ok=True)
     
@@ -264,7 +264,7 @@ def interactive_control(adb):
     
     while True:
         try:
-            cmd = input("hermes> ").strip().split()
+            cmd = input("niu> ").strip().split()
             if not cmd:
                 continue
             
@@ -295,36 +295,128 @@ def interactive_control(adb):
             break
 
 def wireless_connect(adb):
+    """Wireless ADB — auto-detect IP dan enable TCP mode"""
     print_subheader("Wireless Connection Setup")
+    print("  Metode: deteksi IP dari interface aktif + adb tcpip")
+    print()
     
-    # Get IP
-    rc, ip_output, _ = adb.shell('ip addr show wlan0')
-    if rc == 0:
-        import re
-        ip_match = re.search(r'inet (\d+\.\d+\.\d+\.\d+)', ip_output)
-        if ip_match:
-            ip = ip_match.group(1)
-            print(f"  WiFi IP: {ip}")
-            
-            # Enable ADB over TCP
-            print("  Enabling ADB over TCP...")
+    import re
+    
+    # Step 1: Cek apakah sudah di TCP mode
+    rc, port_out, _ = adb.shell('getprop service.adb.tcp.port')
+    already_tcp = (rc == 0 and port_out.strip() == '5555')
+    
+    if already_tcp:
+        print_color(Colors.GREEN, "  ✓ ADB sudah dalam TCP mode (port 5555)")
+    else:
+        # Step 2: Enable TCP mode via USB (tanpa root)
+        print("  Mengaktifkan ADB over TCP...")
+        rc_tcp, out_tcp, err_tcp = adb._run(['tcpip', '5555'])
+        if rc_tcp != 0:
+            print_color(Colors.RED, f"  ✗ Gagal enable TCP: {err_tcp}")
+            print("  Coba metode alternatif (setprop)...")
             adb.shell('setprop service.adb.tcp.port 5555')
             adb.shell('stop adbd')
             adb.shell('start adbd')
             time.sleep(2)
-            
-            # Connect
-            print(f"  Connecting to {ip}:5555...")
-            rc, out, err = adb._run(['connect', f'{ip}:5555'])
-            if rc == 0:
-                print_color(Colors.GREEN, f"  ✓ Connected via WiFi!")
-                adb.device = f'{ip}:5555'
-            else:
-                print_color(Colors.RED, f"  ✗ Failed: {err}")
         else:
-            print_color(Colors.RED, "  ✗ No IP found")
+            print_color(Colors.GREEN, "  ✓ ADB TCP mode enabled (via adb tcpip 5555)")
+            time.sleep(2)
+    
+    # Step 3: Auto-detect IP dari berbagai interface
+    print()
+    print("  Mendeteksi IP device...")
+    
+    # Coba beberapa interface umum
+    interfaces = ['wlan0', 'wlan1', 'eth0', 'ccmni0', 'ccmni1', 'ccmni2']
+    ip_found = None
+    
+    for iface in interfaces:
+        rc, output, _ = adb.shell(f'ip addr show {iface}')
+        if rc == 0:
+            ip_match = re.search(r'inet (\d+\.\d+\.\d+\.\d+)', output)
+            if ip_match:
+                ip = ip_match.group(1)
+                if ip != '127.0.0.1' and not ip.startswith('172.'):
+                    ip_found = ip
+                    print_color(Colors.GREEN, f"  ✓ Ditemukan IP di {iface}: {ip}")
+                    break
+                elif ip != '127.0.0.1':
+                    ip_found = ip
+                    print(f"    IP di {iface}: {ip} (Hotspot/NAT — mungkin tidak reachable)")
+    
+    # Fallback: ambil IP pertama dari interface mana pun
+    if not ip_found:
+        rc, output, _ = adb.shell('ip addr show')
+        if rc == 0:
+            ips = re.findall(r'inet (\d+\.\d+\.\d+\.\d+)', output)
+            for ip in ips:
+                if ip != '127.0.0.1' and not ip.startswith('172.'):
+                    ip_found = ip
+                    print_color(Colors.GREEN, f"  ✓ Ditemukan IP: {ip}")
+                    break
+    
+    # Step 4: Konek
+    if ip_found:
+        print()
+        print(f"  Menghubungkan ke {ip_found}:5555...")
+        
+        # Coba langsung
+        rc, out, err = adb._run(['connect', f'{ip_found}:5555'])
+        
+        if rc == 0 and 'connected' in out.lower():
+            print_color(Colors.GREEN, f"  ✓ Wireless connected! → {ip_found}:5555")
+            adb.device = f'{ip_found}:5555'
+        else:
+            # Coba dengan usb fallback
+            print(f"  ⚠ Gagal: {err.strip()}")
+            print("  Mencoba connect ulang...")
+            time.sleep(1)
+            rc2, out2, err2 = adb._run(['connect', f'{ip_found}:5555'])
+            if rc2 == 0 and 'connected' in out2.lower():
+                print_color(Colors.GREEN, f"  ✓ Wireless connected! → {ip_found}:5555")
+                adb.device = f'{ip_found}:5555'
+            else:
+                print_color(Colors.RED, f"  ✗ Wireless failed: {err2.strip()}")
+                print()
+                print("  💡 Tips:")
+                print("  1. Pastikan HP & Mac di jaringan yang SAMA")
+                print("  2. Coba manual: adb connect <IP>:5555")
+                print("  3. Atau input IP manual di menu ini:")
+                manual_ip = input("  Masukkan IP device: ").strip()
+                if manual_ip:
+                    rc3, out3, err3 = adb._run(['connect', f'{manual_ip}:5555'])
+                    if rc3 == 0 and 'connected' in out3.lower():
+                        print_color(Colors.GREEN, f"  ✓ Connected via manual IP: {manual_ip}:5555")
+                        adb.device = f'{manual_ip}:5555'
+                    else:
+                        print_color(Colors.RED, f"  ✗ Gagal: {err3.strip()}")
     else:
-        print_color(Colors.RED, "  ✗ Failed to get IP")
+        print_color(Colors.RED, "  ✗ Tidak ada IP terdeteksi")
+        print()
+        print("  💡 Coba manual:")
+        print("  1. Cek IP HP: Settings → About → Status → IP Address")
+        print("  2. Jalankan: adb connect <IP>:5555")
+        print()
+        manual_ip = input("  Atau masukkan IP device: ").strip()
+        if manual_ip:
+            rc, out, err = adb._run(['connect', f'{manual_ip}:5555'])
+            if rc == 0 and 'connected' in out.lower():
+                print_color(Colors.GREEN, f"  ✓ Connected via manual IP: {manual_ip}:5555")
+                adb.device = f'{manual_ip}:5555'
+            else:
+                print_color(Colors.RED, f"  ✗ Gagal: {err.strip()}")
+    
+    # Step 5: Verify
+    if adb.device and ':' in str(adb.device):
+        print()
+        print("  Memverifikasi koneksi...")
+        rc_v, out_v, _ = adb._run(['devices'])
+        if str(adb.device) in out_v:
+            print_color(Colors.GREEN, f"  ✅ Wireless ADB aktif! Device: {adb.device}")
+            print("  📌 USB bisa dicabut sekarang")
+        else:
+            print_color(Colors.RED, "  ✗ Device tidak muncul di daftar ADB")
 
 # ═══════════════════════════════════════════════════════════════════════════════
 #                              MAIN
@@ -332,7 +424,7 @@ def wireless_connect(adb):
 
 def main():
     parser = argparse.ArgumentParser(
-        description='HermesCast Mini - Lightweight Screen Mirroring Tool',
+        description='NiuCast Mini - Lightweight Screen Mirroring Tool',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -356,7 +448,7 @@ Examples:
     
     args = parser.parse_args()
     
-    print_header("HERMES CAST MINI")
+    print_header("NIU CAST MINI")
     print(f"Python: {sys.version.split()[0]}")
     print(f"Platform: {sys.platform}")
     print()

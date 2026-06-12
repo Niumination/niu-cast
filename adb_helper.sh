@@ -3,7 +3,6 @@
 #                         ADB HELPER TOOL
 # ═══════════════════════════════════════════════════════════════════════════════
 # Helper script untuk berbagai fungsi ADB
-# Target: Infinix GT 30 Pro ↔ ThinkPad X13 Yoga Gen 1
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Colors
@@ -22,9 +21,8 @@ NC='\033[0m'
 print_header() {
     echo -e "${CYAN}"
     echo "╔════════════════════════════════════════════════════════════════╗"
-    echo "║              HERMES CAST - ADB Helper Tool                    ║"
+    echo "║              NIU CAST - ADB Helper Tool                    ║"
     echo "╠════════════════════════════════════════════════════════════════╣"
-    echo "║ Device: Infinix GT 30 Pro  |  Host: ThinkPad X13 Yoga Gen 1   ║"
     echo "╚════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
 }
@@ -32,7 +30,6 @@ print_header() {
 check_connection() {
     if ! adb devices 2>/dev/null | grep -q "device$"; then
         echo -e "${RED}✗ No device connected${NC}"
-        echo "Please connect your Infinix GT 30 Pro via USB"
         return 1
     fi
     return 0

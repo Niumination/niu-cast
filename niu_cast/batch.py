@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                   HERMES CAST - BATCH EXECUTOR                              ║
+║                   NIU CAST - BATCH EXECUTOR                              ║
 ║                                                                            ║
 ║  Execute multiple ADB commands automatically                               ║
 ║  Perfect for automation dan testing                                        ║
@@ -191,7 +191,7 @@ class BatchExecutor:
 #                              EXAMPLE SCRIPTS
 # ═══════════════════════════════════════════════════════════════════════════════
 
-EXAMPLE_SCRIPT = """# HermesCast Batch Script Example
+EXAMPLE_SCRIPT = """# NiuCast Batch Script Example
 # Save as .txt, .yaml, or .json
 
 # Unlock device and go to home
@@ -217,7 +217,7 @@ input keyevent KEYCODE_HOME
 
 EXAMPLE_YAML = """---
 name: "Test Automation"
-description: "Automated testing script for HermesCast"
+description: "Automated testing script for NiuCast"
 
 commands:
   - action: shell
@@ -255,7 +255,7 @@ EXAMPLE_JSON = """{
 def main():
     import argparse
     
-    parser = argparse.ArgumentParser(description='HermesCast Batch Executor')
+    parser = argparse.ArgumentParser(description='NiuCast Batch Executor')
     parser.add_argument('script', nargs='?', help='Script file to execute')
     parser.add_argument('--text', help='Execute commands from text')
     parser.add_argument('--device', help='Target device serial')
@@ -294,7 +294,7 @@ def main():
         executor.execute_file(args.script)
     else:
         # Interactive mode
-        print("HermesCast Batch Executor")
+        print("NiuCast Batch Executor")
         print("Enter commands (one per line, # for comment, empty line to execute)")
         print("Commands: shell <cmd>, wait <sec>, screenshot <path>, install <apk>")
         print("Type 'quit' to exit, 'report' to show results")

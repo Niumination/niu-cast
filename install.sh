@@ -1,18 +1,15 @@
 #!/bin/bash
 # ═══════════════════════════════════════════════════════════════════════════════
-#                    HERMES CAST - SETUP SCRIPT
+#                    NIU CAST - SETUP SCRIPT
 # ═══════════════════════════════════════════════════════════════════════════════
-# Setup untuk ThinkPad X13 Yoga Gen 1 (Hackintosh Mac Tahoe)
-# Target: Infinix GT 30 Pro
 # Agent: Hermes + DeepSeek-V4-Flash
 # ═══════════════════════════════════════════════════════════════════════════════
 
 set -e
 
 echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║           HERMES CAST - Installation Script                    ║"
+echo "║           NIU CAST - Installation Script                    ║"
 echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ Target: Infinix GT 30 Pro → ThinkPad X13 Yoga Gen 1           ║"
 echo "╚════════════════════════════════════════════════════════════════╝"
 echo ""
 
@@ -74,7 +71,7 @@ mkdir -p ~/.hermes-cast/recordings
 mkdir -p /tmp/hermes-cast
 
 # Make scripts executable
-chmod +x hermes_cast.py
+chmod +x niu_cast.py
 chmod +x quick_mirror.sh
 chmod +x adb_helper.sh
 
@@ -83,11 +80,11 @@ echo -e "${GREEN}╔════════════════════
 echo "║                  INSTALLATION COMPLETE!                        ║"
 echo "╠════════════════════════════════════════════════════════════════╣"
 echo "║                                                                ║"
-echo "║  To run HermesCast:                                            ║"
+echo "║  To run NiuCast:                                            ║"
 echo "║                                                                ║"
 echo "║  1. GUI Mode (with screen mirroring):                          ║"
 echo "║     source venv/bin/activate                                   ║"
-echo "║     python3 hermes_cast.py                                     ║"
+echo "║     python3 niu_cast.py                                     ║"
 echo "║                                                                ║"
 echo "║  2. Quick mirror (CLI):                                        ║"
 echo "║     ./quick_mirror.sh                                          ║"
@@ -97,6 +94,5 @@ echo "║     ./adb_helper.sh                                            ║"
 echo "║                                                                ║"
 echo "╚════════════════════════════════════════════════════════════════╝"
 echo ""
-echo -e "${YELLOW}NOTE:${NC} Make sure USB debugging is enabled on your Infinix GT 30 Pro"
 echo "      and you have authorized this computer for USB debugging."
 echo ""
