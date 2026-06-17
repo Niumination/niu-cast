@@ -699,7 +699,7 @@ class NiuCastWindow(QMainWindow):
         layout.addWidget(title)
         
         # Version
-        version = QLabel("v1.1.0 • Gaming Edition")
+        version = QLabel("v1.1.1 • Gaming Edition")
         version.setFont(QFont("Segoe UI", 9))
         version.setAlignment(Qt.AlignCenter)
         version.setStyleSheet(f"color: {GamingTheme.TEXT_MUTED};")
@@ -1512,7 +1512,7 @@ class NiuCastWindow(QMainWindow):
             QMessageBox.warning(self, "No Device", "Please connect a device first")
             return
         
-        file_path, _ = QFileDialog.getOpenName(
+        file_path, _ = QFileDialog.getOpenFileName(
             self, "Select APK", "", "APK Files (*.apk)"
         )
         
@@ -1589,7 +1589,7 @@ def main():
     
     app = QApplication(sys.argv)
     app.setApplicationName("NiuCast")
-    app.setApplicationVersion("1.1.0")
+    app.setApplicationVersion("1.1.1")
     
     # Apply dark theme
     app.setStyle('Fusion')

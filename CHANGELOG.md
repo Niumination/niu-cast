@@ -4,6 +4,17 @@ All notable changes to NiuCast Gaming Edition will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.1.2] - Maintenance Release - 2026-06-17
+
+### 🔨 Fixed
+- **Bug: Performance monitor never shows data in interactive CLI menu** — `show_stats()` was checking `'cpu_temp' in parts` (always empty) instead of `'cpu_temp' in stats` in `mini.py` interactive menu. Stats now display correctly.
+- **Bug: APK install crashes due to typo** — `getOpenName` → `getOpenFileName` in `core.py`'s `_install_apk`. APK file dialog now works instead of raising AttributeError.
+- **Version mismatch** — `setup.py` and `core.py` version labels bumped from 1.1.0 to 1.1.1 (consistent with `__init__.py`)
+- **setup.py URL capitalization** — `https://github.com/niumination/niu-cast` → `https://github.com/Niumination/niu-cast`
+
+### 📝 Updated
+- All version references now consistently report v1.1.1
+
 ## [1.1.1] - Module Integration - 2024-06-13
 
 ### 🔧 Integrated

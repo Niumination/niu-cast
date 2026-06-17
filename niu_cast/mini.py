@@ -619,11 +619,11 @@ def show_menu(adb):
             pm = PerformanceMonitor(adb)
             def show_stats(stats):
                 parts = []
-                if 'cpu_temp' in parts:
+                if 'cpu_temp' in stats:
                     parts.append(f"🌡 CPU: {stats['cpu_temp']['current']:.1f}°C")
-                if 'battery' in parts:
+                if 'battery' in stats:
                     parts.append(f"🔋 Bat: {stats['battery']['current']:.1f}°C")
-                if 'memory' in parts:
+                if 'memory' in stats:
                     parts.append(f"💾 RAM: {stats['memory']['current']:.0f}MB")
                 print(f"  {' | '.join(parts)}")
             print_header(f"PERFORMANCE MONITOR ({duration}s)")

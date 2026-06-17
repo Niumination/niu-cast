@@ -12,13 +12,13 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 
 setup(
     name="niu-cast",
-    version="1.1.0",
+    version="1.1.1",
     author="Niumination",
     author_email="niumination@example.com",
     description="Universal Android ADB Tool & Screen Mirroring - Gaming Edition",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/niumination/niu-cast",
+    url="https://github.com/Niumination/niu-cast",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
