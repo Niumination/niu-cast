@@ -34,6 +34,21 @@ if __name__ == "__main__":
             from .tetherd import main as tetherd_main
             sys.exit(tetherd_main())
         
+        elif cmd in ('video-stream', 'stream'):
+            from .video_stream import main as video_main
+            sys.exit(video_main())
+        
+        elif cmd in ('port-explore', 'probe'):
+            from .port_explorer import main as port_main
+            sys.argv[1] = '--adb'
+            sys.exit(port_main())
+        
+        elif cmd == 'test':
+            # Run all integration tests
+            from .video_stream import run_all_tests
+            run_all_tests()
+            sys.exit(0)
+        
         else:
             from .mini import main as cli_main
             sys.exit(cli_main())

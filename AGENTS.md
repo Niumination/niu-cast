@@ -20,6 +20,7 @@ Target: kontrol Infinix GT 30 Pro dari Mac tanpa USB debugging.
 | `mini.py` | 519 | CLI — device info, screenshot, record, control, APK install |
 | `file_browser.py` | 597 | File explorer Android via ADB |
 | `transsion_protocol.py` | ~920 | TCCP protocol handler + UIBC builder + TranCastDiscoverer |
+| `video_stream.py` | ~540 | Video stream receiver + integration tests (tanpa device) |
 | `port_explorer.py` | ~260 | CLI tool untuk scan port TCCP tambahan |
 | `auto_connect.py` | ~340 | Auto-connect wireless tanpa ADB (mDNS, tether, IPv6, scan) |
 | `wfd_bridge.py` | ~250 | WiFi Direct bridge (butuh ADB) |
@@ -118,6 +119,7 @@ Usage: `python3 -m niu_cast connect` (auto, sekali) atau `python3 -m niu_cast mo
 3. ✅ **v3.1** — TCCPFrame encode/decode, unified send_request
 4. ✅ **v3.2** — UIBCBuilder, TranCastMultiPort, port_explorer.py
 5. ✅ **v3.3** — Auto-connect tanpa ADB (auto_connect.py: mDNS, tether, IPv6, scan)
-6. ⟳ **v3.4** — UIBC touch/keyboard live test (butuh ADB reconnect)
-7. ⟳ **Wireless discovery** — WiFi Direct via macOS AWDL/P2P
-8. ⟳ **Video streaming** — H.264/H.265 decode
+6. ✅ **v3.4** — Video stream receiver + integration tests (video_stream.py)
+7. ⟳ **v3.5** — UIBC touch/keyboard live test (butuh ADB reconnect)
+8. ⟳ **Wireless discovery** — WiFi Direct via macOS AWDL/P2P
+9. ⟳ **Video streaming** — H.264/H.265 decode live render
