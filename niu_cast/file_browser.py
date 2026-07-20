@@ -10,8 +10,6 @@
 """
 
 import os
-import re
-from datetime import datetime
 
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QLineEdit,
@@ -318,49 +316,23 @@ class FileBrowserWidget(QWidget):
             if not line.strip():
                 continue
             parts = line.split()
-            # ls -la output: permissions links owner group size date time name
-            # or: total N (skip)
-            if line.startswith("total ") or line.startswith("d--") is None:
-                if len(parts) < 2:
-                    continue
-                if parts[0] == "total":
-                    continue
-
-            if len(parts) < 9:
+            # ls -la output format (Android BusyBox):
+            # permissions links owner group size YYYY-MM-DD HH:MM name
+            # 0          1      2     3     4    5          6     7+
+            if len(parts) < 8:
                 continue
 
             perms = parts[0]
-            size_str = parts[4]
-            # Date may be "2024-01-15" or "Jan 15" or "2024-01-15 10:30"
-            # Take last 3+ fields as name (handles spaces)
-            name_start = 9 if len(parts) > 9 else 8
-            # If date has 2 parts (e.g., "2024-01-15 10:30"), name starts later
-            date_parts = parts[5:9]
-            name_fields = parts[9:] if len(parts) > 9 else []
-
-            # Simpler: fields 5-7 are date, fields 9+ are name
-            # pattern: drwxrwx--x 2 root sdcard_rw 4096 2024-01-15 10:30 Downloads
             is_dir = perms.startswith("d")
             is_link = perms.startswith("l")
+            size_str = parts[4]
+            date_str = f"{parts[5]} {parts[6]}"  # "2026-07-15 11:34"
+            name = " ".join(parts[7:])  # name may have spaces
 
-            # Find name position: after 7 date/time fields or 3 date fields
-            # Count back: drwx (1) links(2) owner(3) group(4) size(5) date1(6) date2(7) time(8) name(9+)
-            # Some ls formats have date as MM-dd HH:MM, others as YYYY-MM-DD HH:MM
-            # Minimal: we know parts[0]=perms, parts[4]=size
-            # Try to find name: everything after position 8
-            idx = 8  # 0-indexed: perms, links, owner, group, size, m1, m2, time[_or m3]
-            if len(parts) > idx:
-                # Check if parts[8] looks like a time (HH:MM) or year
-                # If it looks like a time or year, name starts at 9
-                name = " ".join(parts[idx:])
-            else:
-                name = parts[min(len(parts)-1, idx)]
-
-            # Clean up name (remove symlink target)
+            # Strip symlink target
+            target = None
             if " -> " in name:
                 name, target = name.split(" -> ", 1)
-            else:
-                target = None
 
             size = 0
             try:
@@ -368,10 +340,7 @@ class FileBrowserWidget(QWidget):
             except ValueError:
                 size = 0
 
-            # Build date string
-            date_fields = parts[5:8] if len(parts) > 8 else []
-            date_str = " ".join(date_fields) if date_fields else ""
-
+            # date_str already set from parts[5] parts[6] above
             ftype = FILE_TYPE_DIR if is_dir else (FILE_TYPE_LINK if is_link else "file")
             ftype_icon = guess_file_type(name) if ftype == "file" else ftype
 
