@@ -2,7 +2,7 @@
 NIU CAST — Android device manager via ADB
 """
 
-__version__ = "2.2.0"
+__version__ = "2.3.0"
 __author__ = "Niumination"
 
 from .adb_controller import ADBController

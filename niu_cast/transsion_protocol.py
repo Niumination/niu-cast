@@ -39,6 +39,14 @@ PORT_HANDSHAKE_DEFAULT = 37651  # changes per session
 HANDSHAKE_MAGIC = b'NCCN'
 PROTO_VERSION = 1
 
+# All known service ports for iteration
+TRANSCAST_PORTS = {
+    'HandShake': PORT_HANDSHAKE_DEFAULT,
+    'ScreenCast': PORT_SCREENCAST,
+    'UcHoService': PORT_UCHO,
+    'AudioSink': PORT_AUDIOSINK,
+}
+
 
 class TranCastProtocol:
     """
