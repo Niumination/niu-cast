@@ -5,8 +5,11 @@ Reverse-engineered protocol for Infinix/Transsion PC Connect (tranCast).
 This module implements the transport layer for connecting to Infinix GT 30 Pro
 (and other Transsion devices) over WiFi Direct WITHOUT USB Debugging/ADB.
 
-Protocol architecture (from mDNS service announcement):
+Protocol architecture (from mDNS queries by Windows PC Connect app):
   _tranCast._tcp  →  transConnectService-{device_id}-{session}._tranCast._tcp.local
+  _tranFile._tcp  →  (file transfer service?)
+  _tran._tcp      →  (base Transsion service?)
+  _tccp._tcp      →  (Transsion Cast Control Protocol?)
   cmbSvc: {
     "HandShake": <port>,  → dynamic port, initial negotiation
     "ScreenCast": 8900,   → screen mirror stream
@@ -33,6 +36,14 @@ PORT_SCREENCAST = 8900
 PORT_UCHO = 8902
 PORT_AUDIOSINK = 8904
 PORT_HANDSHAKE_DEFAULT = 37651  # changes per session
+
+# Additional Transsion mDNS service types (discovered from Windows queries)
+SERVICE_TRANCAST = "_tranCast._tcp.local."
+SERVICE_TRANFILE = "_tranFile._tcp.local."
+SERVICE_TRAN = "_tran._tcp.local."
+SERVICE_TCCP = "_tccp._tcp.local."
+
+ALL_SERVICES = [SERVICE_TRANCAST, SERVICE_TRANFILE, SERVICE_TRAN, SERVICE_TCCP]
 
 # Magic bytes / headers discovered so far (TBD from pcap analysis)
 # These are placeholders until the WiFi Direct capture is decoded
@@ -243,15 +254,22 @@ class TranCastDiscoverer:
             print(dev['host'], dev['handshake_port'])
     """
 
-    SERVICE_TYPE = "_tranCast._tcp.local."
+    SERVICE_TYPE = SERVICE_TRANCAST
 
     @staticmethod
-    def discover(timeout: float = 4.0) -> list:
+    def discover(timeout: float = 4.0, service_types: list = None) -> list:
         """
-        Scan mDNS for _tranCast._tcp services using zeroconf.
+        Scan mDNS for Transsion services using zeroconf.
+
+        Args:
+            timeout: Seconds to wait for responses
+            service_types: List of service types to scan (default: all known)
 
         Returns list of dicts with device info.
         """
+        if service_types is None:
+            service_types = ALL_SERVICES
+
         devices = []
 
         try:
@@ -271,7 +289,9 @@ class TranCastDiscoverer:
 
             zc = Zeroconf()
             listener = _Listener()
-            browser = ServiceBrowser(zc, TranCastDiscoverer.SERVICE_TYPE, listener)
+            browsers = []
+            for svc_type in service_types:
+                browsers.append(ServiceBrowser(zc, svc_type, listener))
 
             import time as _time
             _time.sleep(timeout)
@@ -281,30 +301,32 @@ class TranCastDiscoverer:
             for info in listener.found:
                 dev = TranCastDiscoverer._parse_service(info)
                 if dev:
+                    dev['service_type'] = info.type  # tag which type it was found on
                     devices.append(dev)
 
         except ImportError:
             logger.warning("zeroconf not installed, falling back to dns-sd")
             import asyncio
             import asyncio.subprocess
-            try:
-                proc = asyncio.run(asyncio.create_subprocess_exec(
-                    'dns-sd', '-B', '_tranCast._tcp', 'local',
-                    stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.DEVNULL,
-                ))
+            for svc_type in service_types:
                 try:
-                    stdout_data, _ = asyncio.run(asyncio.wait_for(
-                        proc.communicate(), timeout=timeout
+                    proc = asyncio.run(asyncio.create_subprocess_exec(
+                        'dns-sd', '-B', svc_type.replace('.local.', '').replace('._tcp', ''),
+                        stdout=asyncio.subprocess.PIPE,
+                        stderr=asyncio.subprocess.DEVNULL,
                     ))
-                    for line in stdout_data.decode('utf-8', errors='replace').splitlines():
-                        if 'tranCast' in line:
-                            devices.append({'name': line, 'raw': True})
-                except asyncio.TimeoutError:
-                    proc.kill()
-                    asyncio.run(proc.wait())
-            except FileNotFoundError:
-                logger.debug("dns-sd not found")
+                    try:
+                        stdout_data, _ = asyncio.run(asyncio.wait_for(
+                            proc.communicate(), timeout=timeout
+                        ))
+                        for line in stdout_data.decode('utf-8', errors='replace').splitlines():
+                            if 'tranCast' in line or 'tranFile' in line or 'tran.' in line or 'tccp' in line:
+                                devices.append({'name': line, 'raw': True, 'service_type': svc_type})
+                    except asyncio.TimeoutError:
+                        proc.kill()
+                        asyncio.run(proc.wait())
+                except FileNotFoundError:
+                    logger.debug("dns-sd not found for %s", svc_type)
 
         return devices
 

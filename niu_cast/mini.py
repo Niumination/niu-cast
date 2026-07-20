@@ -545,6 +545,7 @@ Examples:
   %(prog)s --scan-trancast    Discover Transsion phones on LAN (no ADB)
   %(prog)s --tether           Connect via USB tether (no ADB/WiFi Direct)
   %(prog)s --tetherd          Persistent tether monitor daemon
+  %(prog)s --apk-extract      Extract PC Connect APK for RE analysis
         """
     )
     
@@ -564,6 +565,8 @@ Examples:
                         help='Connect to phone via USB tether (no ADB/WiFi Direct needed)')
     parser.add_argument('--tetherd', action='store_true',
                         help='Tether daemon — monitor USB for phone and auto-connect')
+    parser.add_argument('--apk-extract', action='store_true',
+                        help='Extract Transsion PC Connect APK from connected device')
     parser.add_argument('--version', action='store_true', help='Show version')
     
     args = parser.parse_args()
@@ -585,6 +588,10 @@ Examples:
     if args.tetherd:
         from .tetherd import main as tetherd_main
         return tetherd_main()
+
+    if args.apk_extract:
+        from .apk_extract import main as apk_main
+        return apk_main()
 
     adb = ADB()
     
