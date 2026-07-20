@@ -39,7 +39,7 @@ STYLESHEET = f"""
 QMainWindow, QWidget {{
     background: {DARK_BG};
     color: {TEXT_PRIMARY};
-    font-family: 'SF Pro Display', 'Helvetica Neue', 'Segoe UI', sans-serif;
+    font-family: '.AppleSystemUIFont', 'Helvetica Neue', 'Segoe UI', sans-serif;
 }}
 QLabel {{
     background: transparent;
