@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <bool name="os_flag_refs_pad_value">true</bool>
+</resources>

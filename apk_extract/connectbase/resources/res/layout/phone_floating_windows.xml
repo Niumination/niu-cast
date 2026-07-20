@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:bind="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:id="@+id/root_content"
+    android:tag="layout/phone_floating_windows_0"
+    android:background="@android:color/transparent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:elevation="8dp">
+    <include
+        android:id="@+id/tvContent"
+        bind:layout_constraintEnd_toEndOf="parent"
+        bind:layout_constraintStart_toStartOf="parent"
+        bind:layout_constraintTop_toTopOf="parent"
+        layout="@layout/item_actionbar"/>
+    <EditText
+        android:id="@+id/input"
+        android:background="#00000000"
+        android:scrollbars="vertical"
+        android:layout_width="1dp"
+        android:layout_height="0dp"
+        android:inputType="textMultiLine"
+        android:imeOptions="flagNoEnterAction"
+        bind:layout_constraintBottom_toBottomOf="parent"
+        bind:layout_constraintLeft_toLeftOf="parent"
+        bind:layout_constraintRight_toRightOf="parent"
+        bind:layout_constraintTop_toTopOf="parent"/>
+    <FrameLayout
+        android:layout_gravity="center"
+        android:id="@+id/mirror_content"
+        android:tag="binding_1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        bind:layout_constraintBottom_toTopOf="@+id/bottom_nav"
+        bind:layout_constraintEnd_toEndOf="parent"
+        bind:layout_constraintStart_toStartOf="parent"
+        bind:layout_constraintTop_toBottomOf="@+id/tvContent">
+        <SurfaceView
+            android:layout_gravity="center"
+            android:id="@+id/phone_screen"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+        <include
+            android:id="@+id/loading_layout"
+            layout="@layout/loading_layout"/>
+        <include
+            android:id="@+id/item_extend_tip"
+            layout="@layout/item_extend_tip"/>
+        <include layout="@layout/item_secret_screen"/>
+        <include
+            android:id="@+id/item_window_button"
+            layout="@layout/item_window_helper"/>
+        <include layout="@layout/item_screen_lock"/>
+        <include
+            android:id="@+id/start_layout"
+            layout="@layout/start_layout"/>
+    </FrameLayout>
+    <include
+        android:id="@+id/bottom_nav"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/mirror_window_tool_bar_height_gesture"
+        bind:layout_constraintBottom_toBottomOf="parent"
+        bind:layout_constraintEnd_toEndOf="parent"
+        bind:layout_constraintStart_toStartOf="parent"
+        layout="@layout/item_bottom_nav"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

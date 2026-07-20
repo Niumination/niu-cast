@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    android:sharedUserId="android.uid.system"
+    android:versionCode="10402097"
+    android:versionName="1.4.2.097"
+    android:compileSdkVersion="35"
+    android:compileSdkVersionCodename="15"
+    package="com.transsion.connectx.mirror.source"
+    platformBuildVersionCode="35"
+    platformBuildVersionName="15">
+    <uses-sdk
+        android:minSdkVersion="31"
+        android:targetSdkVersion="35"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.READ_DEVICE_CONFIG"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.READ_CLIPBOARD_IN_BACKGROUND"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <uses-permission android:name="android.permission.TETHER_PRIVILEGED"/>
+    <uses-permission android:name="android.permission.NETWORK_SETTINGS"/>
+    <uses-permission android:name="com.transsion.screencapture.IDENTITY"/>
+    <uses-permission android:name="android.permission.READ_BASIC_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.ACTION_MANAGE_OVERLAY_PERMISSION"/>
+    <uses-permission android:name="android.permission.READ_BASIC_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.CAPTURE_SECURE_VIDEO_OUTPUT"/>
+    <uses-permission android:name="android.permission.INJECT_EVENTS"/>
+    <uses-permission android:name="android.permission.CAPTURE_AUDIO_OUTPUT"/>
+    <permission
+        android:name="connectx.permission.ACCESS_API"
+        android:protectionLevel="signatureOrSystem"/>
+    <permission
+        android:name="com.transsion.padconnect.bridge.permission.RECEIVE_ENTRY_CLICK"
+        android:protectionLevel="signature"/>
+    <uses-permission android:name="com.transsion.padconnect.bridge.permission.RECEIVE_CAST_ENTRY"/>
+    <uses-permission android:name="com.transsion.padconnect.bridge.permission.RECEIVE_ENTRY_CLICK"/>
+    <queries>
+        <intent>
+            <action android:name="com.transsion.padconnect.bridge.ACTION_CAST_ENTRY_STATE"/>
+        </intent>
+        <intent>
+            <action android:name="com.transsion.padconnect.bridge.ACTION_CAST_ENTRY_CLICK"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN"/>
+        </intent>
+    </queries>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <meta-data
+        android:name="tran_widgets_version"
+        android:value="13.0.1.0"/>
+    <uses-permission android:name="com.transsion.dataservice.permission.READ"/>
+    <uses-permission android:name="com.transsion.dataservice.permission.WRITE"/>
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
+    <meta-data
+        android:name="tran_athena_version"
+        android:value="3.1.1.1-sys"/>
+    <permission
+        android:name="com.transsion.connectx.mirror.source.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        android:protectionLevel="signature"/>
+    <uses-permission android:name="com.transsion.connectx.mirror.source.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"/>
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
+    <meta-data
+        android:name="tran_gslb_version"
+        android:value="1.0.2.6"/>
+    <meta-data
+        android:name="tran_coreutil_version"
+        android:value="1.0.61.09"/>
+    <meta-data
+        android:name="tran_widgets_core_version"
+        android:value="13.0.1.0"/>
+    <meta-data
+        android:name="tran_json_version"
+        android:value="1.0.5.01"/>
+    <application
+        android:theme="@style/Theme.ConnectX"
+        android:label="@string/app_name"
+        android:icon="@mipmap/notification_logo"
+        android:name="com.transsion.connectx.mirror.source.SourceApplication"
+        android:allowBackup="true"
+        android:supportsRtl="true"
+        android:extractNativeLibs="false"
+        android:roundIcon="@mipmap/notification_logo"
+        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+        android:requestLegacyExternalStorage="true">
+        <activity
+            android:theme="@style/ScreenTheme"
+            android:name="com.transsion.connectx.mirror.source.activity.ExtendScreenActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:configChanges="screenSize|uiMode|orientation|keyboardHidden"/>
+        <activity
+            android:name="com.transsion.connectx.mirror.source.activity.CastSettingActivity"
+            android:exported="true"/>
+        <activity
+            android:name="com.transsion.connectx.mirror.source.activity.FileTransferSettingActivity"
+            android:exported="false"
+            android:launchMode="singleTask"/>
+        <activity
+            android:name="com.transsion.connectx.mirror.source.activity.ShortCutHelperActivity"
+            android:exported="true"
+            android:launchMode="singleTask"/>
+        <activity
+            android:theme="@style/ScreenTheme"
+            android:name="com.transsion.connectx.mirror.source.pad.MirrorFullScreenActivity"
+            android:exported="false"
+            android:launchMode="singleInstance"
+            android:configChanges="screenSize|uiMode|orientation|keyboardHidden"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
+        <activity
+            android:theme="@style/ScreenTheme"
+            android:name="com.transsion.connectx.mirror.source.pad.extend.ExtendScreenActivity"
+            android:exported="true"
+            android:launchMode="singleInstance"
+            android:configChanges="screenSize|uiMode|orientation|keyboardHidden"
+            android:windowSoftInputMode="adjustResize|stateHidden">
+            <intent-filter>
+                <action android:name="com.transsion.connectx.EXTEND_SCREEN"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <service
+            android:name="com.transsion.connectx.mirror.source.service.SourceService"
+            android:persistent="true"
+            android:enabled="true"
+            android:exported="true"
+            android:foregroundServiceType="mediaProjection">
+            <intent-filter>
+                <action android:name="com_transsion_connectx_source_api"/>
+            </intent-filter>
+        </service>
+        <service
+            android:name="com.transsion.connectx.mirror.source.service.CastStatusService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter android:priority="1000">
+                <action android:name="com.transsion.connectx.mirror.source"/>
+            </intent-filter>
+        </service>
+        <service
+            android:name="com.transsion.connectx.mirror.source.pad.PadFloatingWindowService"
+            android:enabled="true"
+            android:exported="false"/>
+        <service android:name="com.transsion.athena.aidl.AthenaTrackService"/>
+        <uses-library
+            android:name="androidx.window.extensions"
+            android:required="false"/>
+        <uses-library
+            android:name="androidx.window.sidecar"
+            android:required="false"/>
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:exported="false"
+            android:authorities="com.transsion.connectx.mirror.source.androidx-startup">
+            <meta-data
+                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+                android:value="androidx.startup"/>
+            <meta-data
+                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+                android:value="androidx.startup"/>
+            <meta-data
+                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+                android:value="androidx.startup"/>
+        </provider>
+        <receiver
+            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+            android:permission="android.permission.DUMP"
+            android:enabled="true"
+            android:exported="true"
+            android:directBootAware="false">
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SKIP_FILE"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION"/>
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

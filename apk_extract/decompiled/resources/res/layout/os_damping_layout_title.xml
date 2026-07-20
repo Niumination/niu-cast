@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:gravity="center_horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/os_damping_layout_loading_title">
+    <com.transsion.widgetslib.view.LoadingView
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/loading_view"
+        android:layout_width="@dimen/os_damping_layout_loading_view"
+        android:layout_height="@dimen/os_damping_layout_loading_view"/>
+    <TextView
+        android:textSize="15dp"
+        android:textColor="@android:color/darker_gray"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:id="@+id/damping_text_loading"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/os_damping_layout_loading_text"
+        android:text="@string/os_dampingl_down_pull_refresh"
+        android:singleLine="true"
+        android:elegantTextHeight="true"/>
+</FrameLayout>

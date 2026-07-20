@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:state_enabled="true"
+        android:state_checked="true"
+        android:color="@color/os_fill_quaternary_color"/>
+    <item
+        android:state_enabled="false"
+        android:state_checked="false"
+        android:color="@color/os_gray_tertiary_color"/>
+    <item
+        android:state_enabled="true"
+        android:state_checked="false"
+        android:color="@color/os_fill_quaternary_color"/>
+    <item
+        android:state_enabled="false"
+        android:state_checked="true"
+        android:color="#80a1a1a1"
+        android:alpha="0"/>
+</selector>

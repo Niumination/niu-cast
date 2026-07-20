@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_gravity="center"
+    android:id="@+id/segment_container"
+    android:background="@drawable/os_segment_tab_bg"
+    android:padding="2dp"
+    android:layout_width="wrap_content"
+    android:layout_height="38dp">
+    <View
+        android:id="@+id/segment_indicator"
+        android:background="@drawable/os_segment_tab_indicator"
+        android:visibility="visible"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"/>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:id="@+id/capsule_tab_container"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"/>
+</FrameLayout>

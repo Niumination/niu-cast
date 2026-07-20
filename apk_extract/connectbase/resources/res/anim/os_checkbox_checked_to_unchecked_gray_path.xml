@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <set android:ordering="sequentially">
+        <objectAnimator
+            android:interpolator="@android:interpolator/linear"
+            android:duration="220"
+            android:valueFrom="M 32.6,44.2 L 32.6,44.2 c 0.8,0.8,0.8,2.0,0.0,2.8 l 0.0,0.0 c -0.8,0.8,-2.1,0.8,-2.8,0.0 l 0.0,0.0 l 0.0,0.0 c 0.0,0.0,0.0,0.0,0.0,0.0 c -0.8,-0.8,-0.8,-2.0,0.0,-2.8 l 0.0,0.0 l 0.0,0.0 c 0.0,0.0,0.0,0.0,0.0,0.0 l 0.0,0.0 C 30.6,43.4,31.8,43.4,32.6,44.2 L 32.6,44.2"
+            android:valueTo="M 32.6,44.2 L 32.6,44.2 c 0.8,0.8,0.8,2.0,0.0,2.8 l 0.0,0.0 c -0.8,0.8,-2.1,0.8,-2.8,0.0 l 0.0,0.0 l 0.0,0.0 c 0.0,0.0,0.0,0.0,0.0,0.0 c -0.8,-0.8,-0.8,-2.0,0.0,-2.8 l 0.0,0.0 l 0.0,0.0 c 0.0,0.0,0.0,0.0,0.0,0.0 l 0.0,0.0 C 30.6,43.4,31.8,43.4,32.6,44.2 L 32.6,44.2"
+            android:valueType="pathType"
+            android:propertyName="pathData"/>
+        <objectAnimator
+            android:interpolator="@android:interpolator/linear"
+            android:duration="120"
+            android:valueFrom="M 32.6,44.2 L 32.6,44.2 c 0.8,0.8,0.8,2.0,0.0,2.8 l 0.0,0.0 c -0.8,0.8,-2.1,0.8,-2.8,0.0 l 0.0,0.0 l 0.0,0.0 c 0.0,0.0,0.0,0.0,0.0,0.0 c -0.8,-0.8,-0.8,-2.0,0.0,-2.8 l 0.0,0.0 l 0.0,0.0 c 0.0,0.0,0.0,0.0,0.0,0.0 l 0.0,0.0 C 30.6,43.4,31.8,43.4,32.6,44.2 L 32.6,44.2"
+            android:valueTo="M 52.3,27.3 L 32.6,47.0 c -0.8,0.8,-2.1,0.8,-2.8,0.0 l 0.0,0.0 c 0.0,0.0,0.0,0.0,0.0,0.0 l 0.0,0.0 l -9.2,-9.2 c -0.8,-0.8,-0.8,-2.1,0.0,-2.8 c 0.8,-0.8,2.1,-0.8,2.8,0.0 l 7.8,7.8 l 18.3,-18.3 c 0.8,-0.8,2.1,-0.8,2.8,0.0 l 0.0,0.0 C 53.0,25.3,53.0,26.5,52.3,27.3 L 52.3,27.3"
+            android:valueType="pathType"
+            android:propertyName="pathData"/>
+    </set>
+    <set android:ordering="sequentially">
+        <objectAnimator
+            android:duration="220"
+            android:valueFrom="0"
+            android:valueTo="0"
+            android:propertyName="fillAlpha"/>
+        <objectAnimator
+            android:duration="20"
+            android:valueFrom="0"
+            android:valueTo="0.5"
+            android:propertyName="fillAlpha"/>
+    </set>
+</set>

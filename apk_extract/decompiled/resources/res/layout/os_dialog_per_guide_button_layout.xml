@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:id="@+id/ll_btn_container"
+    android:paddingTop="@dimen/os_per_dialog_button_margin"
+    android:paddingBottom="@dimen/os_per_dialog_button_margin"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layoutDirection="locale"
+    android:layout_marginHorizontal="@dimen/os_per_btn_layout_margin_hor"
+    style="@style/dialogBtnLayoutStyle">
+    <com.transsion.widgetsliquid.view.OSLiquidBigButton
+        android:id="@+id/btn_negative"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/os_preference_dialog_negative_string"
+        android:layout_weight="1"
+        app:os_liquid_mixlevel="mix_l2"
+        style="@style/DialogButtonStyle_Negative_Per"/>
+    <com.transsion.widgetsliquid.view.OSLiquidBigButton
+        android:id="@+id/btn_positive"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/os_preference_dialog_positive_string"
+        android:layout_weight="1"
+        android:layout_marginStart="@dimen/os_per_btn_margin_between"
+        app:os_liquid_mixlevel="mix_l6"
+        style="@style/DialogButtonStyle_Positive_Per"/>
+</LinearLayout>

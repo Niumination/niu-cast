@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <SurfaceView
+        android:gravity="center"
+        android:id="@+id/sfv_play"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+    <FrameLayout
+        android:gravity="center_vertical"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:id="@+id/pb_extend_loading"
+        android:background="@color/loading_back"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <com.tencent.qgame.animplayer.AnimView
+            android:layout_gravity="center"
+            android:id="@+id/loading_anim"
+            android:layout_width="50dp"
+            android:layout_height="50dp"/>
+    </FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

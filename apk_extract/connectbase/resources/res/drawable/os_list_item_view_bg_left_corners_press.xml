@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/os_list_item_view_bg_left_corners_normal"/>
+    <item
+        android:left="?attr/OsListItemInsetPadding"
+        android:top="?attr/OsListItemInsetPadding"
+        android:right="?attr/OsListItemInsetPadding"
+        android:bottom="?attr/OsListItemInsetPadding">
+        <shape android:shape="rectangle">
+            <corners android:radius="?attr/OsListItemCornersRadiusInset"/>
+            <solid android:color="@color/os_press_primary_color"/>
+        </shape>
+    </item>
+</layer-list>

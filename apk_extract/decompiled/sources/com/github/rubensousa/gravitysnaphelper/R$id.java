@@ -1,0 +1,81 @@
+package com.github.rubensousa.gravitysnaphelper;
+
+/* JADX INFO: loaded from: classes.dex */
+public final class R$id {
+    public static int accessibility_action_clickable_span = 2131361807;
+    public static int accessibility_custom_action_0 = 2131361808;
+    public static int accessibility_custom_action_1 = 2131361809;
+    public static int accessibility_custom_action_10 = 2131361810;
+    public static int accessibility_custom_action_11 = 2131361811;
+    public static int accessibility_custom_action_12 = 2131361812;
+    public static int accessibility_custom_action_13 = 2131361813;
+    public static int accessibility_custom_action_14 = 2131361814;
+    public static int accessibility_custom_action_15 = 2131361815;
+    public static int accessibility_custom_action_16 = 2131361816;
+    public static int accessibility_custom_action_17 = 2131361817;
+    public static int accessibility_custom_action_18 = 2131361818;
+    public static int accessibility_custom_action_19 = 2131361819;
+    public static int accessibility_custom_action_2 = 2131361820;
+    public static int accessibility_custom_action_20 = 2131361821;
+    public static int accessibility_custom_action_21 = 2131361822;
+    public static int accessibility_custom_action_22 = 2131361823;
+    public static int accessibility_custom_action_23 = 2131361824;
+    public static int accessibility_custom_action_24 = 2131361825;
+    public static int accessibility_custom_action_25 = 2131361826;
+    public static int accessibility_custom_action_26 = 2131361827;
+    public static int accessibility_custom_action_27 = 2131361828;
+    public static int accessibility_custom_action_28 = 2131361829;
+    public static int accessibility_custom_action_29 = 2131361830;
+    public static int accessibility_custom_action_3 = 2131361831;
+    public static int accessibility_custom_action_30 = 2131361832;
+    public static int accessibility_custom_action_31 = 2131361833;
+    public static int accessibility_custom_action_4 = 2131361834;
+    public static int accessibility_custom_action_5 = 2131361835;
+    public static int accessibility_custom_action_6 = 2131361836;
+    public static int accessibility_custom_action_7 = 2131361837;
+    public static int accessibility_custom_action_8 = 2131361838;
+    public static int accessibility_custom_action_9 = 2131361839;
+    public static int action_container = 2131361850;
+    public static int action_divider = 2131361852;
+    public static int action_image = 2131361853;
+    public static int action_text = 2131361859;
+    public static int actions = 2131361860;
+    public static int async = 2131361885;
+    public static int blocking = 2131361901;
+    public static int bottom = 2131361903;
+    public static int center = 2131361937;
+    public static int chronometer = 2131361949;
+    public static int dialog_button = 2131362007;
+    public static int end = 2131362044;
+    public static int forever = 2131362085;
+    public static int icon = 2131362114;
+    public static int icon_group = 2131362116;
+    public static int info = 2131362137;
+    public static int italic = 2131362150;
+    public static int item_touch_helper_previous_elevation = 2131362165;
+    public static int line1 = 2131362231;
+    public static int line3 = 2131362232;
+    public static int normal = 2131362357;
+    public static int notification_background = 2131362360;
+    public static int notification_main_column = 2131362361;
+    public static int notification_main_column_container = 2131362362;
+    public static int right_icon = 2131362546;
+    public static int right_side = 2131362549;
+    public static int start = 2131362625;
+    public static int tag_accessibility_actions = 2131362644;
+    public static int tag_accessibility_clickable_spans = 2131362645;
+    public static int tag_accessibility_heading = 2131362646;
+    public static int tag_accessibility_pane_title = 2131362647;
+    public static int tag_screen_reader_focusable = 2131362651;
+    public static int tag_transition_group = 2131362653;
+    public static int tag_unhandled_key_event_manager = 2131362654;
+    public static int tag_unhandled_key_listeners = 2131362655;
+    public static int text = 2131362657;
+    public static int text2 = 2131362658;
+    public static int time = 2131362685;
+    public static int title = 2131362688;
+    public static int top = 2131362702;
+
+    private R$id() {
+    }
+}

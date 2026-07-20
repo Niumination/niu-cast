@@ -1,0 +1,22 @@
+{
+  "secure_page_list": [
+    {
+      "packageName": "vault.gallery.lock",
+      "activityList": [
+        "vault.gallery.lock.MainLockActivity"
+      ]
+    },
+    {
+      "packageName": "com.domobile.applockwatcher",
+      "activityList": [
+        "*"
+      ]
+    },
+    {
+      "packageName": "com.tencent.mobileqq",
+      "activityList": [
+        "cooperation.qwallet.plugin.QWalletPluginProxyActivity"
+      ]
+    }
+  ]
+}

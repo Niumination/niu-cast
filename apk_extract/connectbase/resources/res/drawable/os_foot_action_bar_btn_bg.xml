@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="?attr/os_platform_ripple_color">
+    <item android:id="@android:id/mask">
+        <inset>
+            <shape android:shape="rectangle">
+                <corners android:radius="26dp"/>
+                <solid android:color="@color/os_foot_bar_popup_bg"/>
+                <padding
+                    android:left="@dimen/os_btn_text_padding"
+                    android:right="@dimen/os_btn_text_padding"/>
+                <size
+                    android:height="@dimen/os_foot_bar_min_height"
+                    android:width="64dp"/>
+            </shape>
+        </inset>
+    </item>
+</ripple>

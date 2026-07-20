@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <TextView
+        android:textAppearance="@style/os_medium_fontweight"
+        android:textSize="@dimen/os_h2_font"
+        android:textColor="?attr/os_text_primary"
+        android:id="@+id/lil_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="22dp"
+        android:lineHeight="@dimen/os_dimen_h2_font_line_height"/>
+    <ViewStub
+        android:id="@+id/lil_stub_subtitle"
+        android:layout="@layout/os_view_list_item_layout_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"/>
+    <ViewStub
+        android:id="@+id/lil_stub_sub_progressbar"
+        android:layout="@layout/os_view_list_item_layout_sub_progressbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/os_list_item_right_seekbar_height"
+        android:layout_marginTop="@dimen/os_list_item_right_seekbar_margin_top"/>
+    <ViewStub
+        android:id="@+id/lil_stub_sub_seekbar"
+        android:layout="@layout/os_view_list_item_layout_sub_seekbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/os_list_item_right_seekbar_height"
+        android:layout_marginTop="@dimen/os_list_item_right_seekbar_margin_top"/>
+</LinearLayout>

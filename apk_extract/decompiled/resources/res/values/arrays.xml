@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="module_local_capability">
+        <item>com.transsion.video</item>
+        <item>com.transsion.audio</item>
+        <item>com.transsion.input</item>
+        <item>com.transsion.file</item>
+        <item>com.transsion.hotspot</item>
+    </array>
+    <array name="module_local_capability_fold">
+        <item>com.transsion.video</item>
+        <item>com.transsion.audio</item>
+        <item>com.transsion.input</item>
+        <item>com.transsion.file</item>
+        <item>com.transsion.hotspot</item>
+        <item>com.transsion.copy_pictures_with_screenshot_or_taking_photos</item>
+        <item>com.transsion.copy_files_with_gesture</item>
+        <item>com.transsion.copy_text_with_gesture</item>
+        <item>com.transsion.transfer_files_with_gesture</item>
+        <item>com.transsion.video_support_folding</item>
+    </array>
+</resources>

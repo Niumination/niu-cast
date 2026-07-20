@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" android:drawable="@drawable/_os_progress_medium_material_anim__0_res_0x7f070030">
+    <target
+        android:name="group_rotate"
+        android:animation="@drawable/_os_progress_medium_material_anim__1_res_0x7f070031"/>
+</animated-vector>

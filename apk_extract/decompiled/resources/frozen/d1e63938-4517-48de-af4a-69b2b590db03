@@ -1,0 +1,2 @@
+Method <com.transsion.iotservice.common.http.LoggingInterceptor.getRequestInfo(okhttp3.Request)> calls method <java.io.IOException.printStackTrace()> in (LoggingInterceptor.kt:86)
+Method <com.transsion.iotservice.common.http.LoggingInterceptor.getResponseInfo(okhttp3.Response)> calls method <java.io.IOException.printStackTrace()> in (LoggingInterceptor.kt:107)

@@ -1,0 +1,7 @@
+package androidx.camera.core.imagecapture;
+
+import androidx.camera.core.processing.Node;
+
+/* JADX INFO: loaded from: classes.dex */
+public interface BundlingNode extends Node<CaptureNode.Out, ProcessingNode.In> {
+}

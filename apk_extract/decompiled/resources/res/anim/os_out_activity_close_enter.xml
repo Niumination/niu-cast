@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@anim/os_interpolator_sharp_curve"
+    android:shareInterpolator="true"
+    android:zAdjustment="top">
+    <alpha
+        android:duration="234"
+        android:startOffset="66"
+        android:fromAlpha="0"
+        android:toAlpha="1"/>
+</set>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="ring"
+    android:useLevel="false"
+    android:innerRadius="0dp"
+    android:thickness="@dimen/os_switch_thumb_radius">
+    <solid android:color="@color/os_button_on_disable_color"/>
+    <size
+        android:height="@dimen/os_switch_thumb_size"
+        android:width="@dimen/os_switch_thumb_size"/>
+</shape>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <com.transsion.widgetthemes.widget.actionbar.OverflowMenu
+        android:layout_gravity="start|bottom"
+        android:id="@+id/os_menu_btn"
+        android:layout_width="@dimen/os_overflowmenu_width_height"
+        android:layout_height="@dimen/os_overflowmenu_width_height"/>
+    <com.transsion.widgetthemes.widget.actionbar.ShadowButton
+        android:layout_gravity="bottom|center_horizontal"
+        android:id="@+id/os_menu_center"
+        android:background="@drawable/os_floating_center_button"
+        android:layout_width="@dimen/os_shadowbutton_width_height"
+        android:layout_height="@dimen/os_shadowbutton_width_height"
+        android:src="@drawable/os_fab_add"
+        android:scaleType="centerInside"
+        android:contentDescription="@null"
+        app:fbshadowColor="#6603a9f4"
+        app:fbshadowRadius="3dp"/>
+</merge>

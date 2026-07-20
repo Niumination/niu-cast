@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layoutDirection="locale">
+    <Button
+        android:id="@+id/btn_neutral"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/os_dialog_button_height"
+        style="@style/DialogButtonStyle_Positive"/>
+    <Button
+        android:id="@+id/btn_positive"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/os_dialog_button_height"
+        style="@style/DialogButtonStyle_Positive"/>
+    <Button
+        android:id="@+id/btn_negative"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/os_dialog_button_height"
+        style="@style/DialogButtonStyle_Negative"/>
+</LinearLayout>

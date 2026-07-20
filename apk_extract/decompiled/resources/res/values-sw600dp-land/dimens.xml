@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="connect_fail_qr_code_padding_horizontal">100dp</dimen>
+    <dimen name="connecting_time_out_hint_margin_bottom">45dp</dimen>
+    <dimen name="dialog_margin_bottom">237dp</dimen>
+    <dimen name="dialog_margin_end">203dp</dimen>
+    <dimen name="dialog_margin_start">203dp</dimen>
+    <dimen name="module_pc_four_item_decoration">38dp</dimen>
+    <dimen name="module_pc_four_item_start">25dp</dimen>
+    <dimen name="module_pc_helper_container_margin_start_end">110dp</dimen>
+    <dimen name="module_pc_one_research_btn_width">216dp</dimen>
+    <dimen name="module_pc_three_item_decoration">50dp</dimen>
+    <dimen name="module_pc_three_item_start">0dp</dimen>
+    <dimen name="module_pc_two_item_decoration">88dp</dimen>
+    <dimen name="module_pc_two_item_margin_bottom">12dp</dimen>
+    <dimen name="module_pc_two_research_btn_width">235dp</dimen>
+    <dimen name="search_contain_margin">111dp</dimen>
+    <dimen name="setting_container_margin_start_end">110dp</dimen>
+    <dimen name="setting_container_title_margin_end">115dp</dimen>
+    <dimen name="setting_description_margin_end">63dp</dimen>
+    <dimen name="setting_lottie_description_margin_start_end">134dp</dimen>
+</resources>

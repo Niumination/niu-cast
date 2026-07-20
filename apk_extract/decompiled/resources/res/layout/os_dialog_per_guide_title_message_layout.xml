@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView
+        android:textAppearance="@style/OSActionBarTitle"
+        android:textSize="@dimen/os_fontsize_h2"
+        android:gravity="center"
+        android:id="@+id/tv_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/os_layout_sheet_title_min_height"
+        android:layout_centerVertical="true"
+        android:textDirection="locale"
+        android:layout_marginStart="@dimen/os_per_item_text_margin_start"
+        android:layout_marginEnd="@dimen/os_per_item_text_margin_start"/>
+    <TextView
+        android:textSize="@dimen/os_fontsize_h3"
+        android:textColor="@color/os_text_secondary_color"
+        android:id="@+id/tv_message"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:textDirection="locale"
+        android:layout_marginStart="@dimen/os_per_item_text_margin_start"
+        android:layout_marginEnd="@dimen/os_per_item_text_margin_start"/>
+</merge>

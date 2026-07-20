@@ -1,0 +1,89 @@
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "com.transsion.iotservice.iotcard.proto";
+
+
+
+service IIotcardProvider {
+
+  // 注册卡片
+  rpc RegisterDevice(IotcardBean) returns (Empty);
+
+  //注册卡片列表
+  rpc RegisterDeviceList(IotcardList) returns(Empty);
+
+  // 解绑设备
+  rpc UnregisterDevice(IotcardBean) returns (Empty);
+
+  //解绑设备列表
+  rpc UnRegisterDeviceList(IotcardList) returns(Empty);
+
+  // 更新卡片
+  rpc UpdateDevice(IotcardBean) returns (Empty);
+
+  rpc UpdateDeviceList(IotcardList) returns (Empty);
+
+  // 初始化卡片列表
+  rpc initAppDevices(stream IotcardListMap) returns (stream Empty);
+
+  //点击开关
+  rpc SwitchClick(PackageName) returns (stream SwitchClickAction);
+
+  //传入端口号
+  rpc initPort(Port) returns (Empty);
+}
+message IotcardBean {
+  string control_id = 1;//controId,卡片唯一标志
+  string package_name = 2;//包名
+  string title = 3;//设备名
+  bytes m_custom_icon = 4;
+  string sub_title = 5;//位置信息
+  int32 device_type_id = 6;//设备类型，用于展示设备图标
+  string pid = 7;//产品pid
+  bool device_connected_status = 8;//设备连接状态
+  string device_connected_desc = 9;//连接状态信息
+  bytes extra_info_one_icon = 10;//电量1图标
+  string extra_info_one_desc = 11;//电量1描述
+  bytes extra_info_two_icon = 12;//电量2图标
+  string extra_info_two_desc = 13;//电量2描述
+  int64 device_last_connected_time = 14;//最后连接时间，用于排序
+  string target_package_name = 15;//目标包名
+  string target_class_name = 16;//目标包名
+  bool is_support_click_card = 17;//卡片是否支持点击
+  string click_card_bundle = 18;// 因为Bundle不是Protocol Buffers中的类型，这里使用string代替
+  string device_single_id = 19;//设备的唯一ID，去重用
+  int32 device_show_level = 20;//卡片显示等级
+  int32 card_type = 21;//卡片类型，1为电量卡片，2为开关卡片，3为空卡片
+  bool device_switch = 22;//开关状态
+  int32 switch_action_type = 23;//开关类型，0为无开关，1为标准开关，2为红外开关，3为相机拍照按钮
+  int32 card_display_type = 24;//OS15.0.1UI优化后卡片显示类型
+  string display_message = 25;//OS15.0.1UI优化后卡片显示数据
+  bytes display_custom_icon = 26;//OS15.0.1UI优化后自定义图标
+}
+message IotcardListMap{
+  map<string, IotcardList> display_templates = 1;
+}
+
+message IotcardList{
+  repeated IotcardBean iotcard_bean= 1;
+}
+
+message SwitchClickAction{
+  string control_id = 1;
+  bool device_switch = 2;
+  string pid = 3;
+  string package_name = 4;
+}
+
+message PackageName{
+  string package_name = 1;
+}
+
+message Port{
+  string package_name = 1;
+  int32 port = 2;
+}
+
+message Empty {
+
+}

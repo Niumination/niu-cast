@@ -1,0 +1,4 @@
+Constructor <com.transsion.iotcardsdk.bean.DisplayTemplateBean.<init>(android.os.Bundle)> calls method <android.os.Bundle.getParcelable(java.lang.String)> in (DisplayTemplateBean.kt:88)
+Constructor <com.transsion.iotcardsdk.bean.DisplayTemplateBean.<init>(android.os.Bundle)> calls method <android.os.Bundle.getParcelable(java.lang.String)> in (DisplayTemplateBean.kt:94)
+Constructor <com.transsion.iotcardsdk.bean.DisplayTemplateBean.<init>(android.os.Bundle)> calls method <android.os.Bundle.getParcelable(java.lang.String)> in (DisplayTemplateBean.kt:96)
+Constructor <com.transsion.iotcardsdk.bean.SwitchTemplateBean.<init>(android.os.Bundle)> calls method <android.os.Bundle.getParcelable(java.lang.String)> in (SwitchTemplateBean.kt:83)

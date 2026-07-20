@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="@dimen/os_switch_track_radius"/>
+    <solid android:color="@color/os_btn_checkbox_color_end_selector"/>
+    <size
+        android:height="?attr/os_switch_height_attr"
+        android:width="@dimen/os_switch_bg_width"/>
+    <padding
+        android:left="?attr/os_switch_bg_inset_hor_attr"
+        android:right="?attr/os_switch_bg_inset_hor_attr"/>
+</shape>

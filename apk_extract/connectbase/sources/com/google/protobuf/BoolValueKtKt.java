@@ -1,0 +1,36 @@
+package com.google.protobuf;
+
+import in.i;
+import kn.l0;
+import kn.r1;
+import lm.l2;
+import os.l;
+
+/* JADX INFO: loaded from: classes.dex */
+@r1({"SMAP\nBoolValueKt.kt\nKotlin\n*S Kotlin\n*F\n+ 1 BoolValueKt.kt\ncom/google/protobuf/BoolValueKtKt\n+ 2 fake.kt\nkotlin/jvm/internal/FakeKt\n*L\n1#1,51:1\n1#2:52\n*E\n"})
+public final class BoolValueKtKt {
+    @i(name = "-initializeboolValue")
+    @l
+    /* JADX INFO: renamed from: -initializeboolValue, reason: not valid java name */
+    public static final BoolValue m18initializeboolValue(@l jn.l<? super BoolValueKt.Dsl, l2> lVar) {
+        l0.p(lVar, "block");
+        BoolValueKt.Dsl.Companion companion = BoolValueKt.Dsl.Companion;
+        BoolValue.Builder builderNewBuilder = BoolValue.newBuilder();
+        l0.o(builderNewBuilder, "newBuilder()");
+        BoolValueKt.Dsl dsl_create = companion._create(builderNewBuilder);
+        lVar.invoke(dsl_create);
+        return dsl_create._build();
+    }
+
+    @l
+    public static final BoolValue copy(@l BoolValue boolValue, @l jn.l<? super BoolValueKt.Dsl, l2> lVar) {
+        l0.p(boolValue, "<this>");
+        l0.p(lVar, "block");
+        BoolValueKt.Dsl.Companion companion = BoolValueKt.Dsl.Companion;
+        BoolValue.Builder builder = boolValue.toBuilder();
+        l0.o(builder, "this.toBuilder()");
+        BoolValueKt.Dsl dsl_create = companion._create(builder);
+        lVar.invoke(dsl_create);
+        return dsl_create._build();
+    }
+}

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" android:drawable="@drawable/_os_check_drawable_checked_to_unchecked_white__0_res_0x7f070013">
+    <target
+        android:name="_R_G_L_2_G"
+        android:animation="@drawable/_os_check_drawable_checked_to_unchecked_white__1_res_0x7f070014"/>
+    <target
+        android:name="_R_G_L_1_G"
+        android:animation="@drawable/_os_check_drawable_checked_to_unchecked_white__6_res_0x7f070020"/>
+    <target
+        android:name="_R_G_L_0_G"
+        android:animation="@drawable/_os_check_drawable_checked_to_unchecked_white__11_res_0x7f070016"/>
+    <target
+        android:name="time_group"
+        android:animation="@drawable/_os_check_drawable_checked_to_unchecked_white__16_res_0x7f07001b"/>
+</animated-vector>

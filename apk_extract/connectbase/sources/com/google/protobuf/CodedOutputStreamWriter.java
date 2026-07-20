@@ -1,0 +1,693 @@
+package com.google.protobuf;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+/* JADX INFO: loaded from: classes.dex */
+@CheckReturnValue
+final class CodedOutputStreamWriter implements Writer {
+    private final CodedOutputStream output;
+
+    /* JADX INFO: renamed from: com.google.protobuf.CodedOutputStreamWriter$1, reason: invalid class name */
+    public static /* synthetic */ class AnonymousClass1 {
+        static final /* synthetic */ int[] $SwitchMap$com$google$protobuf$WireFormat$FieldType;
+
+        static {
+            int[] iArr = new int[WireFormat.FieldType.values().length];
+            $SwitchMap$com$google$protobuf$WireFormat$FieldType = iArr;
+            try {
+                iArr[WireFormat.FieldType.BOOL.ordinal()] = 1;
+            } catch (NoSuchFieldError unused) {
+            }
+            try {
+                $SwitchMap$com$google$protobuf$WireFormat$FieldType[WireFormat.FieldType.FIXED32.ordinal()] = 2;
+            } catch (NoSuchFieldError unused2) {
+            }
+            try {
+                $SwitchMap$com$google$protobuf$WireFormat$FieldType[WireFormat.FieldType.INT32.ordinal()] = 3;
+            } catch (NoSuchFieldError unused3) {
+            }
+            try {
+                $SwitchMap$com$google$protobuf$WireFormat$FieldType[WireFormat.FieldType.SFIXED32.ordinal()] = 4;
+            } catch (NoSuchFieldError unused4) {
+            }
+            try {
+                $SwitchMap$com$google$protobuf$WireFormat$FieldType[WireFormat.FieldType.SINT32.ordinal()] = 5;
+            } catch (NoSuchFieldError unused5) {
+            }
+            try {
+                $SwitchMap$com$google$protobuf$WireFormat$FieldType[WireFormat.FieldType.UINT32.ordinal()] = 6;
+            } catch (NoSuchFieldError unused6) {
+            }
+            try {
+                $SwitchMap$com$google$protobuf$WireFormat$FieldType[WireFormat.FieldType.FIXED64.ordinal()] = 7;
+            } catch (NoSuchFieldError unused7) {
+            }
+            try {
+                $SwitchMap$com$google$protobuf$WireFormat$FieldType[WireFormat.FieldType.INT64.ordinal()] = 8;
+            } catch (NoSuchFieldError unused8) {
+            }
+            try {
+                $SwitchMap$com$google$protobuf$WireFormat$FieldType[WireFormat.FieldType.SFIXED64.ordinal()] = 9;
+            } catch (NoSuchFieldError unused9) {
+            }
+            try {
+                $SwitchMap$com$google$protobuf$WireFormat$FieldType[WireFormat.FieldType.SINT64.ordinal()] = 10;
+            } catch (NoSuchFieldError unused10) {
+            }
+            try {
+                $SwitchMap$com$google$protobuf$WireFormat$FieldType[WireFormat.FieldType.UINT64.ordinal()] = 11;
+            } catch (NoSuchFieldError unused11) {
+            }
+            try {
+                $SwitchMap$com$google$protobuf$WireFormat$FieldType[WireFormat.FieldType.STRING.ordinal()] = 12;
+            } catch (NoSuchFieldError unused12) {
+            }
+        }
+    }
+
+    private CodedOutputStreamWriter(CodedOutputStream output) {
+        CodedOutputStream codedOutputStream = (CodedOutputStream) Internal.checkNotNull(output, "output");
+        this.output = codedOutputStream;
+        codedOutputStream.wrapper = this;
+    }
+
+    public static CodedOutputStreamWriter forCodedOutput(CodedOutputStream output) {
+        CodedOutputStreamWriter codedOutputStreamWriter = output.wrapper;
+        return codedOutputStreamWriter != null ? codedOutputStreamWriter : new CodedOutputStreamWriter(output);
+    }
+
+    private <V> void writeDeterministicBooleanMapEntry(int fieldNumber, boolean key, V value, MapEntryLite.Metadata<Boolean, V> metadata) throws IOException {
+        this.output.writeTag(fieldNumber, 2);
+        this.output.writeUInt32NoTag(MapEntryLite.computeSerializedSize(metadata, Boolean.valueOf(key), value));
+        MapEntryLite.writeTo(this.output, metadata, Boolean.valueOf(key), value);
+    }
+
+    private <V> void writeDeterministicIntegerMap(int fieldNumber, MapEntryLite.Metadata<Integer, V> metadata, Map<Integer, V> map) throws IOException {
+        int size = map.size();
+        int[] iArr = new int[size];
+        Iterator<Integer> it = map.keySet().iterator();
+        int i10 = 0;
+        while (it.hasNext()) {
+            iArr[i10] = it.next().intValue();
+            i10++;
+        }
+        Arrays.sort(iArr);
+        for (int i11 = 0; i11 < size; i11++) {
+            int i12 = iArr[i11];
+            V v10 = map.get(Integer.valueOf(i12));
+            this.output.writeTag(fieldNumber, 2);
+            this.output.writeUInt32NoTag(MapEntryLite.computeSerializedSize(metadata, Integer.valueOf(i12), v10));
+            MapEntryLite.writeTo(this.output, metadata, Integer.valueOf(i12), v10);
+        }
+    }
+
+    private <V> void writeDeterministicLongMap(int fieldNumber, MapEntryLite.Metadata<Long, V> metadata, Map<Long, V> map) throws IOException {
+        int size = map.size();
+        long[] jArr = new long[size];
+        Iterator<Long> it = map.keySet().iterator();
+        int i10 = 0;
+        while (it.hasNext()) {
+            jArr[i10] = it.next().longValue();
+            i10++;
+        }
+        Arrays.sort(jArr);
+        for (int i11 = 0; i11 < size; i11++) {
+            long j10 = jArr[i11];
+            V v10 = map.get(Long.valueOf(j10));
+            this.output.writeTag(fieldNumber, 2);
+            this.output.writeUInt32NoTag(MapEntryLite.computeSerializedSize(metadata, Long.valueOf(j10), v10));
+            MapEntryLite.writeTo(this.output, metadata, Long.valueOf(j10), v10);
+        }
+    }
+
+    private <K, V> void writeDeterministicMap(int fieldNumber, MapEntryLite.Metadata<K, V> metadata, Map<K, V> map) throws IOException {
+        switch (AnonymousClass1.$SwitchMap$com$google$protobuf$WireFormat$FieldType[metadata.keyType.ordinal()]) {
+            case 1:
+                V v10 = map.get(Boolean.FALSE);
+                if (v10 != null) {
+                    writeDeterministicBooleanMapEntry(fieldNumber, false, v10, metadata);
+                }
+                V v11 = map.get(Boolean.TRUE);
+                if (v11 != null) {
+                    writeDeterministicBooleanMapEntry(fieldNumber, true, v11, metadata);
+                    return;
+                }
+                return;
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+                writeDeterministicIntegerMap(fieldNumber, metadata, map);
+                return;
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+                writeDeterministicLongMap(fieldNumber, metadata, map);
+                return;
+            case 12:
+                writeDeterministicStringMap(fieldNumber, metadata, map);
+                return;
+            default:
+                throw new IllegalArgumentException("does not support key type: " + metadata.keyType);
+        }
+    }
+
+    private <V> void writeDeterministicStringMap(int fieldNumber, MapEntryLite.Metadata<String, V> metadata, Map<String, V> map) throws IOException {
+        int size = map.size();
+        String[] strArr = new String[size];
+        Iterator<String> it = map.keySet().iterator();
+        int i10 = 0;
+        while (it.hasNext()) {
+            strArr[i10] = it.next();
+            i10++;
+        }
+        Arrays.sort(strArr);
+        for (int i11 = 0; i11 < size; i11++) {
+            String str = strArr[i11];
+            V v10 = map.get(str);
+            this.output.writeTag(fieldNumber, 2);
+            this.output.writeUInt32NoTag(MapEntryLite.computeSerializedSize(metadata, str, v10));
+            MapEntryLite.writeTo(this.output, metadata, str, v10);
+        }
+    }
+
+    private void writeLazyString(int fieldNumber, Object value) throws IOException {
+        if (value instanceof String) {
+            this.output.writeString(fieldNumber, (String) value);
+        } else {
+            this.output.writeBytes(fieldNumber, (ByteString) value);
+        }
+    }
+
+    @Override // com.google.protobuf.Writer
+    public Writer.FieldOrder fieldOrder() {
+        return Writer.FieldOrder.ASCENDING;
+    }
+
+    public int getTotalBytesWritten() {
+        return this.output.getTotalBytesWritten();
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeBool(int fieldNumber, boolean value) throws IOException {
+        this.output.writeBool(fieldNumber, value);
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeBoolList(int fieldNumber, List<Boolean> value, boolean packed) throws IOException {
+        int i10 = 0;
+        if (!packed) {
+            while (i10 < value.size()) {
+                this.output.writeBool(fieldNumber, value.get(i10).booleanValue());
+                i10++;
+            }
+            return;
+        }
+        this.output.writeTag(fieldNumber, 2);
+        int iComputeBoolSizeNoTag = 0;
+        for (int i11 = 0; i11 < value.size(); i11++) {
+            iComputeBoolSizeNoTag += CodedOutputStream.computeBoolSizeNoTag(value.get(i11).booleanValue());
+        }
+        this.output.writeUInt32NoTag(iComputeBoolSizeNoTag);
+        while (i10 < value.size()) {
+            this.output.writeBoolNoTag(value.get(i10).booleanValue());
+            i10++;
+        }
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeBytes(int fieldNumber, ByteString value) throws IOException {
+        this.output.writeBytes(fieldNumber, value);
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeBytesList(int fieldNumber, List<ByteString> value) throws IOException {
+        for (int i10 = 0; i10 < value.size(); i10++) {
+            this.output.writeBytes(fieldNumber, value.get(i10));
+        }
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeDouble(int fieldNumber, double value) throws IOException {
+        this.output.writeDouble(fieldNumber, value);
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeDoubleList(int fieldNumber, List<Double> value, boolean packed) throws IOException {
+        int i10 = 0;
+        if (!packed) {
+            while (i10 < value.size()) {
+                this.output.writeDouble(fieldNumber, value.get(i10).doubleValue());
+                i10++;
+            }
+            return;
+        }
+        this.output.writeTag(fieldNumber, 2);
+        int iComputeDoubleSizeNoTag = 0;
+        for (int i11 = 0; i11 < value.size(); i11++) {
+            iComputeDoubleSizeNoTag += CodedOutputStream.computeDoubleSizeNoTag(value.get(i11).doubleValue());
+        }
+        this.output.writeUInt32NoTag(iComputeDoubleSizeNoTag);
+        while (i10 < value.size()) {
+            this.output.writeDoubleNoTag(value.get(i10).doubleValue());
+            i10++;
+        }
+    }
+
+    @Override // com.google.protobuf.Writer
+    @Deprecated
+    public void writeEndGroup(int fieldNumber) throws IOException {
+        this.output.writeTag(fieldNumber, 4);
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeEnum(int fieldNumber, int value) throws IOException {
+        this.output.writeEnum(fieldNumber, value);
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeEnumList(int fieldNumber, List<Integer> value, boolean packed) throws IOException {
+        int i10 = 0;
+        if (!packed) {
+            while (i10 < value.size()) {
+                this.output.writeEnum(fieldNumber, value.get(i10).intValue());
+                i10++;
+            }
+            return;
+        }
+        this.output.writeTag(fieldNumber, 2);
+        int iComputeEnumSizeNoTag = 0;
+        for (int i11 = 0; i11 < value.size(); i11++) {
+            iComputeEnumSizeNoTag += CodedOutputStream.computeEnumSizeNoTag(value.get(i11).intValue());
+        }
+        this.output.writeUInt32NoTag(iComputeEnumSizeNoTag);
+        while (i10 < value.size()) {
+            this.output.writeEnumNoTag(value.get(i10).intValue());
+            i10++;
+        }
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeFixed32(int fieldNumber, int value) throws IOException {
+        this.output.writeFixed32(fieldNumber, value);
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeFixed32List(int fieldNumber, List<Integer> value, boolean packed) throws IOException {
+        int i10 = 0;
+        if (!packed) {
+            while (i10 < value.size()) {
+                this.output.writeFixed32(fieldNumber, value.get(i10).intValue());
+                i10++;
+            }
+            return;
+        }
+        this.output.writeTag(fieldNumber, 2);
+        int iComputeFixed32SizeNoTag = 0;
+        for (int i11 = 0; i11 < value.size(); i11++) {
+            iComputeFixed32SizeNoTag += CodedOutputStream.computeFixed32SizeNoTag(value.get(i11).intValue());
+        }
+        this.output.writeUInt32NoTag(iComputeFixed32SizeNoTag);
+        while (i10 < value.size()) {
+            this.output.writeFixed32NoTag(value.get(i10).intValue());
+            i10++;
+        }
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeFixed64(int fieldNumber, long value) throws IOException {
+        this.output.writeFixed64(fieldNumber, value);
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeFixed64List(int fieldNumber, List<Long> value, boolean packed) throws IOException {
+        int i10 = 0;
+        if (!packed) {
+            while (i10 < value.size()) {
+                this.output.writeFixed64(fieldNumber, value.get(i10).longValue());
+                i10++;
+            }
+            return;
+        }
+        this.output.writeTag(fieldNumber, 2);
+        int iComputeFixed64SizeNoTag = 0;
+        for (int i11 = 0; i11 < value.size(); i11++) {
+            iComputeFixed64SizeNoTag += CodedOutputStream.computeFixed64SizeNoTag(value.get(i11).longValue());
+        }
+        this.output.writeUInt32NoTag(iComputeFixed64SizeNoTag);
+        while (i10 < value.size()) {
+            this.output.writeFixed64NoTag(value.get(i10).longValue());
+            i10++;
+        }
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeFloat(int fieldNumber, float value) throws IOException {
+        this.output.writeFloat(fieldNumber, value);
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeFloatList(int fieldNumber, List<Float> value, boolean packed) throws IOException {
+        int i10 = 0;
+        if (!packed) {
+            while (i10 < value.size()) {
+                this.output.writeFloat(fieldNumber, value.get(i10).floatValue());
+                i10++;
+            }
+            return;
+        }
+        this.output.writeTag(fieldNumber, 2);
+        int iComputeFloatSizeNoTag = 0;
+        for (int i11 = 0; i11 < value.size(); i11++) {
+            iComputeFloatSizeNoTag += CodedOutputStream.computeFloatSizeNoTag(value.get(i11).floatValue());
+        }
+        this.output.writeUInt32NoTag(iComputeFloatSizeNoTag);
+        while (i10 < value.size()) {
+            this.output.writeFloatNoTag(value.get(i10).floatValue());
+            i10++;
+        }
+    }
+
+    @Override // com.google.protobuf.Writer
+    @Deprecated
+    public void writeGroup(int fieldNumber, Object value) throws IOException {
+        this.output.writeGroup(fieldNumber, (MessageLite) value);
+    }
+
+    @Override // com.google.protobuf.Writer
+    @Deprecated
+    public void writeGroupList(int fieldNumber, List<?> value) throws IOException {
+        for (int i10 = 0; i10 < value.size(); i10++) {
+            writeGroup(fieldNumber, value.get(i10));
+        }
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeInt32(int fieldNumber, int value) throws IOException {
+        this.output.writeInt32(fieldNumber, value);
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeInt32List(int fieldNumber, List<Integer> value, boolean packed) throws IOException {
+        int i10 = 0;
+        if (!packed) {
+            while (i10 < value.size()) {
+                this.output.writeInt32(fieldNumber, value.get(i10).intValue());
+                i10++;
+            }
+            return;
+        }
+        this.output.writeTag(fieldNumber, 2);
+        int iComputeInt32SizeNoTag = 0;
+        for (int i11 = 0; i11 < value.size(); i11++) {
+            iComputeInt32SizeNoTag += CodedOutputStream.computeInt32SizeNoTag(value.get(i11).intValue());
+        }
+        this.output.writeUInt32NoTag(iComputeInt32SizeNoTag);
+        while (i10 < value.size()) {
+            this.output.writeInt32NoTag(value.get(i10).intValue());
+            i10++;
+        }
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeInt64(int fieldNumber, long value) throws IOException {
+        this.output.writeInt64(fieldNumber, value);
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeInt64List(int fieldNumber, List<Long> value, boolean packed) throws IOException {
+        int i10 = 0;
+        if (!packed) {
+            while (i10 < value.size()) {
+                this.output.writeInt64(fieldNumber, value.get(i10).longValue());
+                i10++;
+            }
+            return;
+        }
+        this.output.writeTag(fieldNumber, 2);
+        int iComputeInt64SizeNoTag = 0;
+        for (int i11 = 0; i11 < value.size(); i11++) {
+            iComputeInt64SizeNoTag += CodedOutputStream.computeInt64SizeNoTag(value.get(i11).longValue());
+        }
+        this.output.writeUInt32NoTag(iComputeInt64SizeNoTag);
+        while (i10 < value.size()) {
+            this.output.writeInt64NoTag(value.get(i10).longValue());
+            i10++;
+        }
+    }
+
+    @Override // com.google.protobuf.Writer
+    public <K, V> void writeMap(int fieldNumber, MapEntryLite.Metadata<K, V> metadata, Map<K, V> map) throws IOException {
+        if (this.output.isSerializationDeterministic()) {
+            writeDeterministicMap(fieldNumber, metadata, map);
+            return;
+        }
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            this.output.writeTag(fieldNumber, 2);
+            this.output.writeUInt32NoTag(MapEntryLite.computeSerializedSize(metadata, entry.getKey(), entry.getValue()));
+            MapEntryLite.writeTo(this.output, metadata, entry.getKey(), entry.getValue());
+        }
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeMessage(int fieldNumber, Object value) throws IOException {
+        this.output.writeMessage(fieldNumber, (MessageLite) value);
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeMessageList(int fieldNumber, List<?> value) throws IOException {
+        for (int i10 = 0; i10 < value.size(); i10++) {
+            writeMessage(fieldNumber, value.get(i10));
+        }
+    }
+
+    @Override // com.google.protobuf.Writer
+    public final void writeMessageSetItem(int fieldNumber, Object value) throws IOException {
+        if (value instanceof ByteString) {
+            this.output.writeRawMessageSetExtension(fieldNumber, (ByteString) value);
+        } else {
+            this.output.writeMessageSetExtension(fieldNumber, (MessageLite) value);
+        }
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeSFixed32(int fieldNumber, int value) throws IOException {
+        this.output.writeSFixed32(fieldNumber, value);
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeSFixed32List(int fieldNumber, List<Integer> value, boolean packed) throws IOException {
+        int i10 = 0;
+        if (!packed) {
+            while (i10 < value.size()) {
+                this.output.writeSFixed32(fieldNumber, value.get(i10).intValue());
+                i10++;
+            }
+            return;
+        }
+        this.output.writeTag(fieldNumber, 2);
+        int iComputeSFixed32SizeNoTag = 0;
+        for (int i11 = 0; i11 < value.size(); i11++) {
+            iComputeSFixed32SizeNoTag += CodedOutputStream.computeSFixed32SizeNoTag(value.get(i11).intValue());
+        }
+        this.output.writeUInt32NoTag(iComputeSFixed32SizeNoTag);
+        while (i10 < value.size()) {
+            this.output.writeSFixed32NoTag(value.get(i10).intValue());
+            i10++;
+        }
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeSFixed64(int fieldNumber, long value) throws IOException {
+        this.output.writeSFixed64(fieldNumber, value);
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeSFixed64List(int fieldNumber, List<Long> value, boolean packed) throws IOException {
+        int i10 = 0;
+        if (!packed) {
+            while (i10 < value.size()) {
+                this.output.writeSFixed64(fieldNumber, value.get(i10).longValue());
+                i10++;
+            }
+            return;
+        }
+        this.output.writeTag(fieldNumber, 2);
+        int iComputeSFixed64SizeNoTag = 0;
+        for (int i11 = 0; i11 < value.size(); i11++) {
+            iComputeSFixed64SizeNoTag += CodedOutputStream.computeSFixed64SizeNoTag(value.get(i11).longValue());
+        }
+        this.output.writeUInt32NoTag(iComputeSFixed64SizeNoTag);
+        while (i10 < value.size()) {
+            this.output.writeSFixed64NoTag(value.get(i10).longValue());
+            i10++;
+        }
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeSInt32(int fieldNumber, int value) throws IOException {
+        this.output.writeSInt32(fieldNumber, value);
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeSInt32List(int fieldNumber, List<Integer> value, boolean packed) throws IOException {
+        int i10 = 0;
+        if (!packed) {
+            while (i10 < value.size()) {
+                this.output.writeSInt32(fieldNumber, value.get(i10).intValue());
+                i10++;
+            }
+            return;
+        }
+        this.output.writeTag(fieldNumber, 2);
+        int iComputeSInt32SizeNoTag = 0;
+        for (int i11 = 0; i11 < value.size(); i11++) {
+            iComputeSInt32SizeNoTag += CodedOutputStream.computeSInt32SizeNoTag(value.get(i11).intValue());
+        }
+        this.output.writeUInt32NoTag(iComputeSInt32SizeNoTag);
+        while (i10 < value.size()) {
+            this.output.writeSInt32NoTag(value.get(i10).intValue());
+            i10++;
+        }
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeSInt64(int fieldNumber, long value) throws IOException {
+        this.output.writeSInt64(fieldNumber, value);
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeSInt64List(int fieldNumber, List<Long> value, boolean packed) throws IOException {
+        int i10 = 0;
+        if (!packed) {
+            while (i10 < value.size()) {
+                this.output.writeSInt64(fieldNumber, value.get(i10).longValue());
+                i10++;
+            }
+            return;
+        }
+        this.output.writeTag(fieldNumber, 2);
+        int iComputeSInt64SizeNoTag = 0;
+        for (int i11 = 0; i11 < value.size(); i11++) {
+            iComputeSInt64SizeNoTag += CodedOutputStream.computeSInt64SizeNoTag(value.get(i11).longValue());
+        }
+        this.output.writeUInt32NoTag(iComputeSInt64SizeNoTag);
+        while (i10 < value.size()) {
+            this.output.writeSInt64NoTag(value.get(i10).longValue());
+            i10++;
+        }
+    }
+
+    @Override // com.google.protobuf.Writer
+    @Deprecated
+    public void writeStartGroup(int fieldNumber) throws IOException {
+        this.output.writeTag(fieldNumber, 3);
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeString(int fieldNumber, String value) throws IOException {
+        this.output.writeString(fieldNumber, value);
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeStringList(int fieldNumber, List<String> value) throws IOException {
+        int i10 = 0;
+        if (!(value instanceof LazyStringList)) {
+            while (i10 < value.size()) {
+                this.output.writeString(fieldNumber, value.get(i10));
+                i10++;
+            }
+        } else {
+            LazyStringList lazyStringList = (LazyStringList) value;
+            while (i10 < value.size()) {
+                writeLazyString(fieldNumber, lazyStringList.getRaw(i10));
+                i10++;
+            }
+        }
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeUInt32(int fieldNumber, int value) throws IOException {
+        this.output.writeUInt32(fieldNumber, value);
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeUInt32List(int fieldNumber, List<Integer> value, boolean packed) throws IOException {
+        int i10 = 0;
+        if (!packed) {
+            while (i10 < value.size()) {
+                this.output.writeUInt32(fieldNumber, value.get(i10).intValue());
+                i10++;
+            }
+            return;
+        }
+        this.output.writeTag(fieldNumber, 2);
+        int iComputeUInt32SizeNoTag = 0;
+        for (int i11 = 0; i11 < value.size(); i11++) {
+            iComputeUInt32SizeNoTag += CodedOutputStream.computeUInt32SizeNoTag(value.get(i11).intValue());
+        }
+        this.output.writeUInt32NoTag(iComputeUInt32SizeNoTag);
+        while (i10 < value.size()) {
+            this.output.writeUInt32NoTag(value.get(i10).intValue());
+            i10++;
+        }
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeUInt64(int fieldNumber, long value) throws IOException {
+        this.output.writeUInt64(fieldNumber, value);
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeUInt64List(int fieldNumber, List<Long> value, boolean packed) throws IOException {
+        int i10 = 0;
+        if (!packed) {
+            while (i10 < value.size()) {
+                this.output.writeUInt64(fieldNumber, value.get(i10).longValue());
+                i10++;
+            }
+            return;
+        }
+        this.output.writeTag(fieldNumber, 2);
+        int iComputeUInt64SizeNoTag = 0;
+        for (int i11 = 0; i11 < value.size(); i11++) {
+            iComputeUInt64SizeNoTag += CodedOutputStream.computeUInt64SizeNoTag(value.get(i11).longValue());
+        }
+        this.output.writeUInt32NoTag(iComputeUInt64SizeNoTag);
+        while (i10 < value.size()) {
+            this.output.writeUInt64NoTag(value.get(i10).longValue());
+            i10++;
+        }
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeGroup(int fieldNumber, Object value, Schema schema) throws IOException {
+        this.output.writeGroup(fieldNumber, (MessageLite) value, schema);
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeMessage(int fieldNumber, Object value, Schema schema) throws IOException {
+        this.output.writeMessage(fieldNumber, (MessageLite) value, schema);
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeGroupList(int fieldNumber, List<?> value, Schema schema) throws IOException {
+        for (int i10 = 0; i10 < value.size(); i10++) {
+            writeGroup(fieldNumber, value.get(i10), schema);
+        }
+    }
+
+    @Override // com.google.protobuf.Writer
+    public void writeMessageList(int fieldNumber, List<?> value, Schema schema) throws IOException {
+        for (int i10 = 0; i10 < value.size(); i10++) {
+            writeMessage(fieldNumber, value.get(i10), schema);
+        }
+    }
+}

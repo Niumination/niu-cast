@@ -1,0 +1,44 @@
+uniform shader inputImage;
+uniform float2 u_blurDirection;
+uniform float u_maxRadius;
+uniform float2 u_gradientStart;
+uniform float2 u_gradientEnd;
+uniform float2 u_size;
+const int MAX_SAMPLE_COUNT = 50;
+
+float calcBlurFactor(float2 pos) {
+    float2 dir = u_gradientEnd - u_gradientStart;
+    float lengthSq = dot(dir, dir);
+    if (lengthSq == 0.0) return 0.0;
+
+    float t = dot(pos - u_gradientStart, dir) / lengthSq;
+    return clamp(t, 0.0, 1.0);
+}
+
+float gaussian(float x, float sigma) {
+    float sigmaSq = sigma * sigma;
+    return exp(-(x * x) / (2.0 * sigmaSq)) / sqrt(6.283185 * sigmaSq);
+}
+
+half4 main(float2 coord) {
+    float blurFactor = calcBlurFactor(coord);
+    float radius = blurFactor * u_maxRadius;
+    if (radius < 0.5) {
+        return inputImage.eval(coord);
+    }
+    half4 color = half4(0);
+    float weightSum = 0.0;
+    float sigma = radius / 2.0;
+
+    int sampleCount = int(min(ceil(radius * 2.5), u_maxRadius * 3.0));
+    for (int i = -MAX_SAMPLE_COUNT; i <= MAX_SAMPLE_COUNT; i++) {
+        if (i > sampleCount || i < -sampleCount) continue;
+        float2 samplePos = coord + u_blurDirection * float(i);
+        if (samplePos.x < 0 || samplePos.y < 0 || samplePos.x > u_size.x || samplePos.y > u_size.y) continue;
+        float weight = gaussian(float(i), sigma);
+
+        color += inputImage.eval(samplePos) * weight;
+        weightSum += weight;
+    }
+    return color / weightSum;
+}

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="?attr/os_layer_medium"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <View
+        android:layout_gravity="center"
+        android:background="?attr/os_border_default"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/os_list_item_bottom_divide_height"
+        android:paddingStart="@dimen/os_list_item_divide_line_padding_lr"
+        android:paddingEnd="@dimen/os_list_item_divide_line_padding_lr"/>
+</FrameLayout>

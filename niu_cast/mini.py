@@ -567,6 +567,8 @@ Examples:
                         help='Tether daemon — monitor USB for phone and auto-connect')
     parser.add_argument('--apk-extract', action='store_true',
                         help='Extract Transsion PC Connect APK from connected device')
+    parser.add_argument('--wifi-direct', action='store_true',
+                        help='Show phone WiFi Direct state via ADB (P2P debugging)')
     parser.add_argument('--version', action='store_true', help='Show version')
     
     args = parser.parse_args()
@@ -592,6 +594,11 @@ Examples:
     if args.apk_extract:
         from .apk_extract import main as apk_main
         return apk_main()
+
+    if args.wifi_direct:
+        from .wfd_bridge import show_full_state
+        result = show_full_state()
+        return 0 if result else 1
 
     adb = ADB()
     

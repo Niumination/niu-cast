@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" android:drawable="@drawable/os_svg_radio_off">
+    <target
+        android:name="gp_outer_ring_path"
+        android:animation="@drawable/_os_svg_radio_off_to_on__0_res_0x7f07004c"/>
+    <target
+        android:name="gp_outer_ring"
+        android:animation="@drawable/_os_svg_radio_off_to_on__1_res_0x7f07004d"/>
+    <target
+        android:name="gp_inner_circle_path"
+        android:animation="@drawable/_os_svg_radio_off_to_on__2_res_0x7f07004e"/>
+    <target
+        android:name="gp_inner_circle"
+        android:animation="@drawable/_os_svg_radio_off_to_on__3_res_0x7f07004f"/>
+</animated-vector>

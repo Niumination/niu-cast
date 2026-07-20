@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:tag="layout/item_trust_device_0"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <com.transsion.widgetslistitemlayout.OSListItemView
+        android:id="@+id/os_list_item_view"
+        android:tag="binding_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:lil_open_new_page="false"
+        app:lil_right_image="delete"
+        app:lil_right_layout_type="image"/>
+    <include layout="@layout/os_list_item_layout_item_short_divide_line"/>
+</LinearLayout>

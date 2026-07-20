@@ -1,0 +1,25 @@
+inline half guarded_divide(half n, half d) {
+       return n / (d + 0.00000001);
+}
+
+inline half4 premulalpha(half4 color){
+    return half4(color.rgb * color.a, color.a);
+}
+
+half color_burn_component(half2 s, half2 d) {
+     half dyTerm = d.y == d.x ? d.y : 0;
+     const half kMinNormalHalf = 1.0 / 16384.0;
+     half delta = abs(s.x) >= kMinNormalHalf
+          ? d.y - min(d.y, guarded_divide((d.y - d.x)*s.y, s.x))
+          : dyTerm;
+     return delta*s.y + s.x*(1 - d.y) + d.x*(1 - s.y);
+}
+
+half4 main(half4 src_raw, half4 dst_raw) {
+    half4 src = premulalpha(src_raw);
+    half4 dst = premulalpha(dst_raw);
+    return half4(color_burn_component(src.ra, dst.ra),
+                 color_burn_component(src.ga, dst.ga),
+                 color_burn_component(src.ba, dst.ba),
+                 src.a + (1 - src.a)*dst.a);
+}

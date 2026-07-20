@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.transsion.widgetslib.view.OSCheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:textSize="@dimen/os_h2_font"
+    android:textColor="@color/os_text_primary2_color"
+    android:gravity="start|center_vertical"
+    android:id="@+id/text_list_item_compat"
+    android:background="@drawable/os_press_primary_bg"
+    android:paddingTop="@dimen/os_dimen_dialog_item_padding_bottom_top"
+    android:paddingBottom="@dimen/os_dimen_dialog_item_padding_bottom_top"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="@dimen/os_dialog_item_height"
+    android:drawablePadding="16dp"
+    android:paddingStart="@dimen/os_space300"
+    android:paddingEnd="@dimen/os_space300"/>

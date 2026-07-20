@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <ImageView
+        android:layout_gravity="center"
+        android:id="@+id/img_special_icon"
+        android:visibility="gone"
+        android:layout_width="@dimen/os_ultra_small_dimens_dialog_per_guide_special_icon_size"
+        android:layout_height="@dimen/os_ultra_small_dimens_dialog_per_guide_special_icon_size"
+        android:layout_marginTop="@dimen/os_ultra_small_dimens_dialog_per_guide_special_icon_margin_top"
+        android:layout_marginBottom="@dimen/os_ultra_small_dimens_dialog_per_guide_special_icon_margin_bottom"
+        android:src="@drawable/os_ic_dialog_per_guide_special"
+        android:scaleType="centerCrop"/>
+    <include layout="@layout/os_dialog_per_guide_title_message_layout"/>
+    <LinearLayout
+        android:gravity="start|center_vertical"
+        android:orientation="horizontal"
+        android:id="@+id/ll_text_button"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/os_ultra_small_dimens_dialog_per_guide_intro_margin_top"
+        android:minHeight="60dp"
+        android:layout_marginStart="@dimen/os_ultra_small_per_item_icon_margin_start"
+        android:layout_marginEnd="@dimen/os_ultra_small_per_item_text_margin_start">
+        <ImageView
+            android:id="@+id/img_text_button_drawable"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/os_ic_dialog_per_guide_common"
+            android:scaleType="centerCrop"/>
+        <TextView
+            android:textAppearance="@style/os_semibold_font"
+            android:textSize="@dimen/os_ultra_small_fontsize_h2"
+            android:textColor="@color/os_platform_clickable_color"
+            android:gravity="start|center_vertical"
+            android:id="@+id/tv_text_button"
+            android:clickable="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:layout_marginStart="@dimen/os_ultra_small_per_item_icon_text_margin"/>
+    </LinearLayout>
+    <include layout="@layout/os_dialog_per_guide_button_layout"/>
+</LinearLayout>

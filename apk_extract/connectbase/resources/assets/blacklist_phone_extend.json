@@ -1,0 +1,17 @@
+{
+  "reparent_blacklist": [
+    "com.android.settings",
+    "com.transsion.theme",
+    "com.sh.smart.caller",
+    "com.transsion.smartmessage",
+    "com.transsion.camera",
+    "com.transsion.mobilecloner",
+    "com.transsion.letswitch",
+    "com.transsion.XOSLauncher",
+    "com.transsion.hilauncher",
+    "com.transsion.compass",
+    "com.transsion.tips",
+    "com.transsion.iotcard",
+    "com.transsion.pcconnect"
+  ]
+}

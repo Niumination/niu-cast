@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:paddingLeft="0dp"
+    android:paddingRight="0dp"
+    android:paddingStart="0dp"
+    android:paddingEnd="24dp"
+    android:paddingMode="stack">
+    <item
+        android:gravity="end|fill_vertical"
+        android:width="32dp"
+        android:drawable="@drawable/os_control_background_32dp"/>
+    <item
+        android:gravity="end|center_vertical"
+        android:drawable="@drawable/os_spinner_down_icon"
+        android:end="6dp"/>
+</layer-list>

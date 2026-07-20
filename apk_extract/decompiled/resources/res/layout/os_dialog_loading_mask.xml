@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:paddingTop="20dp"
+    android:paddingBottom="20dp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:minWidth="180dp"
+    android:paddingStart="10dp"
+    android:paddingEnd="10dp">
+    <com.transsion.widgetslib.view.OSLoadingView
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/osLoading"
+        android:layout_width="@dimen/os_loading_medium_size"
+        android:layout_height="@dimen/os_loading_medium_size"/>
+    <TextView
+        android:textSize="@dimen/os_fontsize_body"
+        android:textColor="@color/os_candwhile_primary_color"
+        android:ellipsize="end"
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/messageTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:maxWidth="268dp"
+        android:maxLines="1"
+        android:layout_below="@+id/osLoading"/>
+</LinearLayout>

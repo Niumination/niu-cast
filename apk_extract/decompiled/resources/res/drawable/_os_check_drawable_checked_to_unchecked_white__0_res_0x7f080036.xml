@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt"
+    android:height="24dp"
+    android:width="24dp"
+    android:viewportWidth="72"
+    android:viewportHeight="72">
+    <group android:name="_R_G">
+        <group
+            android:name="_R_G_L_2_G"
+            android:pivotX="27"
+            android:pivotY="27"
+            android:scaleX="1"
+            android:scaleY="1"
+            android:translateX="9"
+            android:translateY="9">
+            <path
+                android:name="_R_G_L_2_G_D_0_P_0"
+                android:fillColor="#a1a1a1"
+                android:pathData=" M14.26 4 C10.69,4 9.4,4.37 8.09,5.07 C6.79,5.77 5.77,6.79 5.07,8.09 C4.37,9.4 4,10.69 4,14.26 C4,14.26 4,39.74 4,39.74 C4,43.31 4.37,44.6 5.07,45.91 C5.77,47.21 6.79,48.23 8.09,48.93 C9.4,49.63 10.69,50 14.26,50 C14.26,50 39.74,50 39.74,50 C43.31,50 44.6,49.63 45.91,48.93 C47.21,48.23 48.24,47.21 48.93,45.91 C49.63,44.6 50,43.31 50,39.74 C50,39.74 50,14.26 50,14.26 C50,10.69 49.63,9.4 48.93,8.09 C48.24,6.79 47.21,5.77 45.91,5.07 C44.6,4.37 43.31,4 39.74,4 C39.74,4 14.26,4 14.26,4c "
+                android:fillAlpha="0.3"
+                android:fillType="nonZero"/>
+        </group>
+        <group
+            android:name="_R_G_L_1_G"
+            android:pivotX="27"
+            android:pivotY="27"
+            android:scaleX="1"
+            android:scaleY="1"
+            android:translateX="9"
+            android:translateY="9">
+            <path
+                android:name="_R_G_L_1_G_D_0_P_0"
+                android:fillColor="@color/os_btn_checkbox_new_color_selected_white_selector"
+                android:pathData=" M38.62 0 C43.97,0 45.91,0.56 47.86,1.6 C49.82,2.65 51.35,4.18 52.4,6.14 C53.44,8.09 54,10.03 54,15.38 C54,15.38 54,38.62 54,38.62 C54,43.97 53.44,45.91 52.4,47.86 C51.35,49.82 49.82,51.35 47.86,52.4 C45.91,53.44 43.97,54 38.62,54 C38.62,54 15.38,54 15.38,54 C10.04,54 8.09,53.44 6.14,52.4 C4.18,51.35 2.65,49.82 1.6,47.86 C0.56,45.91 0,43.97 0,38.62 C0,38.62 0,15.38 0,15.38 C0,10.03 0.56,8.09 1.6,6.14 C2.65,4.18 4.18,2.65 6.14,1.6 C8.09,0.56 10.04,0 15.38,0 C15.38,0 38.62,0 38.62,0c  M14.26 4 C10.69,4 9.4,4.37 8.09,5.07 C6.79,5.77 5.77,6.79 5.07,8.09 C4.37,9.4 4,10.69 4,14.26 C4,14.26 4,39.74 4,39.74 C4,43.31 4.37,44.6 5.07,45.91 C5.77,47.21 6.79,48.23 8.09,48.93 C9.4,49.63 10.69,50 14.26,50 C14.26,50 39.74,50 39.74,50 C43.31,50 44.6,49.63 45.91,48.93 C47.21,48.23 48.24,47.21 48.93,45.91 C49.63,44.6 50,43.31 50,39.74 C50,39.74 50,14.26 50,14.26 C50,10.69 49.63,9.4 48.93,8.09 C48.24,6.79 47.21,5.77 45.91,5.07 C44.6,4.37 43.31,4 39.74,4 C39.74,4 14.26,4 14.26,4c "
+                android:fillAlpha="1"
+                android:fillType="nonZero"/>
+        </group>
+        <group
+            android:name="_R_G_L_0_G"
+            android:pivotX="27"
+            android:pivotY="27"
+            android:scaleX="1"
+            android:scaleY="1"
+            android:translateX="9"
+            android:translateY="9">
+            <path
+                android:name="_R_G_L_0_G_D_0_P_0"
+                android:fillColor="@color/os_btn_checkbox_new_color_selected_basic_selector"
+                android:pathData=" M15.38 0 C15.38,0 38.62,0 38.62,0 C43.97,0 45.91,0.56 47.86,1.6 C49.82,2.65 51.35,4.18 52.4,6.14 C53.44,8.09 54,10.03 54,15.38 C54,15.38 54,38.62 54,38.62 C54,43.97 53.44,45.91 52.4,47.86 C51.35,49.82 49.82,51.35 47.86,52.4 C45.91,53.44 43.97,54 38.62,54 C38.62,54 15.38,54 15.38,54 C10.03,54 8.09,53.44 6.14,52.4 C4.18,51.35 2.65,49.82 1.6,47.86 C0.56,45.91 0,43.97 0,38.62 C0,38.62 0,15.38 0,15.38 C0,10.03 0.56,8.09 1.6,6.14 C2.65,4.18 4.18,2.65 6.14,1.6 C8.09,0.56 10.03,0 15.38,0c "
+                android:fillAlpha="1"
+                android:fillType="nonZero"/>
+            <path
+                android:name="_R_G_L_0_G_D_1_P_0"
+                android:fillColor="@color/os_btn_checkbox_new_color_selected_white_selector"
+                android:pathData=" M41.49 16.74 C41.5,16.75 41.51,16.76 41.52,16.78 C42.54,17.82 42.53,19.48 41.52,20.52 C41.52,20.52 25.53,36.89 25.53,36.89 C24.77,37.67 23.52,37.69 22.73,36.94 C22.73,36.94 20.24,34.59 20.24,34.59 C20.24,34.59 20.28,34.55 20.28,34.55 C20.28,34.55 12.79,27.3 12.79,27.3 C11.76,26.29 11.73,24.64 12.74,23.61 C12.74,23.61 12.74,23.6 12.74,23.6 C13.75,22.57 15.41,22.54 16.45,23.55 C16.45,23.55 23.98,30.81 23.98,30.81 C23.98,30.81 37.86,16.76 37.86,16.76 C38.85,15.75 40.48,15.74 41.49,16.74c "
+                android:fillAlpha="1"
+                android:fillType="nonZero"/>
+        </group>
+    </group>
+    <group android:name="time_group"/>
+</vector>

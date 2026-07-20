@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:textSize="@dimen/os_fontsize_subhead"
+    android:textColor="?attr/os_text_info"
+    android:gravity="center"
+    android:paddingTop="2dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="@dimen/os_flipper_layout_text_padding_lr"/>

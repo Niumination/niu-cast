@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" android:ordering="together">
+    <set android:ordering="sequentially">
+        <objectAnimator
+            android:interpolator="@android:interpolator/fast_out_slow_in"
+            android:duration="48"
+            android:valueFrom="25.71"
+            android:valueTo="39.93"
+            android:valueType="floatType"
+            android:propertyName="strokeWidth"/>
+        <objectAnimator
+            android:interpolator="@android:interpolator/fast_out_slow_in"
+            android:duration="16"
+            android:valueFrom="0"
+            android:valueTo="0"
+            android:valueType="floatType"
+            android:propertyName="strokeWidth"/>
+        <objectAnimator
+            android:interpolator="@android:interpolator/fast_out_slow_in"
+            android:duration="96"
+            android:valueFrom="3"
+            android:valueTo="3"
+            android:valueType="floatType"
+            android:propertyName="strokeWidth"/>
+    </set>
+    <set android:ordering="sequentially">
+        <objectAnimator
+            android:interpolator="@android:interpolator/fast_out_slow_in"
+            android:duration="48"
+            android:valueFrom="0.3"
+            android:valueTo="0.3"
+            android:valueType="floatType"
+            android:propertyName="strokeAlpha"/>
+        <objectAnimator
+            android:interpolator="@android:interpolator/fast_out_slow_in"
+            android:duration="16"
+            android:valueFrom="0"
+            android:valueTo="0"
+            android:valueType="floatType"
+            android:propertyName="strokeAlpha"/>
+        <objectAnimator
+            android:interpolator="@android:interpolator/fast_out_slow_in"
+            android:duration="16"
+            android:valueFrom="0"
+            android:valueTo="0.3"
+            android:valueType="floatType"
+            android:propertyName="strokeAlpha"/>
+        <objectAnimator
+            android:interpolator="@android:interpolator/fast_out_slow_in"
+            android:duration="80"
+            android:valueFrom="0.3"
+            android:valueTo="1"
+            android:valueType="floatType"
+            android:propertyName="strokeAlpha"/>
+    </set>
+</set>

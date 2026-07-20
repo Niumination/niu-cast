@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" android:ordering="together">
+    <objectAnimator
+        android:interpolator="@drawable/_os_radio_drawable_unchecked_to_checked__5_res_0x7f08006a"
+        android:duration="100"
+        android:startOffset="0"
+        android:valueFrom=" M27 0 C41.91,0 54,12.09 54,27 C54,41.91 41.91,54 27,54 C12.09,54 0,41.91 0,27 C0,12.09 12.09,0 27,0c M27 4 C14.3,4 4,14.3 4,27 C4,39.7 14.3,50 27,50 C39.7,50 50,39.7 50,27 C50,14.3 39.7,4 27,4c "
+        android:valueTo=" M27 0 C41.91,0 54,12.09 54,27 C54,41.91 41.91,54 27,54 C12.09,54 0,41.91 0,27 C0,12.09 12.09,0 27,0c M27 4 C14.3,4 4,14.3 4,27 C4,39.7 14.3,50 27,50 C39.7,50 50,39.7 50,27 C50,14.3 39.7,4 27,4c "
+        android:valueType="pathType"
+        android:propertyName="pathData"/>
+    <objectAnimator
+        android:interpolator="@drawable/_os_radio_drawable_unchecked_to_checked__6_res_0x7f08006b"
+        android:duration="200"
+        android:startOffset="100"
+        android:valueFrom=" M27 0 C41.91,0 54,12.09 54,27 C54,41.91 41.91,54 27,54 C12.09,54 0,41.91 0,27 C0,12.09 12.09,0 27,0c M27 4 C14.3,4 4,14.3 4,27 C4,39.7 14.3,50 27,50 C39.7,50 50,39.7 50,27 C50,14.3 39.7,4 27,4c "
+        android:valueTo=" M27 0 C41.91,0 54,12.09 54,27 C54,41.91 41.91,54 27,54 C12.09,54 0,41.91 0,27 C0,12.09 12.09,0 27,0c M27 12.5 C18.99,12.5 12.5,18.99 12.5,27 C12.5,35.01 18.99,41.5 27,41.5 C35.01,41.5 41.5,35.01 41.5,27 C41.5,18.99 35.01,12.5 27,12.5c "
+        android:valueType="pathType"
+        android:propertyName="pathData"/>
+</set>

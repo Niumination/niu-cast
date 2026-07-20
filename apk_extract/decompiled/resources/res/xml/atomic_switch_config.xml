@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<switchList>
+    <switchItem
+        switchDesc="@string/md_multi_connect"
+        switchKey="pc_transfer"
+        switchTitle="@string/md_multi_connect"/>
+    <switchItemHios
+        switchDesc="@string/md_multi_connect"
+        switchKey="pc_transfer"
+        switchTitle="@string/md_multi_connect"/>
+    <switchItemXos
+        switchDesc="@string/md_multi_connect"
+        switchKey="pc_transfer"
+        switchTitle="@string/md_multi_connect"/>
+    <switchItemItel
+        switchDesc="@string/md_multi_connect"
+        switchKey="pc_transfer"
+        switchTitle="@string/md_multi_connect"/>
+</switchList>

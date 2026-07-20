@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:state_enabled="false"
+        android:state_checked="false"
+        android:color="@color/os_color_light_switch_track_disable_blue_off"/>
+    <item
+        android:state_enabled="false"
+        android:state_checked="true"
+        android:color="?attr/osColorDisableActivated"
+        android:alpha="@dimen/os_disabledAlpha"/>
+    <item
+        android:state_checked="true"
+        android:color="?attr/osColorControlActivated"
+        android:alpha="@dimen/os_disabled_alpha_40p"/>
+    <item
+        android:color="@color/os_color_light_blue_off"
+        android:alpha="@dimen/os_disabled_alpha_40p"/>
+</selector>

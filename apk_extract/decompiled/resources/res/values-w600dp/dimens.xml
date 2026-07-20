@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="os_pop_tip_center_width_weight">0.52</dimen>
+    <dimen name="os_pop_tip_slide_width_weight">0.52</dimen>
+    <dimen name="os_popup_window_width_max_weight">0.52</dimen>
+    <dimen name="os_popup_window_width_min_weight">0.22</dimen>
+</resources>

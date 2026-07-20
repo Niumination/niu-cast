@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android" android:drawable="@drawable/os_checkbox_checked">
+    <target
+        android:name="check_path_merged"
+        android:animation="@anim/os_checkbox_checked_to_unchecked_path_animation"/>
+    <target
+        android:name="check_path_merged_inner"
+        android:animation="@anim/os_checkbox_checked_to_unchecked_path_animation"/>
+    <target
+        android:name="check_inner_merged"
+        android:animation="@anim/os_checkbox_checked_to_unchecked_inner_animation"/>
+    <target
+        android:name="check_gray_path"
+        android:animation="@anim/os_checkbox_checked_to_unchecked_gray_path"/>
+</animated-vector>

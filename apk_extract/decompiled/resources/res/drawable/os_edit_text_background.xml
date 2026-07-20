@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetTop="@dimen/os_edit_bg_top_bottom_inset"
+    android:insetBottom="@dimen/os_edit_bg_top_bottom_inset">
+    <shape android:shape="rectangle">
+        <corners android:radius="@dimen/os_edit_bg_corners"/>
+        <solid android:color="@color/os_edittext_bg_color"/>
+        <stroke
+            android:width="@dimen/os_edit_bg_stroke_width"
+            android:color="@color/os_edittext_bg_stroke_color"/>
+        <padding
+            android:left="@dimen/os_edit_text_padding"
+            android:top="@dimen/os_edit_text_top_bottom_padding"
+            android:right="@dimen/os_edit_text_padding"
+            android:bottom="@dimen/os_edit_text_top_bottom_padding"/>
+    </shape>
+</inset>

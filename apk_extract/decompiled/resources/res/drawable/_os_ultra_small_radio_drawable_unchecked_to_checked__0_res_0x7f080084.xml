@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt"
+    android:height="@dimen/os_ultra_small_checked_box_small_wh"
+    android:width="@dimen/os_ultra_small_checked_box_small_wh"
+    android:viewportWidth="72"
+    android:viewportHeight="72">
+    <group android:name="_R_G">
+        <group
+            android:name="_R_G_L_0_G"
+            android:pivotX="27"
+            android:pivotY="27"
+            android:scaleX="1"
+            android:scaleY="1"
+            android:translateX="9"
+            android:translateY="9">
+            <path
+                android:name="_R_G_L_0_G_D_0_P_0"
+                android:fillColor="@color/os_btn_radio_color_start_selector"
+                android:pathData=" M27 0 C41.91,0 54,12.09 54,27 C54,41.91 41.91,54 27,54 C12.09,54 0,41.91 0,27 C0,12.09 12.09,0 27,0c  M27 4 C14.3,4 4,14.3 4,27 C4,39.7 14.3,50 27,50 C39.7,50 50,39.7 50,27 C50,14.3 39.7,4 27,4c "
+                android:fillAlpha="1"
+                android:fillType="nonZero"/>
+        </group>
+    </group>
+    <group android:name="time_group"/>
+</vector>

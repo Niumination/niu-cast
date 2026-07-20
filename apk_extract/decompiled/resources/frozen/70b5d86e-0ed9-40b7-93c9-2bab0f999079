@@ -1,0 +1,2 @@
+Method <com.transsion.iotservice.multiscreen.pc.DataBinderMapperImpl.getDataBinder(androidx.databinding.DataBindingComponent, [Landroid.view.View;, int)> calls constructor <java.lang.RuntimeException.<init>(java.lang.String)> in (DataBinderMapperImpl.java:88)
+Method <com.transsion.iotservice.multiscreen.pc.DataBinderMapperImpl.getDataBinder(androidx.databinding.DataBindingComponent, android.view.View, int)> calls constructor <java.lang.RuntimeException.<init>(java.lang.String)> in (DataBinderMapperImpl.java:47)

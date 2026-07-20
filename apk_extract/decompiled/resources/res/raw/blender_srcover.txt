@@ -1,0 +1,15 @@
+inline half4 premulalpha(half4 color){
+    return half4(color.rgb * color.a, color.a);
+}
+
+half4 blend_src_over(half4 src, half4 dst) {
+    half4 blendOp = half4(1.0, 0.0, 0.0, -1.0);
+    half2 coeff = blendOp.xy + (blendOp.zw * (half2(dst.a, src.a) + min(blendOp.zw, 0)));
+    return min(half4(1), src * coeff.x + dst * coeff.y);
+}
+
+half4 main(half4 src, half4 dst) {
+    half4 src_raw = premulalpha(src);
+    half4 dst_raw = premulalpha(dst);
+    return blend_src_over(src_raw,dst_raw);
+}

@@ -1,0 +1,625 @@
+package io.netty.util.collection;
+
+import fl.h;
+import io.netty.util.internal.MathUtil;
+import java.util.AbstractCollection;
+import java.util.AbstractSet;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import rs.f;
+
+/* JADX INFO: loaded from: classes3.dex */
+public class ShortObjectHashMap<V> implements ShortObjectMap<V> {
+    static final /* synthetic */ boolean $assertionsDisabled = false;
+    public static final int DEFAULT_CAPACITY = 8;
+    public static final float DEFAULT_LOAD_FACTOR = 0.5f;
+    private static final Object NULL_VALUE = new Object();
+    private final Iterable<ShortObjectMap.PrimitiveEntry<V>> entries;
+    private final Set<Map.Entry<Short, V>> entrySet;
+    private final Set<Short> keySet;
+    private short[] keys;
+    private final float loadFactor;
+    private int mask;
+    private int maxSize;
+    private int size;
+    private V[] values;
+
+    public final class EntrySet extends AbstractSet<Map.Entry<Short, V>> {
+        private EntrySet() {
+        }
+
+        @Override // java.util.AbstractCollection, java.util.Collection, java.lang.Iterable, java.util.Set
+        public Iterator<Map.Entry<Short, V>> iterator() {
+            return new MapIterator();
+        }
+
+        @Override // java.util.AbstractCollection, java.util.Collection, java.util.Set
+        public int size() {
+            return ShortObjectHashMap.this.size();
+        }
+    }
+
+    public final class KeySet extends AbstractSet<Short> {
+        private KeySet() {
+        }
+
+        @Override // java.util.AbstractCollection, java.util.Collection, java.util.Set
+        public void clear() {
+            ShortObjectHashMap.this.clear();
+        }
+
+        @Override // java.util.AbstractCollection, java.util.Collection, java.util.Set
+        public boolean contains(Object obj) {
+            return ShortObjectHashMap.this.containsKey(obj);
+        }
+
+        @Override // java.util.AbstractCollection, java.util.Collection, java.lang.Iterable, java.util.Set
+        public Iterator<Short> iterator() {
+            return new Iterator<Short>() { // from class: io.netty.util.collection.ShortObjectHashMap.KeySet.1
+                private final Iterator<Map.Entry<Short, V>> iter;
+
+                {
+                    this.iter = ShortObjectHashMap.this.entrySet.iterator();
+                }
+
+                @Override // java.util.Iterator
+                public boolean hasNext() {
+                    return this.iter.hasNext();
+                }
+
+                @Override // java.util.Iterator
+                public void remove() {
+                    this.iter.remove();
+                }
+
+                @Override // java.util.Iterator
+                public Short next() {
+                    return this.iter.next().getKey();
+                }
+            };
+        }
+
+        @Override // java.util.AbstractCollection, java.util.Collection, java.util.Set
+        public boolean remove(Object obj) {
+            return ShortObjectHashMap.this.remove(obj) != null;
+        }
+
+        @Override // java.util.AbstractCollection, java.util.Collection, java.util.Set
+        public boolean retainAll(Collection<?> collection) {
+            Iterator<ShortObjectMap.PrimitiveEntry<V>> it = ShortObjectHashMap.this.entries().iterator();
+            boolean z10 = false;
+            while (it.hasNext()) {
+                if (!collection.contains(Short.valueOf(it.next().key()))) {
+                    it.remove();
+                    z10 = true;
+                }
+            }
+            return z10;
+        }
+
+        @Override // java.util.AbstractCollection, java.util.Collection, java.util.Set
+        public int size() {
+            return ShortObjectHashMap.this.size();
+        }
+    }
+
+    public final class MapEntry implements Map.Entry<Short, V> {
+        private final int entryIndex;
+
+        public MapEntry(int i10) {
+            this.entryIndex = i10;
+        }
+
+        private void verifyExists() {
+            if (ShortObjectHashMap.this.values[this.entryIndex] == null) {
+                throw new IllegalStateException("The map entry has been removed");
+            }
+        }
+
+        @Override // java.util.Map.Entry
+        public V getValue() {
+            verifyExists();
+            return (V) ShortObjectHashMap.toExternal(ShortObjectHashMap.this.values[this.entryIndex]);
+        }
+
+        @Override // java.util.Map.Entry
+        public V setValue(V v10) {
+            verifyExists();
+            V v11 = (V) ShortObjectHashMap.toExternal(ShortObjectHashMap.this.values[this.entryIndex]);
+            ShortObjectHashMap.this.values[this.entryIndex] = ShortObjectHashMap.toInternal(v10);
+            return v11;
+        }
+
+        @Override // java.util.Map.Entry
+        public Short getKey() {
+            verifyExists();
+            return Short.valueOf(ShortObjectHashMap.this.keys[this.entryIndex]);
+        }
+    }
+
+    public final class MapIterator implements Iterator<Map.Entry<Short, V>> {
+        private final ShortObjectHashMap<V>.PrimitiveIterator iter;
+
+        private MapIterator() {
+            this.iter = new PrimitiveIterator();
+        }
+
+        @Override // java.util.Iterator
+        public boolean hasNext() {
+            return this.iter.hasNext();
+        }
+
+        @Override // java.util.Iterator
+        public void remove() {
+            this.iter.remove();
+        }
+
+        @Override // java.util.Iterator
+        public Map.Entry<Short, V> next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            this.iter.next();
+            return new MapEntry(((PrimitiveIterator) this.iter).entryIndex);
+        }
+    }
+
+    public final class PrimitiveIterator implements Iterator<ShortObjectMap.PrimitiveEntry<V>>, ShortObjectMap.PrimitiveEntry<V> {
+        private int entryIndex;
+        private int nextIndex;
+        private int prevIndex;
+
+        private PrimitiveIterator() {
+            this.prevIndex = -1;
+            this.nextIndex = -1;
+            this.entryIndex = -1;
+        }
+
+        private void scanNext() {
+            do {
+                int i10 = this.nextIndex + 1;
+                this.nextIndex = i10;
+                if (i10 == ShortObjectHashMap.this.values.length) {
+                    return;
+                }
+            } while (ShortObjectHashMap.this.values[this.nextIndex] == null);
+        }
+
+        @Override // java.util.Iterator
+        public boolean hasNext() {
+            if (this.nextIndex == -1) {
+                scanNext();
+            }
+            return this.nextIndex != ShortObjectHashMap.this.values.length;
+        }
+
+        @Override // io.netty.util.collection.ShortObjectMap.PrimitiveEntry
+        public short key() {
+            return ShortObjectHashMap.this.keys[this.entryIndex];
+        }
+
+        @Override // java.util.Iterator
+        public void remove() {
+            int i10 = this.prevIndex;
+            if (i10 == -1) {
+                throw new IllegalStateException("next must be called before each remove.");
+            }
+            if (ShortObjectHashMap.this.removeAt(i10)) {
+                this.nextIndex = this.prevIndex;
+            }
+            this.prevIndex = -1;
+        }
+
+        @Override // io.netty.util.collection.ShortObjectMap.PrimitiveEntry
+        public void setValue(V v10) {
+            ShortObjectHashMap.this.values[this.entryIndex] = ShortObjectHashMap.toInternal(v10);
+        }
+
+        @Override // io.netty.util.collection.ShortObjectMap.PrimitiveEntry
+        public V value() {
+            return (V) ShortObjectHashMap.toExternal(ShortObjectHashMap.this.values[this.entryIndex]);
+        }
+
+        @Override // java.util.Iterator
+        public ShortObjectMap.PrimitiveEntry<V> next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            this.prevIndex = this.nextIndex;
+            scanNext();
+            this.entryIndex = this.prevIndex;
+            return this;
+        }
+    }
+
+    public ShortObjectHashMap() {
+        this(8, 0.5f);
+    }
+
+    private int calcMaxSize(int i10) {
+        return Math.min(i10 - 1, (int) (i10 * this.loadFactor));
+    }
+
+    private void growSize() {
+        int i10 = this.size + 1;
+        this.size = i10;
+        if (i10 > this.maxSize) {
+            short[] sArr = this.keys;
+            if (sArr.length != Integer.MAX_VALUE) {
+                rehash(sArr.length << 1);
+            } else {
+                throw new IllegalStateException("Max capacity reached at size=" + this.size);
+            }
+        }
+    }
+
+    private static int hashCode(short s10) {
+        return s10;
+    }
+
+    private int hashIndex(short s10) {
+        return this.mask & hashCode(s10);
+    }
+
+    private int indexOf(short s10) {
+        int iHashIndex = hashIndex(s10);
+        int iProbeNext = iHashIndex;
+        while (this.values[iProbeNext] != null) {
+            if (s10 == this.keys[iProbeNext]) {
+                return iProbeNext;
+            }
+            iProbeNext = probeNext(iProbeNext);
+            if (iProbeNext == iHashIndex) {
+                return -1;
+            }
+        }
+        return -1;
+    }
+
+    private short objectToKey(Object obj) {
+        return ((Short) obj).shortValue();
+    }
+
+    private int probeNext(int i10) {
+        return this.mask & (i10 + 1);
+    }
+
+    private void rehash(int i10) {
+        V[] vArr;
+        short[] sArr = this.keys;
+        V[] vArr2 = this.values;
+        this.keys = new short[i10];
+        this.values = (V[]) new Object[i10];
+        this.maxSize = calcMaxSize(i10);
+        this.mask = i10 - 1;
+        for (int i11 = 0; i11 < vArr2.length; i11++) {
+            V v10 = vArr2[i11];
+            if (v10 != null) {
+                short s10 = sArr[i11];
+                int iHashIndex = hashIndex(s10);
+                while (true) {
+                    vArr = this.values;
+                    if (vArr[iHashIndex] == null) {
+                        break;
+                    } else {
+                        iHashIndex = probeNext(iHashIndex);
+                    }
+                }
+                this.keys[iHashIndex] = s10;
+                vArr[iHashIndex] = v10;
+            }
+        }
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public boolean removeAt(int i10) {
+        this.size--;
+        this.keys[i10] = 0;
+        this.values[i10] = null;
+        int iProbeNext = probeNext(i10);
+        V v10 = this.values[iProbeNext];
+        int i11 = i10;
+        while (v10 != null) {
+            short s10 = this.keys[iProbeNext];
+            int iHashIndex = hashIndex(s10);
+            if ((iProbeNext < iHashIndex && (iHashIndex <= i11 || i11 <= iProbeNext)) || (iHashIndex <= i11 && i11 <= iProbeNext)) {
+                short[] sArr = this.keys;
+                sArr[i11] = s10;
+                V[] vArr = this.values;
+                vArr[i11] = v10;
+                sArr[iProbeNext] = 0;
+                vArr[iProbeNext] = null;
+                i11 = iProbeNext;
+            }
+            V[] vArr2 = this.values;
+            iProbeNext = probeNext(iProbeNext);
+            v10 = vArr2[iProbeNext];
+        }
+        return i11 != i10;
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public static <T> T toExternal(T t10) {
+        if (t10 == NULL_VALUE) {
+            return null;
+        }
+        return t10;
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public static <T> T toInternal(T t10) {
+        return t10 == null ? (T) NULL_VALUE : t10;
+    }
+
+    @Override // java.util.Map
+    public void clear() {
+        Arrays.fill(this.keys, (short) 0);
+        Arrays.fill(this.values, (Object) null);
+        this.size = 0;
+    }
+
+    @Override // io.netty.util.collection.ShortObjectMap
+    public boolean containsKey(short s10) {
+        return indexOf(s10) >= 0;
+    }
+
+    @Override // java.util.Map
+    public boolean containsValue(Object obj) {
+        Object internal = toInternal(obj);
+        for (V v10 : this.values) {
+            if (v10 != null && v10.equals(internal)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override // io.netty.util.collection.ShortObjectMap
+    public Iterable<ShortObjectMap.PrimitiveEntry<V>> entries() {
+        return this.entries;
+    }
+
+    @Override // java.util.Map
+    public Set<Map.Entry<Short, V>> entrySet() {
+        return this.entrySet;
+    }
+
+    @Override // java.util.Map
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof ShortObjectMap)) {
+            return false;
+        }
+        ShortObjectMap shortObjectMap = (ShortObjectMap) obj;
+        if (this.size != shortObjectMap.size()) {
+            return false;
+        }
+        int i10 = 0;
+        while (true) {
+            V[] vArr = this.values;
+            if (i10 >= vArr.length) {
+                return true;
+            }
+            V v10 = vArr[i10];
+            if (v10 != null) {
+                Object obj2 = shortObjectMap.get(this.keys[i10]);
+                if (v10 == NULL_VALUE) {
+                    if (obj2 != null) {
+                        return false;
+                    }
+                } else if (!v10.equals(obj2)) {
+                    return false;
+                }
+            }
+            i10++;
+        }
+    }
+
+    @Override // io.netty.util.collection.ShortObjectMap
+    public V get(short s10) {
+        int iIndexOf = indexOf(s10);
+        if (iIndexOf == -1) {
+            return null;
+        }
+        return (V) toExternal(this.values[iIndexOf]);
+    }
+
+    @Override // java.util.Map
+    public boolean isEmpty() {
+        return this.size == 0;
+    }
+
+    @Override // java.util.Map
+    public Set<Short> keySet() {
+        return this.keySet;
+    }
+
+    public String keyToString(short s10) {
+        return Short.toString(s10);
+    }
+
+    @Override // java.util.Map
+    public void putAll(Map<? extends Short, ? extends V> map) {
+        if (!(map instanceof ShortObjectHashMap)) {
+            for (Map.Entry<? extends Short, ? extends V> entry : map.entrySet()) {
+                put(entry.getKey(), (Object) entry.getValue());
+            }
+            return;
+        }
+        ShortObjectHashMap shortObjectHashMap = (ShortObjectHashMap) map;
+        int i10 = 0;
+        while (true) {
+            V[] vArr = shortObjectHashMap.values;
+            if (i10 >= vArr.length) {
+                return;
+            }
+            V v10 = vArr[i10];
+            if (v10 != null) {
+                put(shortObjectHashMap.keys[i10], v10);
+            }
+            i10++;
+        }
+    }
+
+    @Override // io.netty.util.collection.ShortObjectMap
+    public V remove(short s10) {
+        int iIndexOf = indexOf(s10);
+        if (iIndexOf == -1) {
+            return null;
+        }
+        V v10 = this.values[iIndexOf];
+        removeAt(iIndexOf);
+        return (V) toExternal(v10);
+    }
+
+    @Override // java.util.Map
+    public int size() {
+        return this.size;
+    }
+
+    public String toString() {
+        if (isEmpty()) {
+            return "{}";
+        }
+        StringBuilder sb2 = new StringBuilder(this.size * 4);
+        sb2.append(f.f14859a);
+        boolean z10 = true;
+        int i10 = 0;
+        while (true) {
+            V[] vArr = this.values;
+            if (i10 >= vArr.length) {
+                sb2.append(f.f14860b);
+                return sb2.toString();
+            }
+            V v10 = vArr[i10];
+            if (v10 != null) {
+                if (!z10) {
+                    sb2.append(", ");
+                }
+                sb2.append(keyToString(this.keys[i10]));
+                sb2.append(h.f6043c);
+                sb2.append(v10 == this ? "(this Map)" : toExternal(v10));
+                z10 = false;
+            }
+            i10++;
+        }
+    }
+
+    @Override // java.util.Map
+    public Collection<V> values() {
+        return new AbstractCollection<V>() { // from class: io.netty.util.collection.ShortObjectHashMap.2
+            @Override // java.util.AbstractCollection, java.util.Collection, java.lang.Iterable
+            public Iterator<V> iterator() {
+                return new Iterator<V>() { // from class: io.netty.util.collection.ShortObjectHashMap.2.1
+                    final ShortObjectHashMap<V>.PrimitiveIterator iter;
+
+                    {
+                        this.iter = new PrimitiveIterator();
+                    }
+
+                    @Override // java.util.Iterator
+                    public boolean hasNext() {
+                        return this.iter.hasNext();
+                    }
+
+                    @Override // java.util.Iterator
+                    public V next() {
+                        return this.iter.next().value();
+                    }
+
+                    @Override // java.util.Iterator
+                    public void remove() {
+                        this.iter.remove();
+                    }
+                };
+            }
+
+            @Override // java.util.AbstractCollection, java.util.Collection
+            public int size() {
+                return ShortObjectHashMap.this.size;
+            }
+        };
+    }
+
+    public ShortObjectHashMap(int i10) {
+        this(i10, 0.5f);
+    }
+
+    @Override // java.util.Map
+    public boolean containsKey(Object obj) {
+        return containsKey(objectToKey(obj));
+    }
+
+    @Override // java.util.Map
+    public int hashCode() {
+        int iHashCode = this.size;
+        for (short s10 : this.keys) {
+            iHashCode ^= hashCode(s10);
+        }
+        return iHashCode;
+    }
+
+    @Override // io.netty.util.collection.ShortObjectMap
+    public V put(short s10, V v10) {
+        int iHashIndex = hashIndex(s10);
+        int iProbeNext = iHashIndex;
+        do {
+            Object[] objArr = this.values;
+            Object obj = objArr[iProbeNext];
+            if (obj == null) {
+                this.keys[iProbeNext] = s10;
+                objArr[iProbeNext] = toInternal(v10);
+                growSize();
+                return null;
+            }
+            if (this.keys[iProbeNext] == s10) {
+                objArr[iProbeNext] = toInternal(v10);
+                return (V) toExternal(obj);
+            }
+            iProbeNext = probeNext(iProbeNext);
+        } while (iProbeNext != iHashIndex);
+        throw new IllegalStateException("Unable to insert");
+    }
+
+    public ShortObjectHashMap(int i10, float f10) {
+        this.keySet = new KeySet();
+        this.entrySet = new EntrySet();
+        this.entries = new Iterable<ShortObjectMap.PrimitiveEntry<V>>() { // from class: io.netty.util.collection.ShortObjectHashMap.1
+            @Override // java.lang.Iterable
+            public Iterator<ShortObjectMap.PrimitiveEntry<V>> iterator() {
+                return new PrimitiveIterator();
+            }
+        };
+        if (f10 > 0.0f && f10 <= 1.0f) {
+            this.loadFactor = f10;
+            int iSafeFindNextPositivePowerOfTwo = MathUtil.safeFindNextPositivePowerOfTwo(i10);
+            this.mask = iSafeFindNextPositivePowerOfTwo - 1;
+            this.keys = new short[iSafeFindNextPositivePowerOfTwo];
+            this.values = (V[]) new Object[iSafeFindNextPositivePowerOfTwo];
+            this.maxSize = calcMaxSize(iSafeFindNextPositivePowerOfTwo);
+            return;
+        }
+        throw new IllegalArgumentException("loadFactor must be > 0 and <= 1");
+    }
+
+    @Override // java.util.Map
+    public V get(Object obj) {
+        return get(objectToKey(obj));
+    }
+
+    @Override // java.util.Map
+    public V remove(Object obj) {
+        return remove(objectToKey(obj));
+    }
+
+    @Override // java.util.Map
+    public V put(Short sh2, V v10) {
+        return put(objectToKey(sh2), v10);
+    }
+}

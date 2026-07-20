@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" android:ordering="together">
+    <objectAnimator
+        android:interpolator="@drawable/_os_radio_drawable_checked_to_unchecked__2_res_0x7f070037"
+        android:duration="100"
+        android:startOffset="0"
+        android:valueFrom="?attr/os_platform_basic_color"
+        android:valueTo="?attr/os_platform_basic_color"
+        android:valueType="colorType"
+        android:propertyName="fillColor"/>
+    <objectAnimator
+        android:interpolator="@drawable/_os_radio_drawable_checked_to_unchecked__3_res_0x7f070038"
+        android:duration="200"
+        android:startOffset="100"
+        android:valueFrom="?attr/os_platform_basic_color"
+        android:valueTo="@color/os_fill_quaternary_color"
+        android:valueType="colorType"
+        android:propertyName="fillColor"/>
+</set>

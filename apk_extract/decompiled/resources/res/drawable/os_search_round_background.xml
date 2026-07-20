@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<inset xmlns:android="http://schemas.android.com/apk/res/android">
+    <shape android:shape="rectangle">
+        <corners android:radius="@dimen/os_space250"/>
+        <solid android:color="?attr/os_fill_weakest"/>
+        <padding
+            android:left="?attr/osSearchBarEditLeft"
+            android:right="@dimen/os_search_bar_text_padding_end_with_del_icon"/>
+    </shape>
+</inset>

@@ -1,0 +1,91 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.transsion.airtransfer.filetransfer.protos";
+option java_outer_classname = "FileMessageProto";
+
+package filetransfer;
+
+
+message SendFileInfoRequest{
+  int64 taskId = 1;
+
+  message FileInfo{
+    int64 id = 1;
+    string name = 2;
+    int64 size = 3;
+    string md5 = 4;
+  }
+
+  repeated FileInfo files = 2;
+  string extend = 3;
+}
+
+
+message CancelSendRequest{
+  int64 taskId = 1;
+  int64 fileId = 2;
+  int64 sentLength = 3;
+}
+
+
+message CancelReceiveRequest{
+  int64 taskId = 1;
+}
+
+enum ReplyState{
+  REPLY_STATE_ERROR = 0;
+  REPLY_STATE_SUCCESS = 1;
+}
+
+message Reply{
+  ReplyState state = 1;
+}
+
+message SendFileReply{
+  int64 taskId = 1;
+  bool isAccept = 2;
+  string extend = 3;
+}
+
+message CancelReceiveReply{
+  int64 taskId = 1;
+  int64 fileId = 2;
+  int64 sentLength = 3;
+}
+
+message CancelSendReply{
+  int64 taskId = 1;
+  ReplyState state = 2;
+}
+
+message ReceiveFinish{
+  int64 taskId = 1;
+}
+
+message HandshakeRequest{
+  string data = 1;
+}
+
+message Heartbeat{
+  int32 msg = 1;
+}
+
+service FileMessage{
+  //
+  rpc SendFileInfo(SendFileInfoRequest) returns (SendFileReply){}
+  rpc CancelSend(CancelSendRequest) returns (Reply){}
+  rpc CancelReceive(CancelReceiveRequest) returns (CancelReceiveReply) {}
+  rpc sendHeartbeat(Heartbeat) returns (Heartbeat) {}
+
+
+  // Bidirectional streaming RPC
+  rpc SendFileInfoStream(stream SendFileInfoRequest) returns (stream SendFileInfoRequest) {}
+  rpc CancelSendStream(stream CancelSendRequest) returns (stream CancelSendRequest) {}
+  rpc CancelReceiveStream(stream CancelReceiveRequest) returns (stream CancelReceiveRequest) {}
+  rpc SendFileInfoReplyStream(stream SendFileReply) returns (stream SendFileReply) {}
+  rpc CancelReceiveReplyStream(stream CancelReceiveReply) returns (stream CancelReceiveReply) {}
+  rpc CancelSendReplyStream(stream CancelSendReply) returns (stream CancelSendReply) {}
+  rpc ReceiveFinishStream(stream ReceiveFinish) returns (stream ReceiveFinish) {}
+  rpc HandshakeStream(stream HandshakeRequest) returns (stream HandshakeRequest) {}
+}

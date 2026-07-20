@@ -1,0 +1,11 @@
+#
+#Fri Apr 28 11:01:21 CST 2023
+[A0008]\:\ [General\ Rule]\:\ Field\ should\ be\ named\ in\ upper\ camel\ pattern\ &&\ Static\ Final\ field\ should\ upper\ pattern=0a7b0ae4-d838-4063-a142-c33ac84128ed
+[A0006]\:\ [General\ Rule]\:\ Package\ should\ be\ named\ with\ specified\ name\!=b18806b3-d118-4189-96a7-3a8abfcf8596
+[A0007]\:\ [General\ Rule]\:\ Methods\ should\ be\ named\ in\ low\ camel\ case\ mode=71361620-d525-4189-a50a-795373448895
+[A0005]\:\ [General\ Rule]\:\ ClassName\ should\ be\ named\ with\ specified\ prefix\ or\ suffix\ \!=067be083-5fb0-457b-a7c1-a0187debce0f
+[A0009]\:\ [General\ Rule]\:\ Should\ not\ access\ unpublic\ api=846d2777-37d3-409a-a469-2ee2bf6039e6
+[A0004]\:\ [General\ Rule]\:\ Class\ name\ should\ be\ defined\ in\ up\ camel\ pattern\!=32edfe56-a332-4235-81e8-4edb37c1dea8
+[A0003]\:\ [General\ Rule]\:\ no\ classes\ should\ use\ java.util.logging=f785f5eb-27a1-4a58-a80c-f9a733657e82
+[A0001]\:\ [General\ Rule]\:\ no\ classes\ should\ access\ standard\ streams=42c901fc-8f6b-47bd-baae-dea2b9eb2a53
+[A0002]\:\ [General\ Rule]\:\ no\ classes\ should\ throw\ generic\ exceptions=70b5d86e-0ed9-40b7-93c9-2bab0f999079

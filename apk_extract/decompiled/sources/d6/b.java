@@ -1,0 +1,69 @@
+package d6;
+
+import androidx.core.app.NotificationCompat;
+import kotlin.jvm.internal.Intrinsics;
+
+/* JADX INFO: loaded from: classes2.dex */
+public final /* synthetic */ class b implements Runnable {
+
+    /* JADX INFO: renamed from: a, reason: collision with root package name */
+    public final /* synthetic */ int f4304a;
+
+    /* JADX INFO: renamed from: b, reason: collision with root package name */
+    public final /* synthetic */ d f4305b;
+
+    /* JADX INFO: renamed from: c, reason: collision with root package name */
+    public final /* synthetic */ e6.b f4306c;
+
+    public /* synthetic */ b(d dVar, e6.b bVar, int i8) {
+        this.f4304a = i8;
+        this.f4305b = dVar;
+        this.f4306c = bVar;
+    }
+
+    @Override // java.lang.Runnable
+    public final void run() {
+        f fVar;
+        switch (this.f4304a) {
+            case 0:
+                d this$0 = this.f4305b;
+                Intrinsics.checkNotNullParameter(this$0, "this$0");
+                e6.b fileContainer = this.f4306c;
+                Intrinsics.checkNotNullParameter(fileContainer, "$fileContainer");
+                int iK = this$0.f4323o.k(fileContainer, this$0.f4317i, this$0.f4315g);
+                if (iK == 0) {
+                    sj.a aVar = this$0.f4323o;
+                    String msg = Intrinsics.stringPlus("parse ", (a) aVar.f10138c);
+                    Intrinsics.checkNotNullParameter("AnimPlayer.AnimPlayer", "tag");
+                    Intrinsics.checkNotNullParameter(msg, "msg");
+                    a aVar2 = (a) aVar.f10138c;
+                    if (aVar2 != null && (aVar2.f4302k || ((fVar = this$0.f4313c) != null && fVar.f(aVar2)))) {
+                        this$0.a(fileContainer);
+                    } else {
+                        Intrinsics.checkNotNullParameter("AnimPlayer.AnimPlayer", "tag");
+                        Intrinsics.checkNotNullParameter("onVideoConfigReady return false", NotificationCompat.CATEGORY_MESSAGE);
+                    }
+                    break;
+                } else {
+                    this$0.f4321m = false;
+                    t tVar = this$0.f4314d;
+                    if (tVar != null) {
+                        tVar.c(iK, m.a(iK));
+                    }
+                    t tVar2 = this$0.f4314d;
+                    if (tVar2 != null) {
+                        tVar2.a();
+                        break;
+                    }
+                }
+                break;
+            default:
+                d this$1 = this.f4305b;
+                Intrinsics.checkNotNullParameter(this$1, "this$0");
+                e6.b fileContainer2 = this.f4306c;
+                Intrinsics.checkNotNullParameter(fileContainer2, "$fileContainer");
+                this$1.a(fileContainer2);
+                break;
+        }
+    }
+}

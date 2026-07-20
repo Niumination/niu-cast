@@ -1,0 +1,18 @@
+package lm;
+
+import java.lang.annotation.Annotation;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+/* JADX INFO: loaded from: classes3.dex */
+@Target({ElementType.TYPE})
+@mm.f(allowedTargets = {mm.b.CLASS})
+@mm.e(mm.a.BINARY)
+@f1(version = "1.8")
+@Retention(RetentionPolicy.CLASS)
+@s
+public @interface j1 {
+    Class<? extends Annotation> markerClass();
+}

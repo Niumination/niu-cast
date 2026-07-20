@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:gravity="start|center_vertical"
+    android:orientation="horizontal"
+    android:paddingBottom="@dimen/os_ultra_small_space300"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <com.transsion.widgetslib.view.OSLoadingView
+        android:id="@+id/osLoading"
+        android:layout_width="@dimen/os_ultra_small_loading_size"
+        android:layout_height="@dimen/os_ultra_small_loading_size"
+        android:layout_marginStart="@dimen/os_ultra_small_dialog_loading_start_margin"/>
+    <TextView
+        android:textSize="@dimen/os_h2_font_ultra_small"
+        android:textColor="@color/os_text_primary2_color"
+        android:layout_gravity="center"
+        android:id="@+id/messageTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/os_ultra_small_dialog_loading_text_start_margin"
+        android:layout_marginEnd="@dimen/os_ultra_small_dialog_loading_text_end_margin"/>
+</LinearLayout>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <com.transsion.widgetslib.view.OSCheckedTextView
+        android:textAppearance="@style/os_semibold_font"
+        android:textSize="@dimen/os_h2_font"
+        android:textColor="@color/os_platform_clickable_color"
+        android:gravity="center"
+        android:id="@+id/text_list_item_compat"
+        android:paddingTop="@dimen/os_dimen_dialog_button_item_padding_bottom_top"
+        android:paddingBottom="@dimen/os_dimen_dialog_button_item_padding_bottom_top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/os_dialog_button_item_height"
+        android:textAlignment="center"
+        android:paddingStart="@dimen/os_ultra_small_space300"
+        android:paddingEnd="@dimen/os_ultra_small_space300"/>
+    <View
+        android:layout_gravity="center"
+        android:id="@+id/view_divider"
+        android:background="?attr/os_border_disable"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/os_ultra_small_dimen_dialog_button_ver_divider_line_width"
+        android:layout_marginStart="@dimen/os_ultra_small_space300"
+        android:layout_marginEnd="@dimen/os_ultra_small_space300"/>
+</LinearLayout>

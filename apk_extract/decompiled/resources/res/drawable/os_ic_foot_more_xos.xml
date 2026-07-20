@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="24dp"
+    android:width="24dp"
+    android:viewportWidth="72"
+    android:viewportHeight="72">
+    <path
+        android:fillColor="?attr/os_comp_color_tab_icon"
+        android:pathData="M41,53L41,62L32,62L32,53L41,53ZM41,31L41,40L32,40L32,31L41,31ZM41,9L41,18L32,18L32,9L41,9Z"
+        android:strokeColor="#00000000"
+        android:strokeWidth="1"
+        android:fillType="evenOdd"/>
+</vector>

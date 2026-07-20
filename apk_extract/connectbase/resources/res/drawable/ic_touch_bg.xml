@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/os_letter_bubble_bg"/>
+    <size
+        android:height="@dimen/os_letter_bubble_size"
+        android:width="@dimen/os_letter_bubble_size"/>
+    <corners android:radius="8dp"/>
+</shape>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <set android:ordering="sequentially">
+        <objectAnimator
+            android:interpolator="@android:interpolator/linear"
+            android:duration="100"
+            android:valueFrom="M36,9C21.1,9 9,21.1 9,36s12.1,27 27,27s27,-12.1 27,-27S50.9,9 36,9zM36,60c-13.1,0 -24,-10.9 -24,-24s10.9,-24 24,-24s24,10.9 24,24S49.1,60 36,60z"
+            android:valueTo="M36,9C21.1,9 9,21.1 9,36s12.1,27 27,27s27,-12.1 27,-27S50.9,9 36,9zM36,60c-13.1,0 -24,-10.9 -24,-24s10.9,-24 24,-24s24,10.9 24,24S49.1,60 36,60z"
+            android:valueType="pathType"
+            android:propertyName="pathData"/>
+    </set>
+    <set android:ordering="sequentially">
+        <objectAnimator
+            android:duration="100"
+            android:valueFrom="1"
+            android:valueTo="1"
+            android:propertyName="fillAlpha"/>
+        <objectAnimator
+            android:duration="20"
+            android:valueFrom="1"
+            android:valueTo="0"
+            android:propertyName="fillAlpha"/>
+    </set>
+</set>

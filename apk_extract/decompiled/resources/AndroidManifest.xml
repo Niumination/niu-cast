@@ -1,0 +1,734 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    android:versionCode="10301227"
+    android:versionName="1.3.1.227"
+    android:compileSdkVersion="35"
+    android:compileSdkVersionCodename="15"
+    package="com.transsion.pcconnect"
+    platformBuildVersionCode="35"
+    platformBuildVersionName="15">
+    <uses-sdk
+        android:minSdkVersion="33"
+        android:targetSdkVersion="35"/>
+    <uses-feature android:name="android.hardware.camera"/>
+    <uses-feature android:name="android.hardware.camera.autofocus"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <uses-permission
+        android:name="android.permission.NEARBY_WIFI_DEVICES"
+        android:usesPermissionFlags="neverForLocation"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.NFC"/>
+    <uses-permission android:name="android.permission.LOCAL_MAC_ADDRESS"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="connectx.permission.ACCESS_API"/>
+    <uses-permission android:name="android.permission.MANAGE_ACTIVITY_TASKS"/>
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"/>
+    <uses-permission android:name="android.permission.STATUS_BAR"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="com.transsion.tranradionet.START_RADIO_NET_SERVICE"/>
+    <permission
+        android:name="com.transsion.pcconnect.permission.RECEIVE_GESTURE_EVENTS"
+        android:protectionLevel="system|signature"/>
+    <uses-permission android:name="android.permission.MANAGE_OWN_CALLS"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-permission android:name="CHANGE_NETWORK_STATE"/>
+    <meta-data
+        android:name="tran_widgets_widgetPerGuide_version"
+        android:value="16.3.0.3"/>
+    <meta-data
+        android:name="tran_widgets_widgetBottomSheet_version"
+        android:value="16.3.0.3"/>
+    <meta-data
+        android:name="tran_widgets_listitemlayout_version"
+        android:value="16.3.0.3"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <meta-data
+        android:name="tran_widgets_version"
+        android:value="16.3.0.3"/>
+    <meta-data
+        android:name="tran_widgets_widgets_themes_version"
+        android:value="16.3.0.3"/>
+    <queries>
+        <package android:name="com.transsion.launcher3"/>
+        <package android:name="com.android.systemui"/>
+        <package android:name="com.transsion.atomiccore"/>
+        <package android:name="com.transsion.atomicbrain"/>
+        <intent>
+            <action android:name="android.intent.action.MAIN"/>
+        </intent>
+    </queries>
+    <uses-permission android:name="com.transsion.dataservice.permission.READ"/>
+    <uses-permission android:name="com.transsion.dataservice.permission.WRITE"/>
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
+    <meta-data
+        android:name="tran_athena_version"
+        android:value="3.1.1.0"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <permission
+        android:name="com.transsion.pcconnect.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        android:protectionLevel="signature"/>
+    <uses-permission android:name="com.transsion.pcconnect.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"/>
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
+    <meta-data
+        android:name="tran_gslb_version"
+        android:value="1.0.2.6"/>
+    <meta-data
+        android:name="tran_coreutil_version"
+        android:value="1.0.61.09"/>
+    <meta-data
+        android:name="tran_widgets_core_version"
+        android:value="16.3.0.3"/>
+    <meta-data
+        android:name="tran_json_version"
+        android:value="1.0.5.01"/>
+    <application
+        android:label="@string/md_multi_connect"
+        android:icon="@drawable/notification_logo"
+        android:name="com.transsion.iotservice.multiscreen.pc.PCConnectApplication"
+        android:allowBackup="true"
+        android:supportsRtl="true"
+        android:extractNativeLibs="false"
+        android:resizeableActivity="false"
+        android:appComponentFactory="androidx.core.app.CoreComponentFactory">
+        <meta-data
+            android:name="atomicSwitchConfig"
+            android:resource="@xml/atomic_switch_config"/>
+        <meta-data
+            android:name="com.transsion.appkey"
+            android:value="MAv2bly4ugdXaZ+7JyL7QrnxIFjo04SVY7Lr3TQwisk+ytv0yk3eFniBz/ZyY4SLI+emnBvtr9s4Chc5uPMuBMUFLNxblimfQiw5G6W5PcXE+KmERHlPhjyfOv/kocTlsN0hQ+CeZEpsTiF4pA4S2bC9IfRvLnw+YaCadU5q7wo= "/>
+        <activity
+            android:theme="@style/OS.Theme.AppCompat.xos.NoActionBar.Transparent"
+            android:label="@string/md_multi_connect"
+            android:icon="@drawable/module_pc_icon_share_logo"
+            android:name="com.transsion.iotservice.multiscreen.pc.ui.search.SearchActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:taskAffinity="com.transsion.iotservice.multiscreen.pc.ue.SearchActivity"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:configChanges="screenSize|screenLayout|orientation"
+            android:allowTaskReparenting="true"
+            android:singleUser="true"
+            android:resizeableActivity="false">
+            <meta-data
+                android:name="com.transsion.feature.transition.force_enable_custom_transition"
+                android:value="true"/>
+        </activity>
+        <activity
+            android:theme="@style/DialogActivityTheme"
+            android:name="com.transsion.iotservice.multiscreen.pc.ui.search.GestureHandleActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:singleUser="true">
+            <intent-filter>
+                <action android:name="com.transsion.wls.intent.action.EXTEND_SCREEN_AIR_TRANSFER"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.transsion.wls.intent.action.EXTEND_SCREEN_AIR_COPY"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.transsion.iotservice.multiscreen.pc.ue.AirTransferSettingActivity"
+            android:enabled="false"
+            android:exported="true"
+            android:screenOrientation="locked"
+            android:singleUser="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="com.android.settings.action.EXTRA_SETTINGS"/>
+                <action android:name="com.transsion.iotservice.PC_TRANSFER_CONFIG"/>
+            </intent-filter>
+            <meta-data
+                android:name="com.transsion.settings.support_multi_users"
+                android:value="false"/>
+            <meta-data
+                android:name="com.android.settings.category"
+                android:value="com.android.settings.category.ia.device"/>
+            <meta-data
+                android:name="com.android.settings.title"
+                android:resource="@string/module_pc_air_transfer"/>
+            <meta-data
+                android:name="com.android.settings.summary"
+                android:resource="@string/module_pc_air_transfer_short_desc"/>
+            <meta-data
+                android:name="com.android.settings.order"
+                android:value="-155"/>
+        </activity>
+        <activity
+            android:theme="@style/TransparentStyle"
+            android:name="com.transsion.iotservice.multiscreen.pc.ue.IconLongClickActivity"
+            android:exported="true"
+            android:taskAffinity="com.transsion.iotservice.multiscreen.pc.ue.IconLongClickActivity"
+            android:launchMode="singleTask"
+            android:allowTaskReparenting="true"
+            android:singleUser="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES"/>
+            </intent-filter>
+        </activity>
+        <service
+            android:icon="@drawable/module_pc_icon_pc_link"
+            android:name="com.transsion.iotservice.multiscreen.pc.helper.IconService"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:enabled="false"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.service.quicksettings.SUPPORT_MULTI_USERS"
+                android:value="false"/>
+        </service>
+        <activity
+            android:theme="@style/Theme.Transparent.Activity3"
+            android:name="com.transsion.iotservice.multiscreen.pc.ui.qr.QrConnectActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:singleUser="true">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <meta-data
+                android:name="com.transsion.settings.support_multi_users"
+                android:value="false"/>
+            <meta-data
+                android:name="com.transsion.feature.transition.force_enable_custom_transition"
+                android:value="true"/>
+        </activity>
+        <activity
+            android:theme="@style/OS.Theme.AppCompat.hios.NoActionBar.Transparent"
+            android:name="com.transsion.iotservice.multiscreen.pc.ue.NFCTouchSelectorActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:singleUser="true">
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="app/welinkservice"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.nfc.action.TECH_DISCOVERED"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.nfc.action.TECH_DISCOVERED"
+                android:resource="@xml/filter_nfc"/>
+        </activity>
+        <service
+            android:name="com.transsion.pcconnect.service.FileService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.transsion.iotservice.pc.helper.FileService"/>
+            </intent-filter>
+        </service>
+        <service
+            android:name="com.transsion.iotservice.multiscreen.pc.ue.P2PConnectService"
+            android:enabled="true"
+            android:exported="false"/>
+        <receiver
+            android:name="com.transsion.iotservice.multiscreen.pc.notification.CancelTransferReceiver"
+            android:enabled="true"
+            android:exported="true"/>
+        <receiver
+            android:name="com.transsion.iotservice.multiscreen.pc.receiver.GestureReceiver"
+            android:permission="com.transsion.pcconnect.permission.RECEIVE_GESTURE_EVENTS"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.transsion.iotservice.pcconnect.gesture.action.SWIFT_SEND"/>
+                <action android:name="com.transsion.iotservice.pcconnect.gesture.action.MIRROR_CAST"/>
+                <action android:name="com.transsion.iotservice.pcconnect.gesture.action.AIR_COPY"/>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="com.transsion.iotservice.multiscreen.pc.receiver.PhoneLangChangeReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.LOCALE_CHANGED"/>
+            </intent-filter>
+        </receiver>
+        <activity
+            android:name="com.transsion.iotservice.multiscreen.pc.ue.PCConnectionHelperActivity"
+            android:screenOrientation="locked"
+            android:singleUser="true"/>
+        <service
+            android:name="com.transsion.iotservice.multiscreen.pc.service.usb.UsbService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="transsion.iotservice.usbservice"/>
+                <action android:name="transsion.iotservice.usbservice.pcConnect"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </service>
+        <service
+            android:name="com.transsion.iotservice.multiscreen.pc.service.KeepLiveService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.transsion.capability.iotservie.keeplive"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </service>
+        <service
+            android:name="com.transsion.iotservice.multiscreen.pc.iotcard.PCConnectionProviderService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.transsion.iotservice.iotcard.ControlsProviderService"/>
+                <action android:name="com.transsion.iotservice.iotcard.newplanaction"/>
+            </intent-filter>
+        </service>
+        <activity
+            android:theme="@style/TransparentStyle"
+            android:name="com.transsion.iotservice.multiscreen.pc.ui.qr.QrScanActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:singleUser="true"/>
+        <service
+            android:name="com.transsion.iotservice.multiscreen.pc.iotcard.PCConnectionStartService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.transsion.pcconnect.iotCardBindService"/>
+            </intent-filter>
+        </service>
+        <activity
+            android:theme="@style/Theme.PcConnectTheme_hios"
+            android:name="com.transsion.iotservice.multiscreen.pc.ue.PCConnectionSettingActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:screenOrientation="locked"
+            android:singleUser="true"
+            android:resizeableActivity="false">
+            <intent-filter>
+                <action android:name="com.android.settings.action.EXTRA_SETTINGS"/>
+                <action android:name="com.transsion.iotservice.PC_CONNECTION_CONFIG"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <meta-data
+                android:name="com.transsion.settings.support_multi_users"
+                android:value="false"/>
+            <meta-data
+                android:name="com.android.settings.category"
+                android:value="com.android.settings.category.ia.device"/>
+            <meta-data
+                android:name="com.android.settings.title"
+                android:resource="@string/md_multi_connect"/>
+            <meta-data
+                android:name="com.android.settings.summary"
+                android:resource="@string/md_settings_subtitle"/>
+            <meta-data
+                android:name="com.android.settings.order"
+                android:value="-160"/>
+        </activity>
+        <activity
+            android:theme="@style/DialogActivityTheme"
+            android:name="com.transsion.iotservice.multiscreen.pc.ui.UsbEntranceActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:launchMode="singleInstance"
+            android:singleUser="true">
+            <intent-filter>
+                <action android:name="transsion.iotservice.usbservice"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:theme="@style/OS.Theme.AppCompat.xos.NoActionBar.Transparent"
+            android:name="com.transsion.iotservice.multiscreen.pc.ui.permission.PermissionGuideDialog"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:singleUser="true"/>
+        <activity
+            android:theme="@style/DialogActivityTheme"
+            android:name="com.transsion.iotservice.multiscreen.pc.ui.permission.PermissionDialog"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:singleUser="true"/>
+        <activity
+            android:theme="@style/OS.Theme.AppCompat.xos.NoActionBar.Transparent"
+            android:name="com.transsion.iotservice.multiscreen.pc.ui.guide.FunctionGuideActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:singleUser="true"
+            android:resizeableActivity="false"/>
+        <activity
+            android:theme="@style/DialogActivityTheme"
+            android:name="com.transsion.iotservice.multiscreen.pc.ui.dialog.QrConnectFailedDialog"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:singleUser="true"/>
+        <activity
+            android:theme="@style/DialogActivityTheme"
+            android:name="com.transsion.iotservice.multiscreen.pc.ui.dialog.PcRequestConnectDialog"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:singleUser="true"/>
+        <activity
+            android:theme="@style/OS.Theme.AppCompat.hios.NoActionBar.Transparent"
+            android:name="com.transsion.iotservice.multiscreen.pc.ui.BlankActivity"
+            android:enabled="true"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:singleUser="true"
+            android:resizeableActivity="false"/>
+        <activity
+            android:theme="@style/DialogActivityTheme"
+            android:name="com.transsion.iotservice.multiscreen.pc.ui.dialog.DialogUtilActivity"
+            android:excludeFromRecents="false"
+            android:launchMode="singleInstance"
+            android:singleUser="true"/>
+        <activity
+            android:theme="@style/Theme.PcConnectTheme_hios"
+            android:name="com.transsion.iotservice.multiscreen.pc.ui.trust.TrustDevicesActivity"
+            android:exported="true"
+            android:singleUser="true">
+            <intent-filter>
+                <action android:name="com.transsion.pcconnect.action.TRUST_DEVICES"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:theme="@style/Theme.PcConnectTheme_hios"
+            android:name="com.transsion.iotservice.multiscreen.pc.ui.gesture.GestureActivity"
+            android:exported="true"
+            android:singleUser="true">
+            <intent-filter>
+                <action android:name="com.transsion.pcconnect.action.MIRROR_GESTURE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:theme="@style/OS.Theme.AppCompat.hios"
+            android:name="com.transsion.iotservice.multiscreen.pc.ui.copy.CopyPastActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:screenOrientation="locked"
+            android:resizeableActivity="false">
+            <intent-filter>
+                <action android:name="com.transsion.pcconnect.action.COPY_PAST"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <receiver
+            android:name="com.transsion.iotservice.multiscreen.pc.file_backup.CancelBackupReceiver"
+            android:enabled="true"
+            android:exported="true"/>
+        <activity
+            android:theme="@style/DialogActivityTheme"
+            android:name="com.transsion.iotservice.multiscreen.pc.ui.dialog.TCircleConfirmDialog"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:singleUser="true"/>
+        <activity
+            android:theme="@style/OS.Theme.AppCompat.xos.NoActionBar.Transparent"
+            android:name="com.transsion.iotservice.multiscreen.pc.ui.dialog.CastControlDialog"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:singleUser="true"
+            android:resizeableActivity="false">
+            <intent-filter>
+                <action android:name="com.transsion.iotservice.CAST_CONTROL_DIALOG"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:theme="@style/DialogActivityTheme"
+            android:name="com.transsion.iotservice.multiscreen.pc.ui.dialog.ChannelOccupyDialog"
+            android:excludeFromRecents="true"/>
+        <activity
+            android:theme="@style/DialogActivityTheme"
+            android:name="com.transsion.iotservice.multiscreen.pc.ui.dialog.UsbConnectFailDialog"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:singleUser="true"/>
+        <provider
+            android:name="com.transsion.iotservice.multiscreen.pc.notification.atomic.TransferClientProvider"
+            android:permission="com.transsion.permission.atomiccore.safe"
+            android:enabled="true"
+            android:exported="true"
+            android:authorities="com.transsion.iotservice.multiscreen.pc.notification.atomic.TransferClientProvider">
+            <intent-filter>
+                <action android:name="com.transsion.atomiccore.action.ATOMIC_CARD"/>
+            </intent-filter>
+        </provider>
+        <provider
+            android:name="com.transsion.iotservice.multiscreen.pc.global_search.SearchIndexablesProvider"
+            android:permission="android.permission.READ_SEARCH_INDEXABLES"
+            android:enabled="true"
+            android:exported="true"
+            android:authorities="com.transsion.iotservice.multiscreen.pc.search"
+            android:grantUriPermissions="true">
+            <intent-filter>
+                <action android:name="android.content.action.SEARCH_INDEXABLES_PROVIDER"/>
+            </intent-filter>
+        </provider>
+        <service
+            android:name="com.transsion.iotservice.multiscreen.pc.notification.atomic.AtomicActionService"
+            android:exported="true"
+            android:foregroundServiceType="shortService">
+            <intent-filter>
+                <action android:name="com.transsion.iotservice.multiscreen.pc.notification.atomic.AtomicActionService"/>
+            </intent-filter>
+        </service>
+        <activity
+            android:theme="@style/DialogActivityTheme"
+            android:name="com.transsion.iotservice.multiscreen.pc.ui.dialog.CommonDialog"
+            android:exported="false"
+            android:excludeFromRecents="false"
+            android:launchMode="singleInstance"
+            android:singleUser="true"/>
+        <activity
+            android:theme="@style/Theme.MessageCast"
+            android:name="com.transsion.message.cast.ChatActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
+        <service
+            android:name="com.transsion.message.cast.MessageCastService"
+            android:enabled="true"
+            android:exported="true"
+            android:foregroundServiceType="shortService"/>
+        <receiver
+            android:name="com.transsion.message.cast.notification.NotificationActionReceiver"
+            android:exported="false"/>
+        <activity
+            android:theme="@style/OS.Theme.AppCompat.hios.NoActionBar.Transparent"
+            android:name="com.transsion.iotservice.common.util.ToastActivity"
+            android:enabled="true"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:singleUser="true"
+            android:resizeableActivity="false"/>
+        <service
+            android:name="com.transsion.pcconnect.invoke.bridge.IntegratedActionService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.transsion.pcconnect.ACTION_SERVICE"/>
+            </intent-filter>
+        </service>
+        <provider
+            android:name="com.transsion.atomiccore.hostsdk.file.provider.FileShareProvider"
+            android:readPermission="com.transsion.permission.atomiccore.safe"
+            android:enabled="true"
+            android:exported="false"
+            android:authorities="com.transsion.pcconnect.FileShareProvider"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/tr_provider_file_paths"/>
+        </provider>
+        <service
+            android:name="androidx.camera.core.impl.MetadataHolderService"
+            android:enabled="false"
+            android:exported="false">
+            <meta-data
+                android:name="androidx.camera.core.impl.MetadataHolderService.DEFAULT_CONFIG_PROVIDER"
+                android:value="androidx.camera.camera2.Camera2Config$DefaultProvider"/>
+        </service>
+        <service
+            android:name="com.google.mlkit.common.internal.MlKitComponentDiscoveryService"
+            android:exported="false"
+            android:directBootAware="true">
+            <meta-data
+                android:name="com.google.firebase.components:com.google.mlkit.vision.barcode.internal.BarcodeRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data
+                android:name="com.google.firebase.components:com.google.mlkit.vision.common.internal.VisionCommonRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data
+                android:name="com.google.firebase.components:com.google.mlkit.common.internal.CommonComponentRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar"/>
+        </service>
+        <provider
+            android:name="com.google.mlkit.common.internal.MlKitInitProvider"
+            android:exported="false"
+            android:authorities="com.transsion.pcconnect.mlkitinitprovider"
+            android:initOrder="99"/>
+        <activity
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+            android:exported="false"/>
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version"/>
+        <service android:name="com.transsion.athena.aidl.AthenaTrackService"/>
+        <uses-library
+            android:name="androidx.window.extensions"
+            android:required="false"/>
+        <uses-library
+            android:name="androidx.window.sidecar"
+            android:required="false"/>
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:exported="false"
+            android:authorities="com.transsion.pcconnect.androidx-startup">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"/>
+            <meta-data
+                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+                android:value="androidx.startup"/>
+            <meta-data
+                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+                android:value="androidx.startup"/>
+            <meta-data
+                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+                android:value="androidx.startup"/>
+        </provider>
+        <service
+            android:name="androidx.work.impl.background.systemalarm.SystemAlarmService"
+            android:enabled="@bool/enable_system_alarm_service_default"
+            android:exported="false"
+            android:directBootAware="false"/>
+        <service
+            android:name="androidx.work.impl.background.systemjob.SystemJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:enabled="@bool/enable_system_job_service_default"
+            android:exported="true"
+            android:directBootAware="false"/>
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:enabled="@bool/enable_system_foreground_service_default"
+            android:exported="false"
+            android:directBootAware="false"/>
+        <receiver
+            android:name="androidx.work.impl.utils.ForceStopRunnable.BroadcastReceiver"
+            android:enabled="true"
+            android:exported="false"
+            android:directBootAware="false"/>
+        <receiver
+            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy.BatteryChargingProxy"
+            android:enabled="false"
+            android:exported="false"
+            android:directBootAware="false">
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy.BatteryNotLowProxy"
+            android:enabled="false"
+            android:exported="false"
+            android:directBootAware="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BATTERY_OKAY"/>
+                <action android:name="android.intent.action.BATTERY_LOW"/>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy.StorageNotLowProxy"
+            android:enabled="false"
+            android:exported="false"
+            android:directBootAware="false">
+            <intent-filter>
+                <action android:name="android.intent.action.DEVICE_STORAGE_LOW"/>
+                <action android:name="android.intent.action.DEVICE_STORAGE_OK"/>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy.NetworkStateProxy"
+            android:enabled="false"
+            android:exported="false"
+            android:directBootAware="false">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="androidx.work.impl.background.systemalarm.RescheduleReceiver"
+            android:enabled="false"
+            android:exported="false"
+            android:directBootAware="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.TIME_SET"/>
+                <action android:name="android.intent.action.TIMEZONE_CHANGED"/>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver"
+            android:enabled="@bool/enable_system_alarm_service_default"
+            android:exported="false"
+            android:directBootAware="false">
+            <intent-filter>
+                <action android:name="androidx.work.impl.background.systemalarm.UpdateProxies"/>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="androidx.work.impl.diagnostics.DiagnosticsReceiver"
+            android:permission="android.permission.DUMP"
+            android:enabled="true"
+            android:exported="true"
+            android:directBootAware="false">
+            <intent-filter>
+                <action android:name="androidx.work.diagnostics.REQUEST_DIAGNOSTICS"/>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+            android:permission="android.permission.DUMP"
+            android:enabled="true"
+            android:exported="true"
+            android:directBootAware="false">
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SKIP_FILE"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION"/>
+            </intent-filter>
+        </receiver>
+        <service
+            android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery"
+            android:exported="false">
+            <meta-data
+                android:name="backend:com.google.android.datatransport.cct.CctBackendFactory"
+                android:value="cct"/>
+        </service>
+        <service
+            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="false"/>
+        <receiver
+            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver"
+            android:exported="false"/>
+        <service
+            android:name="androidx.room.MultiInstanceInvalidationService"
+            android:exported="false"
+            android:directBootAware="true"/>
+    </application>
+</manifest>

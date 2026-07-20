@@ -1,0 +1,350 @@
+package com.transsion.widgetthemes.widget.actionbar;
+
+import android.app.Activity;
+import android.app.Fragment;
+import android.content.Context;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.os.Handler;
+import android.os.Message;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.PopupMenu;
+import com.transsion.widgetsThemes.R;
+import java.util.ArrayList;
+import java.util.Iterator;
+
+/* JADX INFO: loaded from: classes2.dex */
+public class OverflowMenu extends View {
+    public static final int I = 30;
+    public static final int J = -10461088;
+    public static boolean K = false;
+    public Handler H;
+
+    /* JADX INFO: renamed from: a, reason: collision with root package name */
+    public int f3326a;
+
+    /* JADX INFO: renamed from: b, reason: collision with root package name */
+    public int f3327b;
+
+    /* JADX INFO: renamed from: c, reason: collision with root package name */
+    public ArrayList<qj.a> f3328c;
+
+    /* JADX INFO: renamed from: d, reason: collision with root package name */
+    public qj.b f3329d;
+
+    /* JADX INFO: renamed from: e, reason: collision with root package name */
+    public Paint f3330e;
+
+    /* JADX INFO: renamed from: f, reason: collision with root package name */
+    public int f3331f;
+
+    /* JADX INFO: renamed from: g, reason: collision with root package name */
+    public int f3332g;
+
+    /* JADX INFO: renamed from: i, reason: collision with root package name */
+    public final Resources f3333i;
+
+    /* JADX INFO: renamed from: n, reason: collision with root package name */
+    public PopupMenu f3334n;
+
+    /* JADX INFO: renamed from: p, reason: collision with root package name */
+    public d f3335p;
+
+    /* JADX INFO: renamed from: v, reason: collision with root package name */
+    public View.OnClickListener f3336v;
+
+    /* JADX INFO: renamed from: w, reason: collision with root package name */
+    public Fragment f3337w;
+
+    /* JADX INFO: renamed from: x, reason: collision with root package name */
+    public Activity f3338x;
+
+    /* JADX INFO: renamed from: y, reason: collision with root package name */
+    public int f3339y;
+
+    /* JADX INFO: renamed from: z, reason: collision with root package name */
+    public boolean f3340z;
+
+    public class a extends Handler {
+        public a() {
+        }
+
+        @Override // android.os.Handler
+        public void handleMessage(Message message) {
+            if (OverflowMenu.this.f3334n != null) {
+                OverflowMenu.this.f3334n.getMenu().clear();
+                OverflowMenu overflowMenu = OverflowMenu.this;
+                overflowMenu.f3334n.inflate(overflowMenu.f3339y);
+            }
+        }
+    }
+
+    public class b implements PopupMenu.OnMenuItemClickListener {
+        public b() {
+        }
+
+        @Override // android.widget.PopupMenu.OnMenuItemClickListener
+        public boolean onMenuItemClick(MenuItem menuItem) {
+            if (OverflowMenu.this.f3338x != null) {
+                OverflowMenu.this.f3338x.onOptionsItemSelected(menuItem);
+            }
+            Fragment fragment = OverflowMenu.this.f3337w;
+            if (fragment == null) {
+                return false;
+            }
+            fragment.onOptionsItemSelected(menuItem);
+            return false;
+        }
+    }
+
+    public class c implements PopupMenu.OnDismissListener {
+        public c() {
+        }
+
+        @Override // android.widget.PopupMenu.OnDismissListener
+        public void onDismiss(PopupMenu popupMenu) {
+            OverflowMenu.this.f3340z = false;
+            OverflowMenu.this.setSelected(false);
+        }
+    }
+
+    public interface d {
+        void a();
+    }
+
+    public OverflowMenu(Context context) {
+        this(context, null);
+    }
+
+    public final void f(int i10) {
+        if (i10 == 1) {
+            this.f3334n = new PopupMenu(getContext(), this, 0, 0, R.style.OsPopupMenuStyle);
+        } else {
+            this.f3334n = new PopupMenu(getContext(), this, 0, 0, R.style.OsPopupMenuStyle);
+        }
+        this.f3334n.setOnMenuItemClickListener(new b());
+        this.f3334n.setOnDismissListener(new c());
+        d dVar = this.f3335p;
+        if (dVar != null) {
+            dVar.a();
+        }
+    }
+
+    public void g() {
+        PopupMenu popupMenu = this.f3334n;
+        if (popupMenu != null) {
+            popupMenu.dismiss();
+        }
+    }
+
+    public PopupMenu getPopWindow() {
+        return this.f3334n;
+    }
+
+    @Override // android.view.View
+    @b.a({"WrongConstant"})
+    public void getWindowVisibleDisplayFrame(Rect rect) {
+        Resources resources;
+        super.getWindowVisibleDisplayFrame(rect);
+        if (this.f3338x == null || getDisplay() == null || (resources = this.f3333i) == null) {
+            return;
+        }
+        int dimensionPixelSize = rect.bottom - resources.getDimensionPixelSize(R.dimen.os_shadowbutton_width_height);
+        rect.bottom = dimensionPixelSize;
+        if (K && dimensionPixelSize - rect.top > 0) {
+            rect.top = dimensionPixelSize - (this.f3332g * 4);
+        } else if (getDisplay().getRotation() % 2 != 0) {
+            rect.top = rect.bottom - (this.f3332g * 4);
+        } else {
+            rect.top = rect.bottom - (this.f3332g * 6);
+        }
+    }
+
+    public final void h() {
+        Paint paint = new Paint();
+        this.f3330e = paint;
+        paint.setAntiAlias(true);
+        this.f3330e.setDither(true);
+        this.f3330e.setColor(this.f3327b);
+    }
+
+    public final void i(int i10) {
+        int i11 = i10 / 2;
+        this.f3329d.f(i11, i11);
+        int layoutDirection = getLayoutDirection();
+        this.f3331f = layoutDirection;
+        this.f3329d.h(layoutDirection, this.f3328c);
+    }
+
+    public boolean j() {
+        return this.f3340z;
+    }
+
+    public void k(boolean z10) {
+        K = z10;
+    }
+
+    public void l() {
+        PopupMenu popupMenu;
+        int[] iArr = new int[2];
+        getLocationOnScreen(iArr);
+        if (iArr[1] <= getResources().getDisplayMetrics().heightPixels / 3) {
+            Log.w("os_menu", "Warnging, screen in a error point!");
+            return;
+        }
+        if (this.f3340z || (popupMenu = this.f3334n) == null) {
+            return;
+        }
+        Activity activity = this.f3338x;
+        if (activity == null && this.f3337w == null) {
+            throw new RuntimeException("Must provide a activity or fragment!");
+        }
+        if (activity != null) {
+            activity.onPrepareOptionsMenu(popupMenu.getMenu());
+        }
+        Fragment fragment = this.f3337w;
+        if (fragment != null) {
+            fragment.onPrepareOptionsMenu(this.f3334n.getMenu());
+        }
+        this.f3340z = true;
+        this.f3334n.show();
+        this.f3329d.i(true, this.f3331f);
+    }
+
+    @Override // android.view.View
+    public void onConfigurationChanged(Configuration configuration) {
+        super.onConfigurationChanged(configuration);
+        if (this.f3331f != configuration.getLayoutDirection()) {
+            requestLayout();
+        }
+    }
+
+    @Override // android.view.View
+    public void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        this.f3329d.a();
+        PopupMenu popupMenu = this.f3334n;
+        if (popupMenu != null) {
+            popupMenu.dismiss();
+        }
+        this.f3334n = null;
+    }
+
+    @Override // android.view.View
+    public void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        Iterator<qj.a> it = this.f3328c.iterator();
+        while (it.hasNext()) {
+            it.next().a(canvas, this.f3330e);
+        }
+        qj.b bVar = this.f3329d;
+        if (bVar.f14011f == 4) {
+            bVar.j();
+        }
+    }
+
+    @Override // android.view.View
+    public void onLayout(boolean z10, int i10, int i11, int i12, int i13) {
+        super.onLayout(z10, i10, i11, i12, i13);
+        i(this.f3326a);
+    }
+
+    @Override // android.view.View
+    public void onMeasure(int i10, int i11) {
+        super.onMeasure(i10, i11);
+        if (this.f3326a == 0) {
+            this.f3326a = getMeasuredWidth();
+        }
+    }
+
+    @Override // android.view.View
+    public boolean performClick() {
+        if (super.performClick()) {
+            return true;
+        }
+        setSelected(true);
+        playSoundEffect(0);
+        View.OnClickListener onClickListener = this.f3336v;
+        if (onClickListener != null) {
+            onClickListener.onClick(this);
+        }
+        return true;
+    }
+
+    public void setActivity(Activity activity) {
+        this.f3338x = activity;
+    }
+
+    @Override // android.view.View
+    public void setEnabled(boolean z10) {
+        super.setEnabled(z10);
+        if (z10) {
+            setOverMenuColor(-10461088);
+        } else {
+            setOverMenuColor(this.f3327b & Integer.MAX_VALUE);
+        }
+    }
+
+    public void setFragment(Fragment fragment) {
+        this.f3337w = fragment;
+    }
+
+    public void setOnPopMenuListener(d dVar) {
+        this.f3335p = dVar;
+        f(this.f3331f);
+    }
+
+    @Deprecated
+    public void setOutOnClickListener(View.OnClickListener onClickListener) {
+        this.f3336v = onClickListener;
+    }
+
+    public void setOverMenuColor(int i10) {
+        this.f3327b = i10;
+        this.f3330e.setColor(i10);
+    }
+
+    @Override // android.view.View
+    public void setSelected(boolean z10) {
+        super.setSelected(z10);
+        if (z10) {
+            l();
+        } else {
+            this.f3329d.i(false, this.f3331f);
+        }
+    }
+
+    public void setupOverflowMenuButton(int i10) {
+        this.f3339y = i10;
+        this.H.sendEmptyMessage(2);
+    }
+
+    public OverflowMenu(Context context, AttributeSet attributeSet) {
+        this(context, attributeSet, R.style.OsPopupMenuStyle, 0);
+    }
+
+    public OverflowMenu(Context context, AttributeSet attributeSet, int i10) {
+        this(context, attributeSet, i10, 0);
+    }
+
+    public OverflowMenu(Context context, AttributeSet attributeSet, int i10, int i11) {
+        super(context, attributeSet, i10, i11);
+        this.f3327b = -10461088;
+        this.f3340z = false;
+        this.H = new a();
+        setClickable(true);
+        setFocusable(true);
+        Resources resources = context.getResources();
+        this.f3333i = resources;
+        this.f3332g = resources.getDimensionPixelSize(R.dimen.os_list_item_height_small);
+        this.f3328c = new ArrayList<>(3);
+        this.f3329d = new qj.b(this);
+        h();
+    }
+}

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/os_action_bar_height"
+    android:paddingStart="0.5dp"
+    android:paddingEnd="6dp">
+    <AutoCompleteTextView
+        android:id="@+id/text_search"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:dropDownAnchor="@+id/relative_root"
+        android:textDirection="locale"
+        style="@style/OsSearchTextStyle"/>
+    <ImageView
+        android:id="@+id/img_search_icon"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/os_ic_search_in_edit_text"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="10dp"/>
+    <ImageView
+        android:id="@+id/img_delete_all"
+        android:background="@drawable/os_control_background_32dp"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/os_ic_cancel"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="10dp"
+        android:layout_alignParentEnd="true"/>
+</RelativeLayout>

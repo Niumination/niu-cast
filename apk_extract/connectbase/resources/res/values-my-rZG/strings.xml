@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="am">နံနက္</string>
+    <string name="apr">ဧၿပီ</string>
+    <string name="aug">ၾသဂုတ္</string>
+    <string name="dec">ဒီဇင္ဘာ</string>
+    <string name="feb">ေဖေဖာ္၀ါရီ</string>
+    <string name="jan">ဇန္န၀ါရီ</string>
+    <string name="jul">ဇူလိုင္</string>
+    <string name="jun">ဇြန္</string>
+    <string name="mar">မတ္</string>
+    <string name="may">ေမ</string>
+    <string name="nov">ႏိုဝင္ဘာ</string>
+    <string name="oct">ေအာက္တိုဘာ</string>
+    <string name="os_dampingl_down_pull_refresh">ျပန္္လည္ဆန္းသစ္ရန္ဆြဲခ်ပါ။</string>
+    <string name="os_dampingl_refresh_finish">ျပန္လည္အားျဖည့္ျခင္း ၿပီးၿပီ</string>
+    <string name="os_dampingl_refreshing">ပြန်လည်ဆန်းသစ်နေသည်</string>
+    <string name="os_dampingl_release_for_refresh">ျပန္လည္လုပ္ေဆာင္ရန္လႊတ္လိုက္မည္</string>
+    <string name="os_dialog_input_tip_max">အကၡရာ ကန္႔သတ္ခ်က္ ျပည့္ပါၿပီ</string>
+    <string name="os_foot_opt_bar_more">ေနာက္ထပ္</string>
+    <string name="os_preference_dialog_negative_string">မလုပ္ပါ</string>
+    <string name="os_preference_dialog_positive_string">အိုေက</string>
+    <string name="pm">ညေန</string>
+    <string name="sep">စက္တင္ဘာ</string>
+</resources>

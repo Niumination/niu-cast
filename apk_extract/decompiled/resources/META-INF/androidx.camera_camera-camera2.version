@@ -1,0 +1,1 @@
+task ':camera:camera-camera2:writeVersionFile' property 'version'

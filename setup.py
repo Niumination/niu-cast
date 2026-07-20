@@ -12,10 +12,10 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 
 setup(
     name="niu-cast",
-    version="2.0.0",
+    version="2.3.1",
     author="Niumination",
     author_email="niumination@example.com",
-    description="Android device manager via ADB",
+    description="Android device manager via ADB + Transsion protocol tools",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/Niumination/niu-cast",
@@ -26,6 +26,9 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Operating System :: OS Independent",
     ],
     python_requires=">=3.8",

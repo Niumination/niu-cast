@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="24dp"
+    android:width="24dp"
+    android:viewportWidth="72"
+    android:viewportHeight="72">
+    <group>
+        <path
+            android:name="arrow0"
+            android:fillColor="@color/os_foot_bar_more_icon_color"
+            android:pathData="@string/path_arrow0"/>
+    </group>
+    <group>
+        <path
+            android:name="arrow1"
+            android:fillColor="@color/os_foot_bar_more_icon_color"
+            android:pathData="@string/path_arrow1"/>
+    </group>
+    <group>
+        <path
+            android:name="arrow2"
+            android:fillColor="@color/os_foot_bar_more_icon_color"
+            android:pathData="@string/path_arrow2"/>
+    </group>
+</vector>

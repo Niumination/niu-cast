@@ -1,0 +1,9 @@
+{
+  "broad_width_app_list": [
+    "com.android.chrome",
+    "com.google.android.gm",
+    "com.android.vending",
+    "com.google.android.apps.messaging",
+    "com.google.android.apps.maps"
+  ]
+}

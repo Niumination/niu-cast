@@ -1,0 +1,57 @@
+half blend_color_saturation(half3 color) {
+    return max(max(color.r, color.g), color.b) - min(min(color.r, color.g), color.b);
+}
+half3 blend_set_color_saturation(half3 color, half3 satColor) {
+    half mn = min(min(color.r, color.g), color.b);
+    half mx = max(max(color.r, color.g), color.b);
+    return (mx > mn) ? ((color - mn) * blend_color_saturation(satColor)) / (mx - mn)
+                             : half3(0);
+}
+inline half guarded_divide(half n, half d) {
+    return n / (d + 0.00000001);
+}
+
+inline half3 guarded_divide(half3 n, half d) {
+    return n / (d + 0.00000001);
+}
+
+half blend_color_luminance(half3 color) { return dot(half3(0.3, 0.59, 0.11), color); }
+
+half3 blend_set_color_luminance(half3 hueSatColor, half alpha, half3 lumColor) {
+            half lum = blend_color_luminance(lumColor);
+            half3 result = lum - blend_color_luminance(hueSatColor) + hueSatColor;
+            half minComp = min(min(result.r, result.g), result.b);
+            half maxComp = max(max(result.r, result.g), result.b);
+                const half kMinNormalHalf = 1.0 / 16384.0;
+            if (minComp < 0 && lum != minComp) {
+                result = lum + (result - lum) * guarded_divide(lum, (lum - minComp) + kMinNormalHalf);
+            }
+            if (maxComp > alpha && maxComp != lum) {
+                result = lum +
+                         guarded_divide((result - lum) * (alpha - lum), (maxComp - lum) + kMinNormalHalf);
+            }
+            return result;
+}
+half4 blend_hslc(half2 flipSat, half4 src, half4 dst) {
+    half alpha = dst.a * src.a;
+    half3 sda = src.rgb * dst.a;
+    half3 dsa = dst.rgb * src.a;
+    half3 l = bool(flipSat.x) ? dsa : sda;
+    half3 r = bool(flipSat.x) ? sda : dsa;
+    if (bool(flipSat.y)) {
+        l = blend_set_color_saturation(l, r);
+        r = dsa;
+    }
+    return half4(blend_set_color_luminance(l, alpha, r) + dst.rgb - dsa + src.rgb - sda,
+        src.a + dst.a - alpha);
+}
+
+inline half4 premulalpha(half4 color){
+       return half4(color.rgb * color.a, color.a);
+}
+
+half4 main(half4 src_raw, half4 dst_raw) {
+    half4 src = premulalpha(src_raw);
+                half4 dst = premulalpha(dst_raw);
+                return blend_hslc(half2(1, 0), src, dst);
+}

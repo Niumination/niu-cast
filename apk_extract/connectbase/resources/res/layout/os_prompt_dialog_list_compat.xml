@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.transsion.widgetslib.view.damping.DampingLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/os_damp_list_view_parent"
+    android:scrollbars="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:os_damping_bar_use_scene="dialog"
+    app:os_damping_mode="normal">
+    <com.transsion.widgetslib.view.OSListView
+        android:id="@+id/os_damp_list_view_compat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+</com.transsion.widgetslib.view.damping.DampingLayout>

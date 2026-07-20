@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <include layout="@layout/os_dialog_per_guide_title_message_layout"/>
+    <com.transsion.widgetsliquid.effect.OSMaskFrameLayout
+        android:id="@+id/announcement_top_mask"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/os_per_dialog_list_margin_top"
+        android:layout_weight="1"
+        app:os_mask_color="?attr/os_open_bg"
+        app:os_mask_layer_position="os_mask_layer_position_top"
+        app:os_mask_length="36dp"
+        app:os_mask_position="os_mask_position_bottom">
+        <com.transsion.widgetslib.view.damping.OSScrollbarLayout
+            android:id="@+id/os_damp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rec_per"
+                android:scrollbars="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </com.transsion.widgetslib.view.damping.OSScrollbarLayout>
+    </com.transsion.widgetsliquid.effect.OSMaskFrameLayout>
+    <TextView
+        android:textAppearance="@style/os_per_announcement_text_appearance"
+        android:textSize="@dimen/os_fontsize_h3"
+        android:textColor="@color/os_text_secondary_color"
+        android:id="@+id/tv_announcement"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textDirection="locale"
+        android:layout_marginStart="@dimen/os_per_item_text_margin_start"
+        android:layout_marginEnd="@dimen/os_per_item_text_margin_start"
+        android:lineHeight="@dimen/os_fontsize_h1"/>
+    <include layout="@layout/os_dialog_per_guide_button_layout"/>
+</LinearLayout>

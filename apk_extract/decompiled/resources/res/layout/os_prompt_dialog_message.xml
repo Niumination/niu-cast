@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/os_module_dialog_damping_layout_content"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <com.transsion.widgetslib.view.damping.DampingLayout
+        android:id="@+id/os_damping_inner"
+        android:scrollbars="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:os_damping_bar_use_scene="dialog"
+        app:os_damping_mode="normal">
+        <TextView
+            android:textSize="@dimen/os_body_font"
+            android:textColor="@color/os_text_secondary_hios"
+            android:gravity="start|center_vertical"
+            android:id="@+id/text_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="19dp"
+            android:lineSpacingExtra="3sp"
+            android:textDirection="locale"
+            android:paddingStart="@dimen/os_dialog_padding_left_right"
+            android:paddingEnd="@dimen/os_dialog_padding_left_right"/>
+    </com.transsion.widgetslib.view.damping.DampingLayout>
+</FrameLayout>

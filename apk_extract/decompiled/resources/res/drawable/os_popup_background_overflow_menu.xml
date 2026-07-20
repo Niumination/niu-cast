@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/os_popup_shadow_background"
+    android:insetLeft="16dp"
+    android:insetRight="6dp"
+    android:insetBottom="@dimen/os_popup_menu_bg_margin_bottom"/>

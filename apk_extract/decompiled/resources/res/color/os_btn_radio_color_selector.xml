@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:state_enabled="false"
+        android:state_checked="true"
+        android:color="?attr/os_platform_basic_color"
+        android:alpha="0.5"/>
+    <item
+        android:state_enabled="true"
+        android:state_checked="true"
+        android:color="?attr/os_platform_basic_color"/>
+    <item android:color="@color/os_btn_radio_color_secondary"/>
+</selector>

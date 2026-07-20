@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<inset xmlns:android="http://schemas.android.com/apk/res/android" android:insetTop="@dimen/os_dimens_dialog_margin_top">
+    <shape android:shape="rectangle">
+        <corners
+            android:topLeftRadius="@dimen/os_dimens_dialog_radius_top"
+            android:topRightRadius="@dimen/os_dimens_dialog_radius_top"/>
+        <solid android:color="@color/os_altitude_secondary_color"/>
+    </shape>
+</inset>

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="os_dimen_fold_dialog_top_bottom_inset_pad_gesture_on">43dp</dimen>
+</resources>

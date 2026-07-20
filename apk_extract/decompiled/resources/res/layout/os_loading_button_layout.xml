@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layoutDirection="locale">
+    <com.transsion.widgetslib.view.OSBigButton
+        android:ellipsize="end"
+        android:id="@+id/os_loading_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        style="@style/OS.Widget.BigButton.Primary"/>
+    <com.transsion.widgetslib.view.OSLoadingView
+        android:id="@+id/os_loading_view"
+        android:layout_width="@dimen/os_space200"
+        android:layout_height="@dimen/os_space200"
+        android:layout_centerVertical="true"
+        android:layoutDirection="locale"
+        android:layout_marginStart="@dimen/os_space200"
+        android:layout_alignStart="@+id/os_loading_button"
+        app:os_lv_dot_color="@color/white"
+        app:os_lv_running_type="0"
+        app:os_lv_type="0"/>
+</RelativeLayout>

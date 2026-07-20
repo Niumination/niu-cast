@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:paddingTop="@dimen/os_dialog_edit_text_top_margin"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="@dimen/os_dialog_padding_left_right"
+    android:paddingEnd="@dimen/os_dialog_padding_left_right">
+    <com.transsion.widgetslib.widget.editext.OSMaterialEditText
+        android:id="@+id/input_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:os_et_bg_color="@color/os_gray_quaternary_color"
+        app:os_et_dialog_mode="true"
+        app:os_et_layout_type="right"
+        app:os_et_right_show_delete="true"
+        app:os_et_show_error="true"/>
+    <FrameLayout
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp">
+        <TextView
+            android:textSize="@dimen/os_caption_font"
+            android:textColor="@color/os_red_basic_color"
+            android:ellipsize="end"
+            android:id="@+id/error_text"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:maxLines="1"/>
+        <TextView
+            android:textSize="@dimen/os_subhead_font"
+            android:textColor="?attr/os_text_info"
+            android:ellipsize="end"
+            android:gravity="end"
+            android:id="@+id/num_text"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:maxLines="1"/>
+    </FrameLayout>
+</LinearLayout>

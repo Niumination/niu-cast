@@ -1,0 +1,8 @@
+Field <com.transsion.iotservice.pc.bean.ThumbBean.fileSize> is not upper camel case in (ThumbBean.kt:0)
+Field <com.transsion.iotservice.pc.bean.ThumbBean.format> is not upper camel case in (ThumbBean.kt:0)
+Field <com.transsion.iotservice.pc.bean.ThumbBean.name> is not upper camel case in (ThumbBean.kt:0)
+Field <com.transsion.iotservice.pc.bean.ThumbBean.textContent> is not upper camel case in (ThumbBean.kt:0)
+Field <com.transsion.iotservice.pc.bean.ThumbBean.thumbnail> is not upper camel case in (ThumbBean.kt:0)
+Field <com.transsion.iotservice.pc.bean.ThumbBean.type> is not upper camel case in (ThumbBean.kt:0)
+Field <com.transsion.iotservice.pc.bean.ThumbBean.uri> is not upper camel case in (ThumbBean.kt:0)
+Static Final Field <com.transsion.iotservice.pc.utils.HiUtils.sGson$delegate> should upper cases in (HiUtils.kt:0)

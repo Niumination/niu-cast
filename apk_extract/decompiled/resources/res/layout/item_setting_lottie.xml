@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:tag="layout/item_setting_lottie_0"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <com.airbnb.lottie.LottieAnimationView
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/iv_item_vp_lottie"
+        android:tag="binding_1"
+        android:layout_width="@dimen/setting_lottie_width"
+        android:layout_height="@dimen/setting_lottie_height"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"/>
+    <TextView
+        android:textSize="16sp"
+        android:textColor="@color/module_pc_setting_lottie_title"
+        android:gravity="center"
+        android:id="@+id/tv_item_vp_title"
+        android:tag="binding_2"
+        android:paddingBottom="@dimen/setting_titles_padding_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        style="@style/text_roboto_style_regular2"/>
+    <TextView
+        android:textSize="14sp"
+        android:textColor="@color/module_pc_primary_content_40"
+        android:gravity="center"
+        android:id="@+id/tv_item_vp_des"
+        android:tag="binding_3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:lineSpacingMultiplier="1.2"/>
+</LinearLayout>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android" android:drawable="@drawable/os_vector_foot_opt_bar_arrow">
+    <target
+        android:name="arrow0"
+        android:animation="@anim/os_foot_bar_arrow_to_point_anim0"/>
+    <target
+        android:name="arrow1"
+        android:animation="@anim/os_foot_bar_arrow_to_point_anim1"/>
+    <target
+        android:name="arrow2"
+        android:animation="@anim/os_foot_bar_arrow_to_point_anim2"/>
+</animated-vector>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shareInterpolator="false"
+    android:ordering="sequentially">
+    <translate
+        android:interpolator="@anim/os_interpolator_dialog_enter_translate"
+        android:duration="250"
+        android:fromYDelta="100%"
+        android:toYDelta="-10dp"/>
+    <translate
+        android:interpolator="@anim/os_interpolator_dialog_enter_translate_bounce"
+        android:duration="250"
+        android:startOffset="250"
+        android:fromYDelta="0"
+        android:toYDelta="10dp"/>
+</set>

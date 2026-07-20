@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:bind="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:id="@+id/root_content"
+    android:tag="layout/activity_phone_extend_screen_0"
+    android:background="@drawable/window_bg"
+    android:padding="1dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:elevation="8dp">
+    <EditText
+        android:id="@+id/input"
+        android:background="#00000000"
+        android:scrollbars="vertical"
+        android:layout_width="1dp"
+        android:layout_height="0dp"
+        android:inputType="textMultiLine"
+        android:imeOptions="flagNoEnterAction"
+        bind:layout_constraintBottom_toBottomOf="parent"
+        bind:layout_constraintLeft_toLeftOf="parent"
+        bind:layout_constraintRight_toRightOf="parent"
+        bind:layout_constraintTop_toTopOf="parent"/>
+    <FrameLayout
+        android:layout_gravity="center"
+        android:id="@+id/extend_content"
+        android:tag="binding_1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        bind:layout_constraintBottom_toBottomOf="parent"
+        bind:layout_constraintEnd_toEndOf="parent"
+        bind:layout_constraintStart_toStartOf="parent"
+        bind:layout_constraintTop_toTopOf="parent">
+        <SurfaceView
+            android:layout_gravity="center"
+            android:id="@+id/phone_screen"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+        <include
+            android:id="@+id/loading_layout"
+            layout="@layout/loading_layout"/>
+        <include layout="@layout/item_secret_screen"/>
+        <include layout="@layout/item_screen_lock"/>
+    </FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

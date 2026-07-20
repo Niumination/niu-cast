@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" android:ordering="together">
+    <objectAnimator
+        android:interpolator="@drawable/_os_radio_drawable_unchecked_to_checked__8_res_0x7f07004a"
+        android:duration="100"
+        android:startOffset="0"
+        android:valueFrom="1"
+        android:valueTo="1.2"
+        android:valueType="floatType"
+        android:propertyName="scaleX"/>
+    <objectAnimator
+        android:interpolator="@drawable/_os_radio_drawable_unchecked_to_checked__9_res_0x7f07004b"
+        android:duration="100"
+        android:startOffset="0"
+        android:valueFrom="1"
+        android:valueTo="1.2"
+        android:valueType="floatType"
+        android:propertyName="scaleY"/>
+    <objectAnimator
+        android:interpolator="@drawable/_os_radio_drawable_unchecked_to_checked__10_res_0x7f070041"
+        android:duration="200"
+        android:startOffset="100"
+        android:valueFrom="1.2"
+        android:valueTo="1"
+        android:valueType="floatType"
+        android:propertyName="scaleX"/>
+    <objectAnimator
+        android:interpolator="@drawable/_os_radio_drawable_unchecked_to_checked__11_res_0x7f070042"
+        android:duration="200"
+        android:startOffset="100"
+        android:valueFrom="1.2"
+        android:valueTo="1"
+        android:valueType="floatType"
+        android:propertyName="scaleY"/>
+</set>

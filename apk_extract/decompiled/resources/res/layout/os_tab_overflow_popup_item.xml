@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:clickable="true"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/os_foot_bar_popup_item_height">
+    <TextView
+        android:textSize="@dimen/os_foot_bar_popup_item_text_size"
+        android:textColor="@color/os_foot_bar_item_text_color"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:id="@+id/os_tab_overflow_popup_item_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:maxLines="1"
+        android:paddingStart="@dimen/os_foot_bar_popup_item_text_padding"
+        android:paddingEnd="@dimen/os_foot_bar_popup_item_text_padding"/>
+</FrameLayout>

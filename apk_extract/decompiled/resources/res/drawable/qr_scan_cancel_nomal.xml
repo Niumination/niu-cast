@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@mipmap/icon_close_scan_qr"
+    android:tint="@color/qr_scan_cancel_color"/>

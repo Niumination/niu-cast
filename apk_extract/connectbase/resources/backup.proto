@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.transsion.backup.protos";
+option java_outer_classname = "BackupMessageProto";
+
+package backup;
+
+message BackupData{
+  int32 taskId = 1;
+
+  message AlbumInfo{
+    int64 id = 1;
+    string name = 2;
+  }
+
+  message AlbumFileInfo{
+    int64 id = 1;
+    string name = 2;
+    int64 size = 3;
+    int32 type = 4;
+    int64 albumId = 5;
+    int64 createDate = 6;
+    bool isDeleted = 7;
+  }
+
+  repeated AlbumFileInfo files = 2;
+  repeated AlbumInfo albums = 3;
+  int32 currentPage = 4;
+  int32 totalPage = 5;
+}
+

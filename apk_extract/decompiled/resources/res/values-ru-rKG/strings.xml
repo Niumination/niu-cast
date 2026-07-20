@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dec">Дек.</string>
+    <string name="feb">Фев.</string>
+    <string name="jan">Янв.</string>
+    <string name="nov">Нояб.</string>
+    <string name="oct">Окт.</string>
+    <string name="os_dampingl_down_pull_refresh">Потяните вниз, чтобы обновить</string>
+    <string name="os_dampingl_refresh_finish">Обновление завершено</string>
+    <string name="os_dampingl_refreshing">Обновление</string>
+    <string name="os_dampingl_release_for_refresh">Сбросьте, чтобы обновить...</string>
+    <string name="os_dialog_input_tip_max">Достигнут лимит на количество символов</string>
+    <string name="os_foot_opt_bar_more">Больше</string>
+    <string name="os_preference_dialog_negative_string">Отмена</string>
+    <string name="os_preference_dialog_positive_string">ОК</string>
+    <string name="sep">Сен</string>
+</resources>

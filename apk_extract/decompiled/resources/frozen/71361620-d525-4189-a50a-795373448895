@@ -1,0 +1,2 @@
+Method <com.transsion.iotservice.multiscreen.pc.databinding.ModulePcNfcSelectorBindingImpl._internalCallbackOnCheckedChanged(int, android.widget.CompoundButton, boolean)> is not low camel case in (ModulePcNfcSelectorBindingImpl.java:191)
+Method <com.transsion.iotservice.multiscreen.pc.generated.callback.OnCheckedChangeListener$Listener._internalCallbackOnCheckedChanged(int, android.widget.CompoundButton, boolean)> is not low camel case in (OnCheckedChangeListener.java:0)

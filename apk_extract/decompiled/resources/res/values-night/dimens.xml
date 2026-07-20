@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="os_action_bar_elevation">1dp</dimen>
+    <dimen name="os_background_dim_amount">0.6</dimen>
+</resources>

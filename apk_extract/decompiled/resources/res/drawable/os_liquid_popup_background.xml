@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@android:color/transparent"
+    android:insetLeft="@dimen/os_popup_menu_inset_left"
+    android:insetRight="@dimen/os_popup_menu_inset_left"
+    android:insetTop="@dimen/os_popup_menu_bg_margin_bottom"
+    android:insetBottom="@dimen/os_popup_menu_bg_margin_bottom"/>

@@ -1,0 +1,1112 @@
+package io.netty.handler.codec;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.SwappedByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.util.ByteProcessor;
+import io.netty.util.Signal;
+import io.netty.util.internal.ObjectUtil;
+import io.netty.util.internal.StringUtil;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
+import java.nio.channels.GatheringByteChannel;
+import java.nio.channels.ScatteringByteChannel;
+import java.nio.charset.Charset;
+import u.a;
+
+/* JADX INFO: loaded from: classes3.dex */
+final class ReplayingDecoderByteBuf extends ByteBuf {
+    static final ReplayingDecoderByteBuf EMPTY_BUFFER;
+    private static final Signal REPLAY = ReplayingDecoder.REPLAY;
+    private ByteBuf buffer;
+    private SwappedByteBuf swapped;
+    private boolean terminated;
+
+    static {
+        ReplayingDecoderByteBuf replayingDecoderByteBuf = new ReplayingDecoderByteBuf(Unpooled.EMPTY_BUFFER);
+        EMPTY_BUFFER = replayingDecoderByteBuf;
+        replayingDecoderByteBuf.terminate();
+    }
+
+    public ReplayingDecoderByteBuf() {
+    }
+
+    private void checkIndex(int i10, int i11) {
+        if (i10 + i11 > this.buffer.writerIndex()) {
+            throw REPLAY;
+        }
+    }
+
+    private void checkReadableBytes(int i10) {
+        if (this.buffer.readableBytes() < i10) {
+            throw REPLAY;
+        }
+    }
+
+    private static UnsupportedOperationException reject() {
+        return new UnsupportedOperationException("not a replayable operation");
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBufAllocator alloc() {
+        return this.buffer.alloc();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public byte[] array() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int arrayOffset() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf asReadOnly() {
+        return Unpooled.unmodifiableBuffer(this);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int bytesBefore(byte b10) {
+        int iBytesBefore = this.buffer.bytesBefore(b10);
+        if (iBytesBefore >= 0) {
+            return iBytesBefore;
+        }
+        throw REPLAY;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int capacity() {
+        if (this.terminated) {
+            return this.buffer.capacity();
+        }
+        return Integer.MAX_VALUE;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf clear() {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf copy() {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf discardReadBytes() {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf discardSomeReadBytes() {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf duplicate() {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf ensureWritable(int i10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public boolean equals(Object obj) {
+        return this == obj;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int forEachByte(ByteProcessor byteProcessor) {
+        int iForEachByte = this.buffer.forEachByte(byteProcessor);
+        if (iForEachByte >= 0) {
+            return iForEachByte;
+        }
+        throw REPLAY;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int forEachByteDesc(ByteProcessor byteProcessor) {
+        if (this.terminated) {
+            return this.buffer.forEachByteDesc(byteProcessor);
+        }
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public boolean getBoolean(int i10) {
+        checkIndex(i10, 1);
+        return this.buffer.getBoolean(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public byte getByte(int i10) {
+        checkIndex(i10, 1);
+        return this.buffer.getByte(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf getBytes(int i10, byte[] bArr, int i11, int i12) {
+        checkIndex(i10, i12);
+        this.buffer.getBytes(i10, bArr, i11, i12);
+        return this;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public char getChar(int i10) {
+        checkIndex(i10, 2);
+        return this.buffer.getChar(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public CharSequence getCharSequence(int i10, int i11, Charset charset) {
+        checkIndex(i10, i11);
+        return this.buffer.getCharSequence(i10, i11, charset);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public double getDouble(int i10) {
+        checkIndex(i10, 8);
+        return this.buffer.getDouble(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public float getFloat(int i10) {
+        checkIndex(i10, 4);
+        return this.buffer.getFloat(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int getInt(int i10) {
+        checkIndex(i10, 4);
+        return this.buffer.getInt(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int getIntLE(int i10) {
+        checkIndex(i10, 4);
+        return this.buffer.getIntLE(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public long getLong(int i10) {
+        checkIndex(i10, 8);
+        return this.buffer.getLong(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public long getLongLE(int i10) {
+        checkIndex(i10, 8);
+        return this.buffer.getLongLE(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int getMedium(int i10) {
+        checkIndex(i10, 3);
+        return this.buffer.getMedium(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int getMediumLE(int i10) {
+        checkIndex(i10, 3);
+        return this.buffer.getMediumLE(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public short getShort(int i10) {
+        checkIndex(i10, 2);
+        return this.buffer.getShort(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public short getShortLE(int i10) {
+        checkIndex(i10, 2);
+        return this.buffer.getShortLE(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public short getUnsignedByte(int i10) {
+        checkIndex(i10, 1);
+        return this.buffer.getUnsignedByte(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public long getUnsignedInt(int i10) {
+        checkIndex(i10, 4);
+        return this.buffer.getUnsignedInt(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public long getUnsignedIntLE(int i10) {
+        checkIndex(i10, 4);
+        return this.buffer.getUnsignedIntLE(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int getUnsignedMedium(int i10) {
+        checkIndex(i10, 3);
+        return this.buffer.getUnsignedMedium(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int getUnsignedMediumLE(int i10) {
+        checkIndex(i10, 3);
+        return this.buffer.getUnsignedMediumLE(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int getUnsignedShort(int i10) {
+        checkIndex(i10, 2);
+        return this.buffer.getUnsignedShort(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int getUnsignedShortLE(int i10) {
+        checkIndex(i10, 2);
+        return this.buffer.getUnsignedShortLE(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public boolean hasArray() {
+        return false;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public boolean hasMemoryAddress() {
+        return false;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int hashCode() {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int indexOf(int i10, int i11, byte b10) {
+        if (i10 == i11) {
+            return -1;
+        }
+        if (Math.max(i10, i11) <= this.buffer.writerIndex()) {
+            return this.buffer.indexOf(i10, i11, b10);
+        }
+        throw REPLAY;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuffer internalNioBuffer(int i10, int i11) {
+        checkIndex(i10, i11);
+        return this.buffer.internalNioBuffer(i10, i11);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public boolean isDirect() {
+        return this.buffer.isDirect();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public boolean isReadOnly() {
+        return false;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public boolean isReadable() {
+        return !this.terminated || this.buffer.isReadable();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public boolean isWritable() {
+        return false;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf markReaderIndex() {
+        this.buffer.markReaderIndex();
+        return this;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf markWriterIndex() {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int maxCapacity() {
+        return capacity();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int maxWritableBytes() {
+        return 0;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public long memoryAddress() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuffer nioBuffer() {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int nioBufferCount() {
+        return this.buffer.nioBufferCount();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuffer[] nioBuffers() {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteOrder order() {
+        return this.buffer.order();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public boolean readBoolean() {
+        checkReadableBytes(1);
+        return this.buffer.readBoolean();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public byte readByte() {
+        checkReadableBytes(1);
+        return this.buffer.readByte();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf readBytes(byte[] bArr, int i10, int i11) {
+        checkReadableBytes(i11);
+        this.buffer.readBytes(bArr, i10, i11);
+        return this;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public char readChar() {
+        checkReadableBytes(2);
+        return this.buffer.readChar();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public CharSequence readCharSequence(int i10, Charset charset) {
+        checkReadableBytes(i10);
+        return this.buffer.readCharSequence(i10, charset);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public double readDouble() {
+        checkReadableBytes(8);
+        return this.buffer.readDouble();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public float readFloat() {
+        checkReadableBytes(4);
+        return this.buffer.readFloat();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int readInt() {
+        checkReadableBytes(4);
+        return this.buffer.readInt();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int readIntLE() {
+        checkReadableBytes(4);
+        return this.buffer.readIntLE();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public long readLong() {
+        checkReadableBytes(8);
+        return this.buffer.readLong();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public long readLongLE() {
+        checkReadableBytes(8);
+        return this.buffer.readLongLE();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int readMedium() {
+        checkReadableBytes(3);
+        return this.buffer.readMedium();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int readMediumLE() {
+        checkReadableBytes(3);
+        return this.buffer.readMediumLE();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf readRetainedSlice(int i10) {
+        checkReadableBytes(i10);
+        return this.buffer.readRetainedSlice(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public short readShort() {
+        checkReadableBytes(2);
+        return this.buffer.readShort();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public short readShortLE() {
+        checkReadableBytes(2);
+        return this.buffer.readShortLE();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf readSlice(int i10) {
+        checkReadableBytes(i10);
+        return this.buffer.readSlice(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public short readUnsignedByte() {
+        checkReadableBytes(1);
+        return this.buffer.readUnsignedByte();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public long readUnsignedInt() {
+        checkReadableBytes(4);
+        return this.buffer.readUnsignedInt();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public long readUnsignedIntLE() {
+        checkReadableBytes(4);
+        return this.buffer.readUnsignedIntLE();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int readUnsignedMedium() {
+        checkReadableBytes(3);
+        return this.buffer.readUnsignedMedium();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int readUnsignedMediumLE() {
+        checkReadableBytes(3);
+        return this.buffer.readUnsignedMediumLE();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int readUnsignedShort() {
+        checkReadableBytes(2);
+        return this.buffer.readUnsignedShort();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int readUnsignedShortLE() {
+        checkReadableBytes(2);
+        return this.buffer.readUnsignedShortLE();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int readableBytes() {
+        return this.terminated ? this.buffer.readableBytes() : Integer.MAX_VALUE - this.buffer.readerIndex();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int readerIndex() {
+        return this.buffer.readerIndex();
+    }
+
+    @Override // io.netty.util.ReferenceCounted
+    public int refCnt() {
+        return this.buffer.refCnt();
+    }
+
+    @Override // io.netty.util.ReferenceCounted
+    public boolean release() {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf resetReaderIndex() {
+        this.buffer.resetReaderIndex();
+        return this;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf resetWriterIndex() {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf retainedDuplicate() {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf retainedSlice() {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf setBoolean(int i10, boolean z10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf setByte(int i10, int i11) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf setBytes(int i10, byte[] bArr, int i11, int i12) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf setChar(int i10, int i11) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int setCharSequence(int i10, CharSequence charSequence, Charset charset) {
+        throw reject();
+    }
+
+    public void setCumulation(ByteBuf byteBuf) {
+        this.buffer = byteBuf;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf setDouble(int i10, double d10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf setFloat(int i10, float f10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf setIndex(int i10, int i11) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf setInt(int i10, int i11) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf setIntLE(int i10, int i11) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf setLong(int i10, long j10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf setLongLE(int i10, long j10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf setMedium(int i10, int i11) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf setMediumLE(int i10, int i11) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf setShort(int i10, int i11) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf setShortLE(int i10, int i11) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf setZero(int i10, int i11) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf skipBytes(int i10) {
+        checkReadableBytes(i10);
+        this.buffer.skipBytes(i10);
+        return this;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf slice() {
+        throw reject();
+    }
+
+    public void terminate() {
+        this.terminated = true;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public String toString(int i10, int i11, Charset charset) {
+        checkIndex(i10, i11);
+        return this.buffer.toString(i10, i11, charset);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf unwrap() {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int writableBytes() {
+        return 0;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf writeBoolean(boolean z10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf writeByte(int i10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf writeBytes(byte[] bArr, int i10, int i11) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf writeChar(int i10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int writeCharSequence(CharSequence charSequence, Charset charset) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf writeDouble(double d10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf writeFloat(float f10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf writeInt(int i10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf writeIntLE(int i10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf writeLong(long j10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf writeLongLE(long j10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf writeMedium(int i10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf writeMediumLE(int i10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf writeShort(int i10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf writeShortLE(int i10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf writeZero(int i10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int writerIndex() {
+        return this.buffer.writerIndex();
+    }
+
+    public ReplayingDecoderByteBuf(ByteBuf byteBuf) {
+        setCumulation(byteBuf);
+    }
+
+    @Override // io.netty.buffer.ByteBuf, java.lang.Comparable
+    public int compareTo(ByteBuf byteBuf) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf copy(int i10, int i11) {
+        checkIndex(i10, i11);
+        return this.buffer.copy(i10, i11);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int ensureWritable(int i10, boolean z10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public boolean isReadable(int i10) {
+        return !this.terminated || this.buffer.isReadable(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public boolean isWritable(int i10) {
+        return false;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuffer nioBuffer(int i10, int i11) {
+        checkIndex(i10, i11);
+        return this.buffer.nioBuffer(i10, i11);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuffer[] nioBuffers(int i10, int i11) {
+        checkIndex(i10, i11);
+        return this.buffer.nioBuffers(i10, i11);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf order(ByteOrder byteOrder) {
+        if (ObjectUtil.checkNotNull(byteOrder, "endianness") == order()) {
+            return this;
+        }
+        SwappedByteBuf swappedByteBuf = this.swapped;
+        if (swappedByteBuf != null) {
+            return swappedByteBuf;
+        }
+        SwappedByteBuf swappedByteBuf2 = new SwappedByteBuf(this);
+        this.swapped = swappedByteBuf2;
+        return swappedByteBuf2;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf readerIndex(int i10) {
+        this.buffer.readerIndex(i10);
+        return this;
+    }
+
+    @Override // io.netty.util.ReferenceCounted
+    public boolean release(int i10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf retainedSlice(int i10, int i11) {
+        checkIndex(i10, i11);
+        return this.buffer.retainedSlice(i10, i11);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf setBytes(int i10, byte[] bArr) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf slice(int i10, int i11) {
+        checkIndex(i10, i11);
+        return this.buffer.slice(i10, i11);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf writeBytes(byte[] bArr) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf writerIndex(int i10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int bytesBefore(int i10, byte b10) {
+        return bytesBefore(this.buffer.readerIndex(), i10, b10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf capacity(int i10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int forEachByte(int i10, int i11, ByteProcessor byteProcessor) {
+        int iWriterIndex = this.buffer.writerIndex();
+        if (i10 >= iWriterIndex) {
+            throw REPLAY;
+        }
+        if (i10 <= iWriterIndex - i11) {
+            return this.buffer.forEachByte(i10, i11, byteProcessor);
+        }
+        int iForEachByte = this.buffer.forEachByte(i10, iWriterIndex - i10, byteProcessor);
+        if (iForEachByte >= 0) {
+            return iForEachByte;
+        }
+        throw REPLAY;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf getBytes(int i10, byte[] bArr) {
+        checkIndex(i10, bArr.length);
+        this.buffer.getBytes(i10, bArr);
+        return this;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf readBytes(byte[] bArr) {
+        checkReadableBytes(bArr.length);
+        this.buffer.readBytes(bArr);
+        return this;
+    }
+
+    @Override // io.netty.buffer.ByteBuf, io.netty.util.ReferenceCounted
+    public ByteBuf retain() {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf setBytes(int i10, ByteBuffer byteBuffer) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public String toString(Charset charset) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf, io.netty.util.ReferenceCounted
+    public ByteBuf touch() {
+        this.buffer.touch();
+        return this;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf writeBytes(ByteBuffer byteBuffer) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int bytesBefore(int i10, int i11, byte b10) {
+        int iWriterIndex = this.buffer.writerIndex();
+        if (i10 >= iWriterIndex) {
+            throw REPLAY;
+        }
+        if (i10 <= iWriterIndex - i11) {
+            return this.buffer.bytesBefore(i10, i11, b10);
+        }
+        int iBytesBefore = this.buffer.bytesBefore(i10, iWriterIndex - i10, b10);
+        if (iBytesBefore >= 0) {
+            return iBytesBefore;
+        }
+        throw REPLAY;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int forEachByteDesc(int i10, int i11, ByteProcessor byteProcessor) {
+        if (i10 + i11 <= this.buffer.writerIndex()) {
+            return this.buffer.forEachByteDesc(i10, i11, byteProcessor);
+        }
+        throw REPLAY;
+    }
+
+    @Override // io.netty.buffer.ByteBuf, io.netty.util.ReferenceCounted
+    public ByteBuf retain(int i10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf setBytes(int i10, ByteBuf byteBuf, int i11, int i12) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public String toString() {
+        StringBuilder sb2 = new StringBuilder();
+        sb2.append(StringUtil.simpleClassName(this));
+        sb2.append("(ridx=");
+        sb2.append(readerIndex());
+        sb2.append(", widx=");
+        return a.a(sb2, writerIndex(), ')');
+    }
+
+    @Override // io.netty.buffer.ByteBuf, io.netty.util.ReferenceCounted
+    public ByteBuf touch(Object obj) {
+        this.buffer.touch(obj);
+        return this;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf writeBytes(ByteBuf byteBuf, int i10, int i11) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf getBytes(int i10, ByteBuffer byteBuffer) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf readBytes(ByteBuffer byteBuffer) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf setBytes(int i10, ByteBuf byteBuf, int i11) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf writeBytes(ByteBuf byteBuf, int i10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf getBytes(int i10, ByteBuf byteBuf, int i11, int i12) {
+        checkIndex(i10, i12);
+        this.buffer.getBytes(i10, byteBuf, i11, i12);
+        return this;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf readBytes(ByteBuf byteBuf, int i10, int i11) {
+        checkReadableBytes(i11);
+        this.buffer.readBytes(byteBuf, i10, i11);
+        return this;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf setBytes(int i10, ByteBuf byteBuf) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf writeBytes(ByteBuf byteBuf) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int setBytes(int i10, InputStream inputStream, int i11) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int writeBytes(InputStream inputStream, int i10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf getBytes(int i10, ByteBuf byteBuf, int i11) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf readBytes(ByteBuf byteBuf, int i10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int setBytes(int i10, ScatteringByteChannel scatteringByteChannel, int i11) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int writeBytes(ScatteringByteChannel scatteringByteChannel, int i10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf getBytes(int i10, ByteBuf byteBuf) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf readBytes(ByteBuf byteBuf) {
+        checkReadableBytes(byteBuf.writableBytes());
+        this.buffer.readBytes(byteBuf);
+        return this;
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int setBytes(int i10, FileChannel fileChannel, long j10, int i11) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int writeBytes(FileChannel fileChannel, long j10, int i10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int getBytes(int i10, GatheringByteChannel gatheringByteChannel, int i11) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int getBytes(int i10, FileChannel fileChannel, long j10, int i11) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int readBytes(GatheringByteChannel gatheringByteChannel, int i10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf getBytes(int i10, OutputStream outputStream, int i11) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public int readBytes(FileChannel fileChannel, long j10, int i10) {
+        throw reject();
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf readBytes(int i10) {
+        checkReadableBytes(i10);
+        return this.buffer.readBytes(i10);
+    }
+
+    @Override // io.netty.buffer.ByteBuf
+    public ByteBuf readBytes(OutputStream outputStream, int i10) {
+        throw reject();
+    }
+}

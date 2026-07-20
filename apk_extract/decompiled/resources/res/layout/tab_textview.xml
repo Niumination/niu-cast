@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:textAppearance="@style/os_regular_fontweight"
+    android:textSize="@dimen/os_tab_second_level_title_size"
+    android:textColor="@color/view_tab_pager_text"
+    android:ellipsize="end"
+    android:gravity="center_vertical"
+    android:id="@+id/os_tab_overflow_popup_item_text"
+    android:background="@drawable/os_press_primary_bg"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:maxLines="1"
+    android:textDirection="locale"
+    android:textAlignment="center"
+    android:paddingStart="@dimen/os_foot_bar_popup_item_text_padding"
+    android:paddingEnd="@dimen/os_foot_bar_popup_item_text_padding"/>

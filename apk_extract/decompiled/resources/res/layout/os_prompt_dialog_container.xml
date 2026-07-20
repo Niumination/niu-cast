@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.transsion.widgetslib.view.liquid.effect.OSLiquidContainerRootLayoutInner xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:os_liquid_bg_color="@color/os_altitude_secondary_color"
+    app:os_liquid_dailog="true"
+    app:os_liquid_mixlevel="mix_l5"
+    app:os_liquid_radius="24dp">
+    <com.transsion.widgetslib.widget.OSSmoothCornerFrameLayout
+        android:id="@+id/os_prompt_dialog_layout"
+        android:paddingTop="@dimen/os_dialog_default_padding_top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/mContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <LinearLayout
+            android:layout_gravity="bottom"
+            android:orientation="vertical"
+            android:id="@+id/btnLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </com.transsion.widgetslib.widget.OSSmoothCornerFrameLayout>
+</com.transsion.widgetslib.view.liquid.effect.OSLiquidContainerRootLayoutInner>

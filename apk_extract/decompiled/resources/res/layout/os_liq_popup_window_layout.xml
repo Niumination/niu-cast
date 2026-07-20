@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.transsion.widgetsliquid.effect.OSLiquidContainerRootLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/liquid_poproot"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="16dp"
+    app:os_liquid_dailog="true"
+    app:os_liquid_mixlevel="mix_l4"
+    app:os_liquid_radius="@dimen/os_radius_xxl">
+    <ListView
+        android:id="@+id/liquid_poplist"
+        android:paddingTop="@dimen/os_radius_xxl"
+        android:paddingBottom="@dimen/os_radius_xxl"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:divider="@null"/>
+</com.transsion.widgetsliquid.effect.OSLiquidContainerRootLayout>

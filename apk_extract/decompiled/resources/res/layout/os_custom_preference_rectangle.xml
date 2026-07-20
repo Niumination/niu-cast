@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:background="@drawable/os_list_item_view_bg_rectangle"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="@dimen/os_list_item_content_min_height"
+    android:paddingStart="?attr/OsListItemPaddingLR"
+    android:paddingEnd="?attr/OsListItemPaddingLR">
+    <include layout="@layout/os_custom_preference_title"/>
+    <include layout="@layout/os_custom_preference_subtitle"/>
+</LinearLayout>

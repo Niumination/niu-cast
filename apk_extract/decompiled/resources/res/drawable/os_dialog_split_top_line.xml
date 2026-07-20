@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" android:color="@color/os_dialog_divider_color">
+    <item
+        android:gravity="top"
+        android:height="1px">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/os_dialog_divider_color"/>
+        </shape>
+    </item>
+</layer-list>
