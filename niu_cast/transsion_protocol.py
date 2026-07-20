@@ -19,10 +19,42 @@ KEY FINDINGS from APK decompilation (2026-07-20):
       ├── UIBC Server (port 8902): touch/keyboard input
       └── File Server: file transfer channel
   
-  TCCP Packet Format:
-    - Header: 2 bytes operator (big-endian short)
-    - Payload: JSON string (UTF-8)
-    
+  TCCP Wire Format (from libCastBaseLinkSDK.so ARM64 disassembly):
+  
+  REQUEST Frame:
+  ╔═════════╤════════╤══════════════════════════════════════╗
+  ║ Offset  │ Size   │ Field                                ║
+  ╠═════════╪════════╪══════════════════════════════════════╣
+  ║ 0       │ 4      │ Magic: "TCCP" (0x54434350)          ║
+  ║ 4       │ 1      │ Version/Flags (0x00 usually)        ║
+  ║ 5       │ 4      │ Body length (big-endian)            ║
+  ║ 9       │ 2      │ Operator code (big-endian uint16)   ║
+  ║ 11      │ 4      │ Message ID (auto-incremented, BE)   ║
+  ║ 15      │ 8      │ Timestamp (big-endian, μs)          ║
+  ║ 23      │ N      │ JSON payload (UTF-8)                ║
+  ║ 23+N    │ 1      │ Payload type (0x00 = JSON)          ║
+  ╚═════════╧════════╧══════════════════════════════════════╝
+  Total: 24 + N bytes (returned by fillSendBuffer)
+
+  RESPONSE Frame:
+  ╔═════════╤════════╤══════════════════════════════════════╗
+  ║ Offset  │ Size   │ Field                                ║
+  ╠═════════╪════════╪══════════════════════════════════════╣
+  ║ 0       │ 4      │ Magic: "TCCP" (0x54434350)          ║
+  ║ 4       │ 1      │ Version/Flags                       ║
+  ║ 5       │ 4      │ Body length (big-endian)            ║
+  ║ 9       │ 2      │ Operator code (big-endian uint16)   ║
+  ║ 11      │ 4      │ Request ID (echoed, big-endian)     ║
+  ║ 15      │ 4      │ Status code (big-endian uint32)     ║
+  ║ 19      │ 8      │ Timestamp (big-endian, μs)          ║
+  ║ 27      │ N      │ JSON payload (UTF-8)                ║
+  ║ 27+N    │ 1      │ Payload type (0x00 = JSON)          ║
+  ╚═════════╧════════╧══════════════════════════════════════╝
+  Total: 28 + N bytes
+
+  Native lib uses libevent (bufferevent) for async TCP I/O.
+  Protocol also supports UDP transport (TCCP_HEARTBEAT strings found).
+  
   UIBC Packet Format (from SourceNativeLinkManager):
     - Bytes 0-1: Type (big-endian short)
     - Bytes 2-3: Port (big-endian short)  
@@ -164,42 +196,144 @@ class TCCPFrame:
     """
     TCCP protocol frame.
     
-    Format:
-        operator: 2 bytes big-endian (short)
-        payload:  JSON string (UTF-8)
+    Wire format (from libCastBaseLinkSDK.so TccpEncapsule::fillSendBuffer):
     
-    The native library handles framing. Over TCP, it likely uses
-    a length-prefixed format: [4-byte length][2-byte op][JSON payload]
+    REQUEST:
+      [0-3]   "TCCP" magic       (4 bytes)
+      [4]     Version/Flags      (1 byte, 0x00)
+      [5-8]   Body length        (4 bytes, big-endian, = payloadLen + 15)
+      [9-10]  Operator code      (2 bytes, big-endian uint16)
+      [11-14] Message ID         (4 bytes, big-endian uint32, auto-incremented)
+      [15-22] Timestamp          (8 bytes, big-endian uint64, microseconds)
+      [23..]  JSON payload       (UTF-8, variable length)
+      [last]  Payload type       (1 byte, 0x00 = JSON)
+    
+    RESPONSE:
+      [0-3]   "TCCP" magic       (4 bytes)
+      [4]     Version/Flags      (1 byte)
+      [5-8]   Body length        (4 bytes, big-endian)
+      [9-10]  Operator code      (2 bytes, big-endian uint16)
+      [11-14] Request ID         (4 bytes, big-endian uint32)
+      [15-18] Status code        (4 bytes, big-endian uint32)
+      [19-26] Timestamp          (8 bytes, big-endian uint64)
+      [27..]  JSON payload       (UTF-8, variable length)
+      [last]  Payload type       (1 byte, 0x00 = JSON)
     """
     
-    def __init__(self, operator: int, payload: str = ""):
+    TCCP_MAGIC = b'TCCP'
+    PAYLOAD_TYPE_JSON = 0x00
+    
+    def __init__(self, operator: int, payload: str = "", is_response: bool = False):
         self.operator = operator
         self.payload = payload
+        self.is_response = is_response
+        self.msg_id = 0
+        self.status = 0
+        self.timestamp = 0
     
-    def encode(self) -> bytes:
-        """Encode frame to bytes for transmission."""
-        payload_bytes = self.payload.encode('utf-8')
-        # Length-prefixed format (guess based on common patterns)
-        # 4 bytes total length + 2 bytes operator + payload
-        header = struct.pack('>I', 2 + len(payload_bytes))  # total frame length
-        op = struct.pack('>H', self.operator)
-        return header + op + payload_bytes
+    def encode_request(self, msg_id: int = 1, timestamp: int = None) -> bytes:
+        """Encode a request frame."""
+        payload_bytes = self.payload.encode('utf-8') if self.payload else b''
+        payload_len = len(payload_bytes)
+        
+        if timestamp is None:
+            import time
+            timestamp = int(time.time() * 1_000_000)
+        
+        body_length = payload_len + 15  # from constructTccpReqBody: reqId + 15
+        
+        buf = bytearray()
+        buf.extend(self.TCCP_MAGIC)                    # [0-3] magic
+        buf.append(0x00)                                # [4] version/flags
+        buf.extend(struct.pack('>I', body_length))      # [5-8] body length (BE)
+        buf.extend(struct.pack('>H', self.operator))    # [9-10] op code (BE)
+        buf.extend(struct.pack('>I', msg_id))           # [11-14] msg ID (BE)
+        buf.extend(struct.pack('>Q', timestamp))        # [15-22] timestamp (BE)
+        buf.extend(payload_bytes)                       # [23..] JSON payload
+        buf.append(self.PAYLOAD_TYPE_JSON)              # [last] payload type
+        
+        return bytes(buf)
+    
+    def encode_response(self, msg_id: int, status: int = 0, timestamp: int = None) -> bytes:
+        """Encode a response frame."""
+        payload_bytes = self.payload.encode('utf-8') if self.payload else b''
+        payload_len = len(payload_bytes)
+        
+        if timestamp is None:
+            import time
+            timestamp = int(time.time() * 1_000_000)
+        
+        body_length = payload_len + 27 if payload_len > 0 else 27  # from fillSendBuffer logic
+        
+        buf = bytearray()
+        buf.extend(self.TCCP_MAGIC)                    # [0-3] magic
+        buf.append(0x00)                                # [4] version/flags
+        buf.extend(struct.pack('>I', body_length))      # [5-8] body length (BE)
+        buf.extend(struct.pack('>H', self.operator))    # [9-10] op code (BE)
+        buf.extend(struct.pack('>I', msg_id))           # [11-14] req ID (BE)
+        buf.extend(struct.pack('>I', status))           # [15-18] status (BE)
+        buf.extend(struct.pack('>Q', timestamp))        # [19-26] timestamp (BE)
+        if payload_len > 0:
+            buf.extend(payload_bytes)                   # [27..] JSON payload
+        buf.append(self.PAYLOAD_TYPE_JSON)              # [last] payload type
+        
+        return bytes(buf)
     
     @classmethod
     def decode(cls, data: bytes) -> 'TCCPFrame':
-        """Decode frame from bytes."""
-        if len(data) < 6:
+        """Decode a frame from bytes. Auto-detects request vs response."""
+        if len(data) < 10:
             raise ValueError(f"Frame too short: {len(data)} bytes")
         
-        total_len = struct.unpack('>I', data[:4])[0]
-        operator = struct.unpack('>H', data[4:6])[0]
-        payload = data[6:6 + total_len - 2].decode('utf-8', errors='replace')
+        # Check magic
+        if data[:4] != cls.TCCP_MAGIC:
+            raise ValueError(f"Invalid magic: {data[:4]!r}")
         
-        return cls(operator, payload)
+        version = data[4]
+        body_len = struct.unpack('>I', data[5:9])[0]
+        operator = struct.unpack('>H', data[9:11])[0]
+        
+        # Distinguish request vs response by checking body_len and total size
+        # Request: body_len = payload_len + 15, min frame = 24
+        # Response: body_len = payload_len + 27 (or 27), min frame = 28
+        total_len = len(data)
+        
+        if total_len >= 24 and body_len <= len(data) - 9:
+            # Try as request: msg_id at [11], timestamp at [15], payload at [23]
+            msg_id = struct.unpack('>I', data[11:15])[0]
+            timestamp = struct.unpack('>Q', data[15:23])[0]
+            
+            payload_start = 23
+            payload_type = data[-1] if len(data) > payload_start else 0xFF
+            payload_end = len(data) - 1  # exclude payload type byte
+            
+            payload = data[payload_start:payload_end].decode('utf-8', errors='replace') if payload_end > payload_start else ""
+            
+            frame = cls(operator, payload, is_response=False)
+            frame.msg_id = msg_id
+            frame.timestamp = timestamp
+            return frame
+        else:
+            # Try as response
+            msg_id = struct.unpack('>I', data[11:15])[0]
+            status = struct.unpack('>I', data[15:19])[0]
+            timestamp = struct.unpack('>Q', data[19:27])[0]
+            
+            payload_start = 27
+            payload_type = data[-1] if len(data) > payload_start else 0xFF
+            payload_end = len(data) - 1
+            
+            payload = data[payload_start:payload_end].decode('utf-8', errors='replace') if payload_end > payload_start else ""
+            
+            frame = cls(operator, payload, is_response=True)
+            frame.msg_id = msg_id
+            frame.status = status
+            frame.timestamp = timestamp
+            return frame
     
     def __repr__(self):
         op_name = next((k for k, v in TCCP_OP.items() if v == self.operator), f'0x{self.operator:04x}')
-        return f"TCCPFrame(op={op_name}, payload={self.payload[:100]})"
+        return f"TCCPFrame(op={op_name}, msg_id={self.msg_id}, payload={self.payload[:80]})"
 
 
 class TranCastProtocol:
@@ -331,8 +465,24 @@ class TranCastProtocol:
             if 0 < total_len < 65536:
                 return True
         
-        # Fallback for non-standard responses
-        return len(data) > 0
+        # Helper: decode TCCP frame from buffer
+        # The native lib uses libevent's bufferevent, frames are NOT length-prefixed
+        # but are built by fillSendBuffer and written with bufferevent_write.
+        # The TCP stream contains raw TCCP frames concatenated.
+        if len(data) >= 24 and data[:4] == TCCPFrame.TCCP_MAGIC:
+            # Parse as TCCP frame
+            operator = struct.unpack('>H', data[9:11])[0]
+            op_name = next((k for k, v in TCCP_OP.items() if v == operator), f'0x{operator:04x}')
+            logger.info(f"Received TCCP frame: op={op_name}")
+            try:
+                frame = TCCPFrame.decode(data)
+                logger.info(f"Parsed: {frame}")
+                return True
+            except Exception as e:
+                logger.warning(f"Parse failed: {e}, but got valid TCCP data")
+                return True
+        
+        # Fallback: any response > 0 bytes could be a valid connection
     
     async def send_request(self, op: int, payload: str = "") -> bool:
         """Send a TCCP request."""
