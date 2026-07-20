@@ -409,6 +409,42 @@ def live_preview(adb):
 #                              MAIN
 # ═══════════════════════════════════════════════════════════════════════════════
 
+def _scan_trancast():
+    """Scan network for Transsion _tranCast devices (no ADB needed)."""
+    print(f"\n{' Scanning for Transsion devices ':=^50}")
+    print("  This scans mDNS for _tranCast._tcp services on the LAN.")
+    print("  Phone must be on the same WiFi network (not just WiFi Direct).\n")
+
+    from .transsion_protocol import TranCastDiscoverer
+    import asyncio
+
+    async def scan():
+        devices = await TranCastDiscoverer.discover(timeout=4.0)
+        if not devices:
+            print("\n  No Transsion devices found.")
+            print("  Make sure:")
+            print("    - Phone is on the same WiFi network")
+            print("    - PC Connect app is running on the phone")
+            print("    - WiFi isolation is disabled on the router")
+            print()
+            return 1
+
+        print(f"\n  Found {len(devices)} Transsion device(s):\n")
+        for i, dev in enumerate(devices, 1):
+            print(f"  [{i}] {dev.get('name', 'Unknown')}")
+            print(f"      Host:      {dev.get('host', '?')}")
+            print(f"      Port:      {dev.get('port', '?')} (handshake)")
+            if 'services' in dev:
+                svc = dev['services']
+                print(f"      ScreenCast: {svc.get('ScreenCast', '?')}")
+                print(f"      AudioSink:  {svc.get('AudioSink', '?')}")
+                print(f"      UcHoService:{svc.get('UcHoService', '?')}")
+            print()
+        return 0
+
+    return asyncio.run(scan())
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='NIU CAST CLI — Android device manager via ADB',
@@ -431,6 +467,8 @@ Examples:
     parser.add_argument('--preview', action='store_true', help='Live screen preview')
     parser.add_argument('--install', metavar='APK', help='Install APK file')
     parser.add_argument('--device', metavar='SERIAL', help='Specify device serial')
+    parser.add_argument('--scan-trancast', action='store_true',
+                        help='Scan network for Transsion _tranCast devices (no ADB needed)')
     parser.add_argument('--version', action='store_true', help='Show version')
     
     args = parser.parse_args()
@@ -439,7 +477,10 @@ Examples:
         from . import __version__
         print(f"NIU CAST v{__version__}")
         return 0
-    
+
+    if args.scan_trancast:
+        return _scan_trancast()
+
     adb = ADB()
     
     # Check prerequisites
