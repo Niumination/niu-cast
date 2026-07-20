@@ -22,6 +22,7 @@ from .batch import BatchExecutor
 from .theme_manager import ThemeManager
 from .shortcuts import KeyboardShortcuts
 from .game_mode import GameMode, PerformanceMonitor, GameLauncher
+from .file_browser import FileBrowserWidget
 
 __all__ = [
     # Version info
@@ -41,6 +42,9 @@ __all__ = [
     'GameMode',
     'PerformanceMonitor',
     'GameLauncher',
+    
+    # File Browser (joy-connect merge)
+    'FileBrowserWidget',
 ]
 
 # Quick reference for gaming themes

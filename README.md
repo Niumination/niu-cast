@@ -58,6 +58,63 @@
 
 ---
 
+## 📱 Android → Mac Connection
+
+### USB (Recommended for first use)
+
+```bash
+# 1. Install ADB
+brew install android-platform-tools
+
+# 2. Enable USB Debugging on Android
+#    Settings → About Phone → Tap "Build Number" 7x
+#    Settings → Developer Options → USB Debugging → ON
+
+# 3. Connect device via USB cable, authorize on phone
+
+# 4. Verify
+adb devices
+# Should show: <serial>   device
+
+# 5. Run NiuCast
+python3 -m niu_cast.core
+```
+
+### Wireless (USB Tethering / WiFi)
+
+```bash
+# 1. Connect USB first, then enable TCP/IP mode
+adb tcpip 5555
+
+# 2. Get device IP (from WiFi settings on Android)
+#    Or via ADB:
+adb shell ip route | awk '{print $9}'
+
+# 3. Disconnect USB, connect via WiFi
+adb connect 192.168.1.100:5555
+
+# 4. Verify
+adb devices
+# Should show: 192.168.1.100:5555   device
+
+# 5. Run NiuCast — now fully wireless
+python3 -m niu_cast.core
+```
+
+### Entry Points (from `setup.py`)
+
+| Command | Description |
+|---------|-------------|
+| `python3 -m niu_cast.core` | Full GUI (PyQt5) |
+| `python3 -m niu_cast.mini` | CLI interactive menu |
+| `python3 -m niu_cast.mini --screenshot` | Quick screenshot |
+| `python3 -m niu_cast.mini --game-mode on` | Enable Game Mode |
+| `python3 -m niu_cast.mini --monitor 10` | Monitor 10 detik |
+| `niu-cast` | GUI (if installed via pip) |
+| `niu-mini` | CLI (if installed via pip) |
+
+---
+
 ## 🚀 Quick Start
 
 ### 1. Prerequisites

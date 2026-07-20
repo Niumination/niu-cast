@@ -50,6 +50,7 @@ import cv2
 from .theme_manager import ThemeManager
 from .game_mode import GameMode, PerformanceMonitor, GameLauncher
 from .shortcuts import KeyboardShortcuts
+from .file_browser import FileBrowserWidget
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -889,7 +890,7 @@ class NiuCastWindow(QMainWindow):
         return card
     
     def _create_main_content(self):
-        """Create main content area"""
+        """Create main content area with tabs"""
         content = QFrame()
         content.setStyleSheet(f"background: {GamingTheme.BG_DARK};")
         
@@ -901,9 +902,49 @@ class NiuCastWindow(QMainWindow):
         header = self._create_header()
         layout.addWidget(header)
         
-        # ===== STREAM VIEW =====
-        stream_container = self._create_stream_view()
-        layout.addWidget(stream_container, 1)
+        # ===== TAB WIDGET =====
+        self.tab_widget = QTabWidget()
+        self.tab_widget.setStyleSheet(f"""
+            QTabWidget::pane {{
+                background: {GamingTheme.BG_DARK};
+                border: none;
+            }}
+            QTabBar::tab {{
+                background: {GamingTheme.BG_PANEL};
+                color: {GamingTheme.TEXT_SECONDARY};
+                border: 1px solid {GamingTheme.CYAN_PRIMARY}20;
+                border-bottom: none;
+                border-radius: 6px 6px 0 0;
+                padding: 8px 18px;
+                margin-right: 2px;
+                font-size: 11px;
+                font-weight: bold;
+                letter-spacing: 1px;
+            }}
+            QTabBar::tab:selected {{
+                background: {GamingTheme.CYAN_PRIMARY}20;
+                color: {GamingTheme.CYAN_PRIMARY};
+                border-color: {GamingTheme.CYAN_PRIMARY};
+            }}
+            QTabBar::tab:hover!selected {{
+                background: {GamingTheme.CYAN_PRIMARY}10;
+            }}
+        """)
+        
+        # Tab 1: Stream / Mirror
+        stream_tab = QWidget()
+        stream_layout = QVBoxLayout(stream_tab)
+        stream_layout.setContentsMargins(0, 15, 0, 0)
+        stream_layout.setSpacing(15)
+        stream_view = self._create_stream_view()
+        stream_layout.addWidget(stream_view, 1)
+        self.tab_widget.addTab(stream_tab, "📺 STREAM")
+        
+        # Tab 2: File Browser
+        self.file_browser = FileBrowserWidget(self.adb)
+        self.tab_widget.addTab(self.file_browser, "📁 FILES")
+        
+        layout.addWidget(self.tab_widget, 1)
         
         # ===== BOTTOM BAR =====
         bottom_bar = self._create_bottom_bar()
@@ -1583,6 +1624,26 @@ class NiuCastWindow(QMainWindow):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def main():
+    """Entry point: launch GUI or show help"""
+    import argparse
+    parser = argparse.ArgumentParser(
+        description='NIU CAST Gaming Edition - Android ADB Tool & Screen Mirroring',
+        epilog=f"""
+Examples:
+  niu-cast                    Launch GUI
+  niu-cast --help             Show this help
+  niu-mini --info             CLI version for device info
+  niu-batch script.yml        Batch executor
+        """
+    )
+    parser.add_argument('--version', action='store_true', help='Show version')
+    args, _ = parser.parse_known_args()
+    
+    if args.version:
+        from . import __version__
+        print(f"NIU CAST v{__version__} • Gaming Edition")
+        return 0
+    
     if not PYQT5_AVAILABLE:
         print("ERROR: PyQt5 is required. Install with: pip install PyQt5")
         return 1
