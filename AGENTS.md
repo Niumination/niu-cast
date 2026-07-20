@@ -29,12 +29,64 @@ Target: kontrol Infinix GT 30 Pro dari Mac tanpa USB debugging.
 
 ### Port Discovery
 
-| Port | Fungsi | Status |
-|------|--------|:------:|
-| 9452 | TCCP handshake — fixed port (dari konstanta Java `w4/l1.S=9452`) | ✅ Handshake OK |
-| 8008 | ? (dari 0x0607 auth response) | ⚪ Belum diexplore |
-| 9542 | controlPort (dari 0x0607) | ⚪ Belum diexplore |
-| 10001 | filePort (dari 0x0607) | ⚪ Belum diexplore |
+| Port | Fungsi | Status | Sumber |
+|:----:|--------|:------:|--------|
+| 9452 | TCCP handshake — fixed | ✅ Handshake OK | `w4/l1.java: S=9452` |
+| 8613 | TCCP handshake alternatif | ⚪ Belum dicoba | `TCCPHandshakeSocketClient.MAIN_SOCKET_PORT` |
+| 8008 | ScreenCast/Video | ⚪ Belum diexplore | field `port` di 0x0607 |
+| 9542 | Control channel | ⚪ Belum diexplore | field `controlPort` di 0x0607 |
+| 10001 | File transfer | ⚪ Belum diexplore | field `filePort` di 0x0607 |
+
+### API Key (dari ITCCPSourceApi)
+
+| Method | Fungsi |
+|--------|--------|
+| `connectTccpServer(host, port)` | Connect ke TCCP server |
+| `disconnectTccpServer()` | Disconnect |
+| `startTCCPServer(port)` | Start TCCP server di port tertentu |
+| `stopTCCPServer()` | Stop server |
+| `enableFeature("uibc", bool)` | Enable/disable UIBC |
+| `responseAuth(accept, trust)` | Respon AUTH (accept + trust device) |
+| `updateMirrorWindowPoint(x, y)` | Update posisi mouse |
+| `executeAction(action, params)` | Execute action generic |
+| `castMainScreen()` | Mirror main screen |
+| `stopAllCastVideo()` | Stop video casting |
+
+### Connect Types (dari SDK)
+
+| Type | Value |
+|------|:-----:|
+| `CONNECT_TYPE_USB` | 1 |
+| `CONNECT_TYPE_P2P` | 2 |
+| `CONNECT_TYPE_WIFI` | 3 |
+
+### TCCP States
+
+| State | Value | Description |
+|-------|:-----:|-------------|
+| `STATE_CONNECTED` | 1 | Connected |
+| `STATE_WAITING` | 2 | Waiting for auth |
+| `STATE_STOP` | 3 | Stopped |
+| `STATE_MIRROR_CASTING` | 4 | Mirroring active |
+| `STATE_EXTEND_SCREEN` | 5 | Extend screen mode |
+
+### Wire Format (dari live capture + Java TCCPPacket)
+
+Confirmed:
+- Magic: `TCCP` (4 bytes)
+- Version: 1 byte (0x00=client, 0xFF=server)
+- Body length: 4 bytes BE (= 15 + payload_len)
+- Operator: 2 bytes BE (opcode)
+- Message ID: 4 bytes BE
+- Timestamp: 8 bytes BE (microseconds)
+- JSON payload: N bytes UTF-8
+- Terminator: 0x00
+
+Java class `TCCPPacket` confirms:
+- `isResp` (boolean) — apakah response
+- `operationFlag` (byte[2]) — opcode 2 bytes
+- `stateCode` (Integer) — optional status code
+- `payloadJson` (String) — JSON payload
 
 ### Class Key
 

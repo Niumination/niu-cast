@@ -51,9 +51,10 @@ from typing import Optional, Callable, Dict, Any
 
 logger = logging.getLogger(__name__)
 
-# ── TCCP Ports (dari live handshake decompile) ──────────────────────────────
+# ── TCCP Ports (dari live handshake + decompile APK) ────────────────────────
 #
 # Port 9452: TCCP handshake — FIXED (konstanta Java w4/l1.java: S=9452)
+# Port 8613: TCCP handshake alternatif (TCCPHandshakeSocketClient.MAIN_SOCKET_PORT)
 # Port 8008:  ScreenCast/Video (dari 0x0607: "port":8008)
 # Port 9542:  Control channel (dari 0x0607: "controlPort":9542)
 # Port 10001: File transfer  (dari 0x0607: "filePort":10001)
@@ -61,10 +62,11 @@ logger = logging.getLogger(__name__)
 # Port 8902:  Old guess (UIBC — ternyata via TCCP stream)
 # Port 37651: Old guess (dynamic — ternyata fixed 9452)
 
-PORT_TCCP = 9452          # TCCP handshake (FIXED dari APK)
-PORT_CONTROL = 9542       # Control channel
-PORT_FILE = 10001         # File transfer
-PORT_SCREENCAST = 8008    # ScreenCast/Video stream
+PORT_TCCP = 9452            # TCCP handshake (FIXED dari APK)
+PORT_TCCP_FALLBACK = 8613   # TCCP handshake alternatif (dari client code)
+PORT_CONTROL = 9542         # Control channel
+PORT_FILE = 10001           # File transfer
+PORT_SCREENCAST = 8008      # ScreenCast/Video stream
 PORT_HANDSHAKE_DEFAULT = 9452  # Alias backward compat
 
 # Additional Transsion mDNS service types (discovered from Windows DNS queries)
