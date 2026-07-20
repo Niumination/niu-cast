@@ -359,7 +359,7 @@ class TranCastDiscoverer:
             return None
 
 
-# ── Probe Utilities ───────────────────────────────────────────────────────────-
+# ── Probe Utilities ───────────────────────────────────────────────────────────
 
 async def probe_device(host: str, ports: list = None) -> dict:
     """
@@ -408,3 +408,129 @@ async def probe_device(host: str, ports: list = None) -> dict:
             logger.debug(f"Port {port}: {e}")
 
     return results
+
+
+# ── USB Tether Detection ──────────────────────────────────────────────────────
+
+def detect_usb_tether_phone() -> Optional[str]:
+    """
+    Detect phone connected via USB tethering.
+
+    Scans network interfaces for a phone subnet (192.168.42.x or 192.168.43.x
+    typical for Android USB tether) and returns the gateway IP (phone's IP).
+
+    Returns phone IP string or None if not detected.
+    """
+    import subprocess
+    try:
+        # Get all interfaces with IPs
+        output = subprocess.check_output(
+            ['ifconfig', '-a'], text=True, timeout=5
+        )
+
+        current_iface = None
+        wifi_ifaces = {'en0', 'en1'}  # typical macOS WiFi Ethernet interfaces
+        for line in output.splitlines():
+            if line and line[0].isalpha():
+                current_iface = line.split(':')[0]
+            if 'inet ' in line and current_iface:
+                # Skip known WiFi interfaces
+                if current_iface in wifi_ifaces:
+                    continue
+                # Skip loopback
+                if current_iface == 'lo0':
+                    continue
+                parts = line.strip().split()
+                addr_idx = parts.index('inet') + 1
+                if addr_idx < len(parts):
+                    ip = parts[addr_idx]
+                    # Android USB tether typically uses 192.168.42.x or 192.168.43.x
+                    if ip.startswith('192.168.42.') or ip.startswith('192.168.43.'):
+                        # Phone is the gateway (.1 or .254 usually)
+                        gateway = ip.rsplit('.', 1)[0] + '.1'
+                        logger.info(f"USB tether detected on {current_iface}: {ip}, phone->{gateway}")
+                        return gateway
+                    # Also check other non-WiFi interfaces for USB Ethernet
+                    if ip.startswith('10.') or ip.startswith('172.') or ip.startswith('192.168.'):
+                        # Try both .1 and .254 as gateway
+                        for suffix in ['.1', '.254']:
+                            candidate = ip.rsplit('.', 1)[0] + suffix
+                            if candidate != ip:
+                                # Quick check if this IP is reachable
+                                rc = subprocess.call(
+                                    ['ping', '-c', '1', '-W', '1', candidate],
+                                    stdout=subprocess.DEVNULL,
+                                    stderr=subprocess.DEVNULL,
+                                )
+                                if rc == 0:
+                                    # Don't match if it's a known router IP (common on en0 subnet)
+                                    # Only return if this is a DIFFERENT subnet from en0
+                                    logger.info(f"USB tether phone at {candidate}")
+                                    return candidate
+
+        return None
+    except Exception as e:
+        logger.debug(f"USB tether detection error: {e}")
+        return None
+
+
+async def try_tether_connect() -> Optional[TranCastProtocol]:
+    """
+    Detect phone via USB tether and try to connect using TranCastProtocol.
+
+    Returns connected protocol instance or None.
+    """
+    phone_ip = detect_usb_tether_phone()
+    if not phone_ip:
+        logger.warning("No USB tethered phone detected")
+        return None
+
+    # First try to get handshake port from mDNS
+    devices = TranCastDiscoverer.discover(timeout=2.0)
+    handshake_port = PORT_HANDSHAKE_DEFAULT
+    if devices:
+        handshake_port = devices[0].get('port', PORT_HANDSHAKE_DEFAULT)
+        logger.info(f"Using handshake port {handshake_port} from mDNS discovery")
+
+    client = TranCastProtocol(host=phone_ip, handshake_port=handshake_port)
+    if await client.connect():
+        logger.info(f"Connected to phone at {phone_ip}:{handshake_port} via USB tether!")
+        return client
+
+    # Try known ports as fallback
+    for port in [handshake_port, PORT_SCREENCAST, PORT_UCHO, PORT_AUDIOSINK]:
+        if port != handshake_port:
+            client = TranCastProtocol(host=phone_ip, handshake_port=port)
+            if await client.connect():
+                logger.info(f"Connected via port {port}")
+                return client
+
+    return None
+
+
+# ── IPv6 Link-Local Connection ────────────────────────────────────────────────
+
+def find_phone_ipv6(mac_prefix: str = "2e:8c:a8") -> Optional[str]:
+    """
+    Try to find phone's IPv6 link-local address via ARP/neighbor table.
+    Phone's MAC in the capture starts with 2e:8c:a8.
+
+    Returns full IPv6 address string or None.
+    """
+    import subprocess
+    import re
+    try:
+        # Check neighbor cache
+        output = subprocess.check_output(
+            ['ndp', '-an'], text=True, timeout=5, stderr=subprocess.DEVNULL
+        )
+        for line in output.splitlines():
+            if mac_prefix.lower() in line.lower():
+                m = re.search(r'([a-f0-9:]+)%?(\w*)', line)
+                if m:
+                    ipv6 = m.group(1)
+                    scope = m.group(2) or 'en0'
+                    return f"{ipv6}%{scope}"
+    except Exception:
+        pass
+    return None

@@ -484,6 +484,53 @@ def _probe_trancast():
     return 0
 
 
+def _tether_connect():
+    """Connect to phone via USB tether using Transsion protocol."""
+    from .transsion_protocol import detect_usb_tether_phone, try_tether_connect, TranCastDiscoverer
+    import asyncio
+
+    print(f"\n{' USB Tether Connect ':=^50}")
+    print("  Detecting phone via USB tether...\n")
+
+    phone_ip = detect_usb_tether_phone()
+    if not phone_ip:
+        print("  No USB tethered phone detected.")
+        print()
+        print("  Steps:")
+        print("  1. Connect phone via USB cable")
+        print("  2. On phone: Settings → Network → Hotspot & Tethering → USB Tethering → ON")
+        print("  3. A new network interface should appear on this Mac")
+        print("  4. Run this command again\n")
+        return 1
+
+    print(f"  Phone IP: {phone_ip}")
+
+    # Try mDNS discovery for handshake port
+    print("  Scanning for Transsion services...")
+    devices = TranCastDiscoverer.discover(timeout=3.0)
+    if devices:
+        dev = devices[0]
+        port = dev.get('port', '?')
+        name = dev.get('name', 'Unknown')
+        print(f"  Found: {name} (handshake port {port})")
+    else:
+        print("  No mDNS services found (phone may not announce over USB)")
+        print("  Trying default ports...")
+
+    print(f"\n  Connecting to {phone_ip}...\n")
+    client = asyncio.run(try_tether_connect())
+
+    if client and client._connected:
+        print("  ✅ Connected via USB tether!")
+        print("  Protocol handshake completed.")
+        return 0
+    else:
+        print("  ❌ Could not connect to Transsion services on phone.")
+        print("  The phone may not expose Transsion ports over USB tether.")
+        print("  Next step: WiFi Direct recapture on Windows.\n")
+        return 1
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='NIU CAST CLI — Android device manager via ADB',
@@ -510,6 +557,8 @@ Examples:
                         help='Scan network for Transsion _tranCast devices (no ADB needed)')
     parser.add_argument('--probe-trancast', action='store_true',
                         help='Discover + probe Transsion device ports for RE (debug)')
+    parser.add_argument('--tether', action='store_true',
+                        help='Connect to phone via USB tether (no ADB/WiFi Direct needed)')
     parser.add_argument('--version', action='store_true', help='Show version')
     
     args = parser.parse_args()
@@ -524,6 +573,9 @@ Examples:
 
     if args.probe_trancast:
         return _probe_trancast()
+
+    if args.tether:
+        return _tether_connect()
 
     adb = ADB()
     
