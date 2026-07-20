@@ -412,37 +412,76 @@ def live_preview(adb):
 def _scan_trancast():
     """Scan network for Transsion _tranCast devices (no ADB needed)."""
     print(f"\n{' Scanning for Transsion devices ':=^50}")
-    print("  This scans mDNS for _tranCast._tcp services on the LAN.")
+    print("  Scans mDNS for _tranCast._tcp services on the LAN.")
     print("  Phone must be on the same WiFi network (not just WiFi Direct).\n")
 
     from .transsion_protocol import TranCastDiscoverer
+
+    devices = TranCastDiscoverer.discover(timeout=4.0)
+
+    if not devices:
+        print("\n  No Transsion devices found.")
+        print("  Make sure:")
+        print("    - Phone is on the same WiFi network")
+        print("    - PC Connect app is running on the phone")
+        print("    - WiFi isolation is disabled on the router")
+        return 1
+
+    print(f"\n  Found {len(devices)} Transsion device(s):\n")
+    for i, dev in enumerate(devices, 1):
+        name = dev.get('name', 'Unknown')
+        host = dev.get('host', '?')
+        port = dev.get('port', '?')
+        server = dev.get('server', '')
+        dev_id = dev.get('device_id', '')
+        print(f"  [{i}] {name}")
+        print(f"      Host:      {host}")
+        print(f"      Port:      {port} (handshake)")
+        if dev_id:
+            print(f"      Device ID: {dev_id}")
+        if 'services' in dev:
+            svc = dev['services']
+            for k, v in svc.items():
+                print(f"      {k:12s} {v}")
+        print()
+    return 0
+
+
+def _probe_trancast():
+    """Discover + probe Transsion device ports for reverse engineering."""
+    from .transsion_protocol import TranCastDiscoverer, probe_device
     import asyncio
 
-    async def scan():
-        devices = await TranCastDiscoverer.discover(timeout=4.0)
-        if not devices:
-            print("\n  No Transsion devices found.")
-            print("  Make sure:")
-            print("    - Phone is on the same WiFi network")
-            print("    - PC Connect app is running on the phone")
-            print("    - WiFi isolation is disabled on the router")
-            print()
-            return 1
+    devices = TranCastDiscoverer.discover(timeout=4.0)
+    if not devices:
+        print("No Transsion devices found to probe.")
+        return 1
 
-        print(f"\n  Found {len(devices)} Transsion device(s):\n")
-        for i, dev in enumerate(devices, 1):
-            print(f"  [{i}] {dev.get('name', 'Unknown')}")
-            print(f"      Host:      {dev.get('host', '?')}")
-            print(f"      Port:      {dev.get('port', '?')} (handshake)")
-            if 'services' in dev:
-                svc = dev['services']
-                print(f"      ScreenCast: {svc.get('ScreenCast', '?')}")
-                print(f"      AudioSink:  {svc.get('AudioSink', '?')}")
-                print(f"      UcHoService:{svc.get('UcHoService', '?')}")
-            print()
-        return 0
+    dev = devices[0]
+    host = dev['host']
+    print(f"\n{' Probing ':=^50}")
+    print(f"  Device: {dev.get('name', 'Unknown')}")
+    print(f"  Host:   {host}")
+    print(f"  Port:   {dev.get('port', '?')} (handshake)")
+    print(f"\n  Connecting to known ports to observe responses...\n")
 
-    return asyncio.run(scan())
+    results = asyncio.run(probe_device(host))
+
+    if not results:
+        print("  No ports responded. Device may not be ready or is on WiFi Direct.")
+        return 1
+
+    for port, res in results.items():
+        note = res.get('note', '')
+        if res['len'] > 0:
+            print(f"  [{port}] → {res['len']} bytes response")
+            print(f"         hex: {res['hex'][:100]}")
+            print(f"         raw: {res['ascii']}")
+        else:
+            print(f"  [{port}] → connected, {note or 'no data returned'}")
+
+    print()
+    return 0
 
 
 def main():
@@ -469,6 +508,8 @@ Examples:
     parser.add_argument('--device', metavar='SERIAL', help='Specify device serial')
     parser.add_argument('--scan-trancast', action='store_true',
                         help='Scan network for Transsion _tranCast devices (no ADB needed)')
+    parser.add_argument('--probe-trancast', action='store_true',
+                        help='Discover + probe Transsion device ports for RE (debug)')
     parser.add_argument('--version', action='store_true', help='Show version')
     
     args = parser.parse_args()
@@ -480,6 +521,9 @@ Examples:
 
     if args.scan_trancast:
         return _scan_trancast()
+
+    if args.probe_trancast:
+        return _probe_trancast()
 
     adb = ADB()
     

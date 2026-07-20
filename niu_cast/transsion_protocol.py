@@ -14,7 +14,8 @@ Protocol architecture (from mDNS service announcement):
     "AudioSink": 8904     → audio stream
   }
 
-Status: ⚠️ PARTIAL — protocol payload format unknown (capture pending).
+Status: 🔬 ACTIVE DEVELOPMENT — mDNS discovery uses zeroconf library.
+              Handshake payload format TBD (placeholder).
 """
 
 import asyncio
@@ -35,7 +36,7 @@ PORT_HANDSHAKE_DEFAULT = 37651  # changes per session
 
 # Magic bytes / headers discovered so far (TBD from pcap analysis)
 # These are placeholders until the WiFi Direct capture is decoded
-HANDSHAKE_MAGIC = b'\x00\x00\x00\x00'
+HANDSHAKE_MAGIC = b'NCCN'
 PROTO_VERSION = 1
 
 
@@ -226,9 +227,10 @@ class TranCastDiscoverer:
     """
     Discover Transsion devices on the local network via mDNS (_tranCast._tcp).
 
+    Uses zeroconf library for reliable service discovery.
+
     Usage:
-        discoverer = TranCastDiscoverer()
-        devices = await discoverer.discover(timeout=3.0)
+        devices = TranCastDiscoverer.discover(timeout=4.0)
         for dev in devices:
             print(dev['host'], dev['handshake_port'])
     """
@@ -236,146 +238,173 @@ class TranCastDiscoverer:
     SERVICE_TYPE = "_tranCast._tcp.local."
 
     @staticmethod
-    async def discover(timeout: float = 3.0) -> list:
+    def discover(timeout: float = 4.0) -> list:
         """
-        Scan mDNS for _tranCast._tcp services.
+        Scan mDNS for _tranCast._tcp services using zeroconf.
 
-        Returns list of dicts with device info:
-        {
-            'host': str (IP),
-            'port': int (handshake),
-            'name': str,
-            'device_id': str,
-            'services': dict  # from cmbSvc TXT record
-        }
+        Returns list of dicts with device info.
         """
-        # Use subprocess to call `dns-sd` on macOS or `avahi-browse` on Linux
-        # This avoids needing a full mDNS library
-        import asyncio.subprocess
-
         devices = []
 
-        # Try macOS dns-sd
         try:
-            proc = await asyncio.create_subprocess_exec(
-                'dns-sd', '-B', '_tranCast._tcp', 'local',
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-            )
+            from zeroconf import Zeroconf, ServiceBrowser, ServiceStateChange
 
+            class _Listener:
+                def __init__(self):
+                    self.found = []
+
+                def add_service(self, zeroconf, type_, name):
+                    info = zeroconf.get_service_info(type_, name)
+                    if info:
+                        self.found.append(info)
+
+                def update_service(self, zeroconf, type_, name):
+                    pass  # required by zeroconf API
+
+            zc = Zeroconf()
+            listener = _Listener()
+            browser = ServiceBrowser(zc, TranCastDiscoverer.SERVICE_TYPE, listener)
+
+            import time as _time
+            _time.sleep(timeout)
+
+            zc.close()
+
+            for info in listener.found:
+                dev = TranCastDiscoverer._parse_service(info)
+                if dev:
+                    devices.append(dev)
+
+        except ImportError:
+            logger.warning("zeroconf not installed, falling back to dns-sd")
+            import asyncio
+            import asyncio.subprocess
             try:
-                stdout_data, _ = await asyncio.wait_for(
-                    proc.communicate(), timeout=timeout
-                )
-                # Parse dns-sd output
-                for line in stdout_data.decode('utf-8', errors='replace').splitlines():
-                    if 'tranCast' in line:
-                        parts = line.split()
-                        if len(parts) >= 7:
-                            devices.append({
-                                'name': parts[6] if len(parts) > 6 else 'Unknown',
-                                'raw': line,
-                            })
-            except asyncio.TimeoutError:
-                proc.kill()
-                await proc.wait()
-
-        except FileNotFoundError:
-            logger.debug("dns-sd not found (not macOS?)")
-
-        # Fallback: try to resolve via mDNS query
-        if not devices:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            sock.settimeout(timeout)
-
-            # Send standard mDNS query for _tranCast._tcp
-            # mDNS query packet (simplified)
-            query = bytes.fromhex(
-                "0000 0000 0001 0000 0000 0000"
-                "095f7472616e43617374045f746370"
-                "056c6f63616c 0000 0c00 01"
-                .replace(" ", "")
-            )
-            try:
-                sock.sendto(query, ('224.0.0.251', 5353))
-                while True:
-                    try:
-                        data, addr = sock.recvfrom(1024)
-                        # Parse mDNS response
-                        result = self._parse_mdns_response(data, addr[0])
-                        if result:
-                            devices.append(result)
-                    except socket.timeout:
-                        break
-            finally:
-                sock.close()
+                proc = asyncio.run(asyncio.create_subprocess_exec(
+                    'dns-sd', '-B', '_tranCast._tcp', 'local',
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.DEVNULL,
+                ))
+                try:
+                    stdout_data, _ = asyncio.run(asyncio.wait_for(
+                        proc.communicate(), timeout=timeout
+                    ))
+                    for line in stdout_data.decode('utf-8', errors='replace').splitlines():
+                        if 'tranCast' in line:
+                            devices.append({'name': line, 'raw': True})
+                except asyncio.TimeoutError:
+                    proc.kill()
+                    asyncio.run(proc.wait())
+            except FileNotFoundError:
+                logger.debug("dns-sd not found")
 
         return devices
 
     @staticmethod
-    def _parse_mdns_response(data: bytes, src_ip: str) -> Optional[dict]:
-        """
-        Parse a raw mDNS response packet to extract Transsion service info.
-        """
+    def _parse_service(info) -> Optional[dict]:
+        """Parse zeroconf ServiceInfo into device dict."""
         try:
-            payload = data[12:]  # Skip DNS header
-            # Find _tranCast service name
-            text = payload.decode('utf-8', errors='replace')
-            if '_tranCast' not in text:
-                return None
-
             result = {
-                'host': src_ip,
-                'port': PORT_HANDSHAKE_DEFAULT,
-                'name': 'Unknown',
+                'host': info.parsed_addresses()[0] if info.parsed_addresses() else '?',
+                'port': info.port or PORT_HANDSHAKE_DEFAULT,
+                'name': info.name.split('.')[0] if info.name else 'Unknown',
                 'device_id': '',
                 'services': {},
+                'server': info.server or '',
             }
 
-            # Extract TXT records (cmbSvc JSON)
-            if 'cmbSvc=' in text:
-                try:
-                    svc_start = text.index('cmbSvc=') + 7
-                    svc_end = text.index('}', svc_start) + 1
-                    svc_json = text[svc_start:svc_end]
-                    result['services'] = json.loads(svc_json)
-                    if 'HandShake' in result['services']:
-                        result['port'] = int(result['services']['HandShake'])
-                except (ValueError, json.JSONDecodeError):
-                    pass
+            # Extract TXT records
+            if info.properties:
+                txt = {}
+                for k, v in info.properties.items():
+                    key = k.decode('utf-8', errors='replace') if isinstance(k, bytes) else str(k)
+                    val = v.decode('utf-8', errors='replace') if isinstance(v, bytes) else str(v)
+                    txt[key] = val
 
-            # Extract device name
-            if 'Infinix' in text or 'Tecno' in text or 'Itel' in text:
-                result['name'] = text.split('Infinix')[1].split(',')[0].strip()[:32]
+                # Parse cmbSvc JSON
+                if 'cmbSvc' in txt:
+                    try:
+                        svc = json.loads(txt['cmbSvc'])
+                        result['services'] = svc
+                        if 'HandShake' in svc:
+                            result['port'] = int(svc['HandShake'])
+                    except (json.JSONDecodeError, ValueError):
+                        pass
+
+                # Extract device ID from name
+                # transConnectService-{device_id}-{timestamp}
+                name = result['name']
+                if 'transConnectService-' in name:
+                    parts = name.split('transConnectService-', 1)
+                    if len(parts) > 1:
+                        id_part = parts[1].rsplit('-', 1)  # remove timestamp
+                        result['device_id'] = id_part[0]
+
+                # Get friendly name from advData or model
+                if 'advData' in txt:
+                    adv = txt['advData']
+                    if 'Infinix' in adv or 'Tecno' in adv or 'Itel' in adv:
+                        for brand in ['Infinix', 'Tecno', 'Itel']:
+                            if brand in adv:
+                                start = adv.index(brand)
+                                end = min(start + 40, len(adv))
+                                name_bytes = bytes.fromhex(adv[start:end])
+                                result['name'] = name_bytes.decode('utf-8', errors='replace').rstrip('\x00').strip()
+                                break
 
             return result
 
         except Exception as e:
-            logger.debug(f"mDNS parse error: {e}")
+            logger.debug(f"Service parse error: {e}")
             return None
 
 
-# ── Convenience API ───────────────────────────────────────────────────────────
+# ── Probe Utilities ───────────────────────────────────────────────────────────-
 
-async def discover_and_connect(timeout: float = 3.0) -> Optional[TranCastProtocol]:
+async def probe_device(host: str, ports: list = None) -> dict:
     """
-    Discover Transsion device on network and connect.
-    Returns connected TranCastProtocol instance or None.
+    Probe a Transsion device by connecting to its known ports.
+    Used to observe response patterns for reverse engineering.
+
+    Args:
+        host: Device IP
+        ports: List of ports to probe (default: handshake candidates)
+
+    Returns dict of {port: response_bytes_hex} for ports that responded.
     """
-    devices = await TranCastDiscoverer.discover(timeout=timeout)
-    if not devices:
-        logger.warning("No Transsion devices found on network")
-        return None
+    if ports is None:
+        ports = [PORT_HANDSHAKE_DEFAULT, 40999, PORT_SCREENCAST, PORT_UCHO, PORT_AUDIOSINK]
 
-    dev = devices[0]
-    logger.info(f"Found device: {dev['name']} at {dev['host']}:{dev['port']}")
+    results = {}
 
-    client = TranCastProtocol(
-        host=dev['host'],
-        handshake_port=dev['port'],
-    )
+    for port in ports[:4]:  # limit to avoid flooding
+        try:
+            reader, writer = await asyncio.wait_for(
+                asyncio.open_connection(host, port),
+                timeout=2.0,
+            )
+            # Send a probe (0x00 byte to see if server responds)
+            writer.write(b'\x00')
+            await writer.drain()
 
-    if await client.connect():
-        return client
+            try:
+                data = await asyncio.wait_for(reader.read(4096), timeout=1.0)
+                results[port] = {
+                    'len': len(data),
+                    'hex': data.hex()[:200],
+                    'ascii': data[:80],
+                }
+                logger.info(f"Port {port}: got {len(data)} bytes response")
+            except asyncio.TimeoutError:
+                results[port] = {'len': 0, 'hex': '', 'ascii': b'', 'note': 'connected but no response'}
+                logger.info(f"Port {port}: connected, no response")
 
-    return None
+            writer.close()
+            await writer.wait_closed()
+
+        except ConnectionRefusedError:
+            logger.debug(f"Port {port}: refused")
+        except (asyncio.TimeoutError, OSError) as e:
+            logger.debug(f"Port {port}: {e}")
+
+    return results
