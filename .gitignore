@@ -4,3 +4,4 @@ __pycache__/
 .DS_Store
 *.png
 *.mp4
+niu_cast.egg-info/

@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
 """
-╔══════════════════════════════════════════════════════════════════════════════╗
-║                        NIU CAST - MINI (CLI)                                ║
-║                    Lightweight Command Line Interface                       ║
-║                                                                            ║
-║  Gaming Edition - No GUI dependencies                                       ║
-╚══════════════════════════════════════════════════════════════════════════════╝
+NIU CAST — CLI
+Command Line Interface untuk Android device management via ADB
 """
 
 import os
@@ -15,51 +11,22 @@ import subprocess
 import argparse
 from datetime import datetime
 
-# Gaming Edition modules
-from .game_mode import GameMode, PerformanceMonitor
-
 # ═══════════════════════════════════════════════════════════════════════════════
 #                              COLORS & STYLING
 # ═══════════════════════════════════════════════════════════════════════════════
 
 class Colors:
-    # Gaming Theme Colors
-    BG = '\033[0;48;5;17m'      # Dark background
-    CYAN = '\033[0;96m'         # Bright cyan
-    MAGENTA = '\033[0;95m'      # Magenta
-    GOLD = '\033[0;93m'         # Gold
-    GREEN = '\033[0;92m'        # Green (connected)
-    RED = '\033[0;91m'          # Red (error)
-    YELLOW = '\033[0;93m'       # Yellow (warning)
-    WHITE = '\033[0;97m'        # White text
+    CYAN = '\033[0;96m'
+    GREEN = '\033[0;92m'
+    RED = '\033[0;91m'
+    YELLOW = '\033[0;93m'
+    GOLD = '\033[0;93m'
+    WHITE = '\033[0;97m'
     BOLD = '\033[1m'
     DIM = '\033[2m'
     RESET = '\033[0m'
-    
-    # Box drawing
-    VERT = '║'
-    HORIZ = '═'
-    CROSS = '╬'
-    TOP_LEFT = '╔'
-    TOP_RIGHT = '╗'
-    BOTTOM_LEFT = '╚'
-    BOTTOM_RIGHT = '╝'
-    T_DOWN = '╦'
-    T_UP = '╩'
-    T_RIGHT = '╠'
-    T_LEFT = '╣'
 
-def print_box(text, width=60, color=Colors.CYAN, align='center'):
-    """Print text in a styled box"""
-    padding = (width - len(text) - 2) // 2
-    if align == 'center':
-        print(f"{color}{Colors.TOP_LEFT}{Colors.HORIZ * width}{Colors.TOP_RIGHT}{Colors.RESET}")
-        print(f"{color}{Colors.VERT}{Colors.RESET}{' ' * padding}{Colors.BOLD}{text}{Colors.RESET}{' ' * (width - padding - len(text))}{color}{Colors.VERT}{Colors.RESET}")
-        print(f"{color}{Colors.BOTTOM_LEFT}{Colors.HORIZ * width}{Colors.BOTTOM_RIGHT}{Colors.RESET}")
-    elif align == 'left':
-        print(f"{color}{Colors.TOP_LEFT}{Colors.HORIZ * width}{Colors.TOP_RIGHT}{Colors.RESET}")
-        print(f"{color}{Colors.VERT}{Colors.RESET} {text}{' ' * (width - len(text) - 1)}{color}{Colors.VERT}{Colors.RESET}")
-        print(f"{color}{Colors.BOTTOM_LEFT}{Colors.HORIZ * width}{Colors.BOTTOM_RIGHT}{Colors.RESET}")
+
 
 def print_header(text):
     """Print section header"""
@@ -444,16 +411,15 @@ def live_preview(adb):
 
 def main():
     parser = argparse.ArgumentParser(
-        description=f'{Colors.CYAN}{Colors.BOLD}NIU CAST MINI{Colors.RESET} - Gaming Edition CLI',
+        description='NIU CAST CLI — Android device manager via ADB',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=f"""
-{Colors.GOLD}Examples:{Colors.RESET}
-  {Colors.WHITE}%(prog)s --info{Colors.RESET}             Show device info
-  {Colors.WHITE}%(prog)s --screenshot{Colors.RESET}       Take screenshot
-  {Colors.WHITE}%(prog)s --record 60{Colors.RESET}        Record for 60 seconds
-  {Colors.WHITE}%(prog)s --control{Colors.RESET}          Interactive control
-  {Colors.WHITE}%(prog)s --wireless{Colors.RESET}         Enable WiFi ADB
-  {Colors.WHITE}%(prog)s --preview{Colors.RESET}          Live preview
+Examples:
+  %(prog)s --info             Show device info
+  %(prog)s --screenshot       Take screenshot
+  %(prog)s --record 60        Record for 60 seconds
+  %(prog)s --control          Interactive control
+  %(prog)s --wireless         Enable WiFi ADB
         """
     )
     
@@ -465,29 +431,8 @@ def main():
     parser.add_argument('--preview', action='store_true', help='Live screen preview')
     parser.add_argument('--install', metavar='APK', help='Install APK file')
     parser.add_argument('--device', metavar='SERIAL', help='Specify device serial')
-    parser.add_argument('--game-mode', type=str, choices=['on', 'off'], help='Enable/disable game mode optimizations')
-    parser.add_argument('--monitor', type=int, nargs='?', const=10, help='Monitor device performance (seconds, default 10)')
     
     args = parser.parse_args()
-    
-    # Print banner
-    print(f"""
-{Colors.BG}{Colors.CYAN}
-╔══════════════════════════════════════════════════════════════════════╗
-║                                                                      ║
-║     ██╗   ██╗ ██████╗ ██╗██████╗     ████████╗███████╗███╗   ███╗  ║
-║     ╚██╗ ██╔╝██╔═══██╗██║██╔══██╗    ╚══██╔══╝██╔════╝████╗ ████║  ║
-║      ╚████╔╝ ██║   ██║██║██║  ██║       ██║   █████╗  ██╔████╔██║  ║
-║       ╚██╔╝  ██║   ██║██║██║  ██║       ██║   ██╔══╝  ██║╚██╔╝██║  ║
-║        ██║   ╚██████╔╝██║██████╔╝       ██║   ███████╗██║ ╚═╝ ██║  ║
-║        ╚═╝    ╚═════╝ ╚═╝╚═════╝        ╚═╝   ╚══════╝╚═╝     ╚═╝  ║
-║                                                                      ║
-║              {Colors.MAGENTA}✦ Gaming Edition CLI ✦{Colors.CYAN}                              ║
-║                                                                      ║
-╚══════════════════════════════════════════════════════════════════════╝{Colors.RESET}
-    """)
-    
-    print(f"  {Colors.DIM}Python: {sys.version.split()[0]} | Platform: {sys.platform}{Colors.RESET}\n")
     
     adb = ADB()
     
@@ -530,39 +475,6 @@ def main():
         else:
             print_error("Installation failed")
     
-    # Gaming Edition: game mode
-    if args.game_mode:
-        gm = GameMode(adb)
-        if args.game_mode == 'on':
-            gm.enable()
-            print_success("🎮 Game Mode ENABLED")
-        else:
-            gm.disable()
-            print_success("Game Mode DISABLED")
-    
-    # Gaming Edition: performance monitor
-    if args.monitor is not None:
-        pm = PerformanceMonitor(adb)
-        def display_monitor(stats):
-            parts = []
-            if 'cpu_temp' in stats:
-                parts.append(f"🌡 CPU: {stats['cpu_temp']['current']:.1f}°C")
-            if 'battery' in stats:
-                parts.append(f"🔋 Bat: {stats['battery']['current']:.1f}°C")
-            if 'memory' in stats:
-                parts.append(f"💾 RAM: {stats['memory']['current']:.0f}MB")
-            return ' | '.join(parts)
-        
-        print_header(f"PERFORMANCE MONITOR ({args.monitor}s)")
-        pm.start(lambda s: print(f"  {display_monitor(s)}"))
-        try:
-            time.sleep(args.monitor)
-        except KeyboardInterrupt:
-            pass
-        finally:
-            pm.stop()
-        print_success("Monitoring stopped")
-    
     # If no args, show menu
     if len(sys.argv) == 1:
         show_menu(adb)
@@ -580,8 +492,6 @@ def show_menu(adb):
   {Colors.CYAN}5){Colors.RESET} Install APK
   {Colors.CYAN}6){Colors.RESET} Wireless Setup
   {Colors.CYAN}7){Colors.RESET} Live Preview
-  {Colors.CYAN}8){Colors.RESET} 🎮 Game Mode (on/off)
-  {Colors.CYAN}9){Colors.RESET} 📊 Performance Monitor
   {Colors.CYAN}0){Colors.RESET} Exit
         """)
         
@@ -601,40 +511,6 @@ def show_menu(adb):
             enable_wireless(adb)
         elif choice == '7':
             live_preview(adb)
-        elif choice == '8':
-            sub_choice = input("  Game Mode (on/off): ").strip().lower()
-            if sub_choice in ('on', 'off'):
-                gm = GameMode(adb)
-                if sub_choice == 'on':
-                    gm.enable()
-                    print_success("🎮 Game Mode ENABLED")
-                else:
-                    gm.disable()
-                    print_success("Game Mode DISABLED")
-            else:
-                print_error("Invalid choice. Use 'on' or 'off'")
-        elif choice == '9':
-            duration = input("  Monitor duration (seconds) [10]: ").strip()
-            duration = int(duration) if duration.isdigit() else 10
-            pm = PerformanceMonitor(adb)
-            def show_stats(stats):
-                parts = []
-                if 'cpu_temp' in stats:
-                    parts.append(f"🌡 CPU: {stats['cpu_temp']['current']:.1f}°C")
-                if 'battery' in stats:
-                    parts.append(f"🔋 Bat: {stats['battery']['current']:.1f}°C")
-                if 'memory' in stats:
-                    parts.append(f"💾 RAM: {stats['memory']['current']:.0f}MB")
-                print(f"  {' | '.join(parts)}")
-            print_header(f"PERFORMANCE MONITOR ({duration}s)")
-            pm.start(lambda s: show_stats(s))
-            try:
-                time.sleep(duration)
-            except KeyboardInterrupt:
-                pass
-            finally:
-                pm.stop()
-            print_success("Monitoring stopped")
         elif choice == '0':
             print_info("Goodbye!")
             break

@@ -2,19 +2,19 @@
 
 **Master:** `BACKLOG.md` (root) — update 20 Jul 2026
 
-## ✅ Completed (merge joy-connect)
+## ✅ Completed (v2.0 refactor)
 
-- [x] **File Browser** — Android file explorer (navigate, upload, download, delete, rename, create folder)
-- [x] **Tabbed UI** — STREAM + FILES tabs di main content
-- [x] **argparse** — `--version` / `--help` tanpa launch GUI
+- [x] **Refactor total** — 4.082→1.693 LOC (-58.5%)
+- [x] **Modular ADBController** — dipisah dari core.py
+- [x] **UI minimal dark theme** — tanpa gaming themes/widgets
+- [x] **Hapus bloat** — game mode, perf monitor, game launcher, batch executor, theme manager, shortcuts, gaming UI
 
 ## 🟡 P2 — Active
 
-- [o] **Live preview test** — Verifikasi screen mirroring berjalan — @niu-cast
+- [ ] **File Browser polish** — multi-select download, batch operations (minor)
 
-## 🟢 P3 — Next
+## 🟢 P3 — Next (post-joy-connect-protocol)
 
-- [ ] **App Management UI** — List installed apps + uninstall (dari joy-connect)
-- [ ] **File Browser polish** — Multi-select download, batch operations, path completion
-- [ ] **Clipboard sync** — Future feature dari joy-connect
-- [ ] **Version bump v1.2.0** — Release tagging
+- [ ] **App Management UI** — List installed apps + uninstall
+- [ ] **Transsion Protocol integration** — reverse engineering dari traffic capture Windows
+- [ ] **Wireless discovery** — mDNS/Bonjour native discovery
