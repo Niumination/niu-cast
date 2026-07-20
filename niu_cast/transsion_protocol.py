@@ -51,11 +51,21 @@ from typing import Optional, Callable, Dict, Any
 
 logger = logging.getLogger(__name__)
 
-# Known service ports (from mDNS TXT record cmbSvc)
-PORT_SCREENCAST = 8900   # Video stream (H.264/H.265)
-PORT_UCHO = 8902          # UIBC (User Input Back Channel) - touch/keyboard
-PORT_AUDIOSINK = 8904     # Audio stream
-PORT_HANDSHAKE_DEFAULT = 37651  # Dynamic, changes per session
+# ── TCCP Ports (dari live handshake decompile) ──────────────────────────────
+#
+# Port 9452: TCCP handshake — FIXED (konstanta Java w4/l1.java: S=9452)
+# Port 8008:  ScreenCast/Video (dari 0x0607: "port":8008)
+# Port 9542:  Control channel (dari 0x0607: "controlPort":9542)
+# Port 10001: File transfer  (dari 0x0607: "filePort":10001)
+# Port 8900:  Old guess (sebelum decompile APK)
+# Port 8902:  Old guess (UIBC — ternyata via TCCP stream)
+# Port 37651: Old guess (dynamic — ternyata fixed 9452)
+
+PORT_TCCP = 9452          # TCCP handshake (FIXED dari APK)
+PORT_CONTROL = 9542       # Control channel
+PORT_FILE = 10001         # File transfer
+PORT_SCREENCAST = 8008    # ScreenCast/Video stream
+PORT_HANDSHAKE_DEFAULT = 9452  # Alias backward compat
 
 # Additional Transsion mDNS service types (discovered from Windows DNS queries)
 SERVICE_TRANCAST = "_tranCast._tcp.local."      # Main cast service
@@ -67,10 +77,10 @@ ALL_SERVICES = [SERVICE_TRANCAST, SERVICE_TRANFILE, SERVICE_TRAN, SERVICE_TCCP]
 
 # All known service ports for iteration
 TRANSCAST_PORTS = {
-    'HandShake': PORT_HANDSHAKE_DEFAULT,  # Actually TCCP
+    'HandShake': PORT_TCCP,
     'ScreenCast': PORT_SCREENCAST,
-    'UcHoService': PORT_UCHO,  # UIBC
-    'AudioSink': PORT_AUDIOSINK,
+    'Control': PORT_CONTROL,
+    'File': PORT_FILE,
 }
 
 # Magic bytes / headers discovered so far (from native lib)
