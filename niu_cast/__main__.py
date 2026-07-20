@@ -49,6 +49,10 @@ if __name__ == "__main__":
             run_all_tests()
             sys.exit(0)
         
+        elif cmd == 'server':
+            from .tccp_server import main as server_main
+            sys.exit(server_main())
+        
         else:
             from .mini import main as cli_main
             sys.exit(cli_main())
