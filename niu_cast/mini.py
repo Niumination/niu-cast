@@ -431,8 +431,14 @@ Examples:
     parser.add_argument('--preview', action='store_true', help='Live screen preview')
     parser.add_argument('--install', metavar='APK', help='Install APK file')
     parser.add_argument('--device', metavar='SERIAL', help='Specify device serial')
+    parser.add_argument('--version', action='store_true', help='Show version')
     
     args = parser.parse_args()
+    
+    if args.version:
+        from . import __version__
+        print(f"NIU CAST v{__version__}")
+        return 0
     
     adb = ADB()
     
