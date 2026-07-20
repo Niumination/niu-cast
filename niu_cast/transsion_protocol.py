@@ -474,30 +474,159 @@ class TranCastProtocol:
         """Stop screen casting."""
         return await self.send_request(TCCP_OP['CAST_STOP'], '{}')
     
-    async def send_touch(self, x: int, y: int, action: int = 0) -> bool:
-        """
-        Send touch event via UIBC.
-        
-        The UIBC protocol uses binary format:
-        [2-byte type][2-byte port][4-byte reserved][payload]
-        """
-        if not self._connected or not self._writer:
+    async def send_heartbeat(self, count: int = 0) -> bool:
+        """Send heartbeat."""
+        return await self.send_request(TCCP_OP['HEARTBEAT'],
+                                        json.dumps({"count": count}))
+    
+    async def start_heartbeat_loop(self, interval: float = 1.0):
+        """Start sending heartbeats periodically."""
+        count = 0
+        while self._connected:
+            await self.send_heartbeat(count)
+            count += 1
+            await asyncio.sleep(interval)
+
+
+class TranCastMultiPort:
+    """
+    Multi-port TCCP client.
+    
+    Setelah TCCP AUTH, phone memberikan port tambahan:
+      - controlPort (9542): Control channel
+      - filePort (10001): File transfer
+      - port (8008): ? (unknown)
+    
+    Class ini mengelola koneksi ke semua port.
+    """
+    
+    PORT_TCCP = 9452
+    PORT_CONTROL = 9542
+    PORT_FILE = 10001
+    PORT_UNKNOWN = 8008
+    
+    def __init__(self, host: str):
+        self.host = host
+        self.tccp: Optional[TranCastProtocol] = None
+        self.control: Optional[TranCastProtocol] = None
+        self.file: Optional[TranCastProtocol] = None
+        self._heartbeat_task: Optional[asyncio.Task] = None
+    
+    async def connect_all(self) -> bool:
+        """Konek ke semua port."""
+        self.tccp = TranCastProtocol(self.host, self.PORT_TCCP)
+        if not await self.tccp.connect():
+            logger.error("Gagal konek ke TCCP port")
             return False
         
-        # UIBC touch packet format (from decompiled code)
+        # Parse server initial frames untuk dapat port info
+        for f in TranCastProtocol._parse_all_frames(self.tccp._buf):
+            if f.operator == 0x607:
+                try:
+                    info = json.loads(f.payload)
+                    logger.info(f"Port info dari server: {info}")
+                except json.JSONDecodeError:
+                    pass
+        
+        logger.info("Multi-port: TCCP OK, port lain menyusul...")
+        return True
+    
+    async def disconnect_all(self):
+        """Putus semua koneksi."""
+        if self._heartbeat_task:
+            self._heartbeat_task.cancel()
+        if self.tccp:
+            await self.tccp.disconnect()
+        if self.control:
+            await self.control.disconnect()
+        if self.file:
+            await self.file.disconnect()
+
+
+# ── UIBC Touch/Keyboard Builder ─────────────────────────────────────────────
+
+class UIBCBuilder:
+    """
+    Membangun packet UIBC untuk touch/keyboard/mouse.
+    
+    Dari SourceNativeLinkManager.java:
+      short type  = k4.c.l(bytes[0:2])   // 0=touch, 1=audio, 2=video, 3=keyboard, 4=mouse, 5=clipboard
+      short port  = k4.c.l(bytes[2:4])   // port number
+      byte[4]     = reserved/padding
+      byte[8+]    = content data
+    
+    UIBC dispatch types (dari v4/e.java):
+      0 = video
+      1 = audio
+      2 = touch
+      3 = keyboard
+      4 = mouse
+      5 = clipboard
+    """
+    
+    TYPE_TOUCH = 2
+    TYPE_KEYBOARD = 3
+    TYPE_MOUSE = 4
+    
+    # Touch actions (Android MotionEvent constants)
+    ACTION_DOWN = 0
+    ACTION_UP = 1
+    ACTION_MOVE = 2
+    ACTION_CANCEL = 3
+    
+    @staticmethod
+    def build_touch(x: int, y: int, action: int = 0,
+                    width: int = 1224, height: int = 2720) -> bytes:
+        """
+        Bangun packet touch UIBC.
+        
+        Format dari decompiled code:
+          Bytes 0-1: Type (2 = touch)
+          Bytes 2-3: Port (0 atau 8902)
+          Bytes 4-7: Reserved (0)
+          Bytes 8+:  Content data
+                      Format content kemungkinan: action, x, y, width, height
+        """
         pkt = bytearray()
-        pkt.extend(struct.pack('>H', 1))      # type: touch event
-        pkt.extend(struct.pack('>H', 8902))    # port: UIBC
-        pkt.extend(b'\x00\x00\x00\x00')        # reserved
-        # Touch payload: action, x, y (format TBD from native lib)
+        pkt.extend(struct.pack('>H', UIBCBuilder.TYPE_TOUCH))
+        pkt.extend(struct.pack('>H', 0))
+        pkt.extend(b'\x00\x00\x00\x00')
+        # Content: action(4B) + x(4B) + y(4B) + width(4B) + height(4B) ?
         pkt.extend(struct.pack('>III', action, x, y))
+        return bytes(pkt)
+    
+    @staticmethod
+    def build_keyboard(key_code: int, action: int = 0) -> bytes:
+        """
+        Bangun packet keyboard UIBC.
         
-        try:
-            self._writer.write(bytes(pkt))
-            await self._writer.drain()
-            return True
-        except Exception:
-            return False
+        Args:
+          key_code: Android key code (KEYCODE_A=29, KEYCODE_ENTER=66, etc.)
+          action: 0=down, 1=up
+        """
+        pkt = bytearray()
+        pkt.extend(struct.pack('>H', UIBCBuilder.TYPE_KEYBOARD))
+        pkt.extend(struct.pack('>H', 0))
+        pkt.extend(b'\x00\x00\x00\x00')
+        pkt.extend(struct.pack('>II', action, key_code))
+        return bytes(pkt)
+    
+    @staticmethod
+    def build_mouse(dx: int, dy: int, buttons: int = 0) -> bytes:
+        """
+        Bangun packet mouse UIBC.
+        
+        Args:
+          dx: delta x
+          dy: delta y
+          buttons: 0=none, 1=left, 2=right
+        """
+        pkt = bytearray()
+        pkt.extend(struct.pack('>H', UIBCBuilder.TYPE_MOUSE))
+        pkt.extend(struct.pack('>H', 0))
+        pkt.extend(b'\x00\x00\x00\x00')
+        pkt.extend(struct.pack('>III', buttons, dx, dy))
+        return bytes(pkt)
 
 
 class TranCastDiscoverer:
@@ -591,7 +720,7 @@ class TranCastDiscoverer:
         try:
             result = {
                 'host': info.parsed_addresses()[0] if info.parsed_addresses() else '?',
-                'port': info.port or PORT_HANDSHAKE_DEFAULT,
+                'port': info.port or 9452,
                 'name': info.name.split('.')[0] if info.name else 'Unknown',
                 'device_id': '',
                 'services': {},
@@ -637,7 +766,7 @@ class TranCastDiscoverer:
             return None
 
 
-# ── Probe Utilities ───────────────────────────────────────────────────────────
+# ── Probe Utilities ───────────────────────────────────
 
 async def probe_device(host: str, ports: list = None) -> dict:
     """
@@ -651,11 +780,11 @@ async def probe_device(host: str, ports: list = None) -> dict:
     Returns dict of {port: response_bytes_hex} for ports that responded.
     """
     if ports is None:
-        ports = [PORT_HANDSHAKE_DEFAULT, 40999, PORT_SCREENCAST, PORT_UCHO, PORT_AUDIOSINK]
+        ports = [9452, 8008, 9542, 10001]
     
     results = {}
     
-    for port in ports[:4]:
+    for port in ports:
         try:
             reader, writer = await asyncio.wait_for(
                 asyncio.open_connection(host, port),
@@ -746,9 +875,9 @@ async def try_tether_connect() -> Optional[TranCastProtocol]:
         return None
     
     devices = TranCastDiscoverer.discover(timeout=2.0)
-    handshake_port = PORT_HANDSHAKE_DEFAULT
+    handshake_port = 9452
     if devices:
-        handshake_port = devices[0].get('port', PORT_HANDSHAKE_DEFAULT)
+        handshake_port = devices[0].get('port', 9452)
         logger.info(f"Using handshake port {handshake_port} from mDNS discovery")
     
     client = TranCastProtocol(host=phone_ip, handshake_port=handshake_port)
@@ -756,7 +885,7 @@ async def try_tether_connect() -> Optional[TranCastProtocol]:
         logger.info(f"Connected to phone at {phone_ip}:{handshake_port} via USB tether!")
         return client
     
-    for port in [handshake_port, PORT_SCREENCAST, PORT_UCHO, PORT_AUDIOSINK]:
+    for port in [handshake_port, 8008, 9542, 10001]:
         if port != handshake_port:
             client = TranCastProtocol(host=phone_ip, handshake_port=port)
             if await client.connect():
