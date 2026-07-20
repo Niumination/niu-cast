@@ -2,69 +2,43 @@
 NIU CAST — Transsion Protocol (tranCast)
 Reverse-engineered protocol for Infinix/Transsion PC Connect (tranCast).
 
-This module implements the transport layer for connecting to Infinix GT 30 Pro
-(and other Transsion devices) over WiFi Direct WITHOUT USB Debugging/ADB.
+This module implements the TCCP protocol for connecting to Infinix GT 30 Pro
+(and other Transsion devices) over TCP.
 
-KEY FINDINGS from APK decompilation (2026-07-20):
+KEY FINDINGS (2026-07-20, VERIFIED with live phone):
   ═══════════════════════════════════════════════
-  Protocol: TCCP (Transsion Cast Control Protocol)
-  Native libs: libCastBaseLinkSDK.so, libfileNativeJNI.so
+  TCCP Server runs on port 9452 (fixed, from w4/l1.java S=9452)
+  Started via CastSettingActivity button "开启TCCP" (Start TCCP)
+
+  Server auto-sends 7 frames on connect:
+    [0x0606] {"port":12000}        - Control channel
+    [0x0404] {"a":"xos"}           - Device info
+    [0x0607] {"controlPort":9542,   - Auth response with ports
+              "filePort":10001,
+              "port":8008,
+              "supportVersions":[1,2,3]}
+    [0x062a] {"data":50314,"type":0} - Device info
+    [0x0615] {"count":3}            - Status
+    [0x0403] {"scene":0,"videoPort":0} - Scene info
+    [0x0900] {"count":0}            - Heartbeat
+
+  After CONN_AUTH (0x700), server continues heartbeats.
+
+  Wire format (VERIFIED):
+    [0-3]   "TCCP" magic       (4 bytes)
+    [4]     Version/Flags      (1 byte, 0x00 client / 0xFF server)
+    [5-8]   Body length        (4 bytes, big-endian, = 15 + payload_len)
+    [9-10]  Operator code      (2 bytes, big-endian uint16)
+    [11-14] Message ID         (4 bytes, big-endian uint32)
+    [15-22] Timestamp          (8 bytes, big-endian, relative ms)
+    [23..]  JSON payload       (UTF-8)
+    [last]  Payload type       (1 byte, 0x00 = JSON)
+  
+  Native lib: libCastBaseLinkSDK.so (ARM64)
   IPC: Android Binder to connectx.mirror.source service
-  
-  Architecture:
-    TCCP Server (port from HandShake mDNS field)
-      ├── TCCP protocol: operator+JSON request/response
-      ├── Video Server (port 8900): raw H.264/H.265 stream
-      ├── Audio Server (port 8904): raw audio stream
-      ├── UIBC Server (port 8902): touch/keyboard input
-      └── File Server: file transfer channel
-  
-  TCCP Wire Format (from libCastBaseLinkSDK.so ARM64 disassembly):
-  
-  REQUEST Frame:
-  ╔═════════╤════════╤══════════════════════════════════════╗
-  ║ Offset  │ Size   │ Field                                ║
-  ╠═════════╪════════╪══════════════════════════════════════╣
-  ║ 0       │ 4      │ Magic: "TCCP" (0x54434350)          ║
-  ║ 4       │ 1      │ Version/Flags (0x00 usually)        ║
-  ║ 5       │ 4      │ Body length (big-endian)            ║
-  ║ 9       │ 2      │ Operator code (big-endian uint16)   ║
-  ║ 11      │ 4      │ Message ID (auto-incremented, BE)   ║
-  ║ 15      │ 8      │ Timestamp (big-endian, μs)          ║
-  ║ 23      │ N      │ JSON payload (UTF-8)                ║
-  ║ 23+N    │ 1      │ Payload type (0x00 = JSON)          ║
-  ╚═════════╧════════╧══════════════════════════════════════╝
-  Total: 24 + N bytes (returned by fillSendBuffer)
-
-  RESPONSE Frame:
-  ╔═════════╤════════╤══════════════════════════════════════╗
-  ║ Offset  │ Size   │ Field                                ║
-  ╠═════════╪════════╪══════════════════════════════════════╣
-  ║ 0       │ 4      │ Magic: "TCCP" (0x54434350)          ║
-  ║ 4       │ 1      │ Version/Flags                       ║
-  ║ 5       │ 4      │ Body length (big-endian)            ║
-  ║ 9       │ 2      │ Operator code (big-endian uint16)   ║
-  ║ 11      │ 4      │ Request ID (echoed, big-endian)     ║
-  ║ 15      │ 4      │ Status code (big-endian uint32)     ║
-  ║ 19      │ 8      │ Timestamp (big-endian, μs)          ║
-  ║ 27      │ N      │ JSON payload (UTF-8)                ║
-  ║ 27+N    │ 1      │ Payload type (0x00 = JSON)          ║
-  ╚═════════╧════════╧══════════════════════════════════════╝
-  Total: 28 + N bytes
-
-  Native lib uses libevent (bufferevent) for async TCP I/O.
-  Protocol also supports UDP transport (TCCP_HEARTBEAT strings found).
-  
-  UIBC Packet Format (from SourceNativeLinkManager):
-    - Bytes 0-1: Type (big-endian short)
-    - Bytes 2-3: Port (big-endian short)  
-    - Bytes 4-7: Reserved/padding
-    - Bytes 8+: Content data
-
-  Connection Types: P2P=2, USB=1, WIFI=3
   ═══════════════════════════════════════════════
 
-Status: 🟢 PROTOCOL DECODED — Need to extract native lib API to implement.
+Status: 🟢 AUTH HANDSHAKE WORKING — Need to implement video/UIBC streaming
 """
 
 import asyncio
@@ -195,162 +169,121 @@ TCCP_OP = {
 class TCCPFrame:
     """
     TCCP protocol frame.
-    
-    Wire format (from libCastBaseLinkSDK.so TccpEncapsule::fillSendBuffer):
-    
-    REQUEST:
+
+    Wire format (VERIFIED from live testing against Infinix X6873 on 2026-07-20):
+
+    ALL frames:
       [0-3]   "TCCP" magic       (4 bytes)
-      [4]     Version/Flags      (1 byte, 0x00)
-      [5-8]   Body length        (4 bytes, big-endian, = payloadLen + 15)
+      [4]     Version/Flags      (1 byte, 0x00 client / 0xFF server)
+      [5-8]   Body length        (4 bytes, big-endian, = 15 + payload_len)
       [9-10]  Operator code      (2 bytes, big-endian uint16)
-      [11-14] Message ID         (4 bytes, big-endian uint32, auto-incremented)
-      [15-22] Timestamp          (8 bytes, big-endian uint64, microseconds)
-      [23..]  JSON payload       (UTF-8, variable length)
+      [11-14] Message ID         (4 bytes, big-endian uint32)
+      [15-22] Timestamp          (8 bytes, big-endian, relative ms elapsed?)
+      [23..]  JSON payload       (UTF-8, N bytes)
       [last]  Payload type       (1 byte, 0x00 = JSON)
-    
-    RESPONSE:
-      [0-3]   "TCCP" magic       (4 bytes)
-      [4]     Version/Flags      (1 byte)
-      [5-8]   Body length        (4 bytes, big-endian)
-      [9-10]  Operator code      (2 bytes, big-endian uint16)
-      [11-14] Request ID         (4 bytes, big-endian uint32)
-      [15-18] Status code        (4 bytes, big-endian uint32)
-      [19-26] Timestamp          (8 bytes, big-endian uint64)
-      [27..]  JSON payload       (UTF-8, variable length)
-      [last]  Payload type       (1 byte, 0x00 = JSON)
+
+    body_len = 15 + payload_len  (op+msgId+ts+payload+type)
+    total   = 9  + body_len      (magic+ver+body_len+body_len)
+
+    Note: Native lib also supports response format with 4B status code
+    (body_len=19+payload_len), but NOT observed in our tests.
     """
-    
+
     TCCP_MAGIC = b'TCCP'
     PAYLOAD_TYPE_JSON = 0x00
-    
-    def __init__(self, operator: int, payload: str = "", is_response: bool = False):
+    HEADER_FIXED = 15
+
+    def __init__(self, operator: int, payload: str = ""):
         self.operator = operator
         self.payload = payload
-        self.is_response = is_response
         self.msg_id = 0
         self.status = 0
         self.timestamp = 0
-    
-    def encode_request(self, msg_id: int = 1, timestamp: int = None) -> bytes:
-        """Encode a request frame."""
+        self.version = 0
+
+    def encode(self, msg_id: int = 1, timestamp: int = None, version: int = 0) -> bytes:
+        """Encode a TCCP frame."""
         payload_bytes = self.payload.encode('utf-8') if self.payload else b''
-        payload_len = len(payload_bytes)
-        
         if timestamp is None:
-            import time
             timestamp = int(time.time() * 1_000_000)
-        
-        body_length = payload_len + 15  # from constructTccpReqBody: reqId + 15
-        
+
+        body_length = self.HEADER_FIXED + len(payload_bytes)
         buf = bytearray()
-        buf.extend(self.TCCP_MAGIC)                    # [0-3] magic
-        buf.append(0x00)                                # [4] version/flags
-        buf.extend(struct.pack('>I', body_length))      # [5-8] body length (BE)
-        buf.extend(struct.pack('>H', self.operator))    # [9-10] op code (BE)
-        buf.extend(struct.pack('>I', msg_id))           # [11-14] msg ID (BE)
-        buf.extend(struct.pack('>Q', timestamp))        # [15-22] timestamp (BE)
-        buf.extend(payload_bytes)                       # [23..] JSON payload
-        buf.append(self.PAYLOAD_TYPE_JSON)              # [last] payload type
-        
+        buf.extend(self.TCCP_MAGIC)
+        buf.append(version)
+        buf.extend(struct.pack('>I', body_length))
+        buf.extend(struct.pack('>H', self.operator))
+        buf.extend(struct.pack('>I', msg_id))
+        buf.extend(struct.pack('>Q', timestamp))
+        buf.extend(payload_bytes)
+        buf.append(self.PAYLOAD_TYPE_JSON)
         return bytes(buf)
-    
-    def encode_response(self, msg_id: int, status: int = 0, timestamp: int = None) -> bytes:
-        """Encode a response frame."""
-        payload_bytes = self.payload.encode('utf-8') if self.payload else b''
-        payload_len = len(payload_bytes)
-        
-        if timestamp is None:
-            import time
-            timestamp = int(time.time() * 1_000_000)
-        
-        body_length = payload_len + 27 if payload_len > 0 else 27  # from fillSendBuffer logic
-        
-        buf = bytearray()
-        buf.extend(self.TCCP_MAGIC)                    # [0-3] magic
-        buf.append(0x00)                                # [4] version/flags
-        buf.extend(struct.pack('>I', body_length))      # [5-8] body length (BE)
-        buf.extend(struct.pack('>H', self.operator))    # [9-10] op code (BE)
-        buf.extend(struct.pack('>I', msg_id))           # [11-14] req ID (BE)
-        buf.extend(struct.pack('>I', status))           # [15-18] status (BE)
-        buf.extend(struct.pack('>Q', timestamp))        # [19-26] timestamp (BE)
-        if payload_len > 0:
-            buf.extend(payload_bytes)                   # [27..] JSON payload
-        buf.append(self.PAYLOAD_TYPE_JSON)              # [last] payload type
-        
-        return bytes(buf)
-    
+
     @classmethod
     def decode(cls, data: bytes) -> 'TCCPFrame':
-        """Decode a frame from bytes. Auto-detects request vs response."""
+        """Decode a single TCCP frame from bytes."""
         if len(data) < 10:
             raise ValueError(f"Frame too short: {len(data)} bytes")
-        
-        # Check magic
         if data[:4] != cls.TCCP_MAGIC:
             raise ValueError(f"Invalid magic: {data[:4]!r}")
-        
+
         version = data[4]
         body_len = struct.unpack('>I', data[5:9])[0]
         operator = struct.unpack('>H', data[9:11])[0]
-        
-        # Distinguish request vs response by checking body_len and total size
-        # Request: body_len = payload_len + 15, min frame = 24
-        # Response: body_len = payload_len + 27 (or 27), min frame = 28
-        total_len = len(data)
-        
-        if total_len >= 24 and body_len <= len(data) - 9:
-            # Try as request: msg_id at [11], timestamp at [15], payload at [23]
-            msg_id = struct.unpack('>I', data[11:15])[0]
-            timestamp = struct.unpack('>Q', data[15:23])[0]
-            
-            payload_start = 23
-            payload_type = data[-1] if len(data) > payload_start else 0xFF
-            payload_end = len(data) - 1  # exclude payload type byte
-            
-            payload = data[payload_start:payload_end].decode('utf-8', errors='replace') if payload_end > payload_start else ""
-            
-            frame = cls(operator, payload, is_response=False)
-            frame.msg_id = msg_id
-            frame.timestamp = timestamp
-            return frame
+        msg_id = struct.unpack('>I', data[11:15])[0]
+        timestamp = struct.unpack('>Q', data[15:23])[0]
+
+        frame_total = 9 + body_len
+
+        if len(data) > 23 and data[23:24] == b'{':
+            # Request format: JSON starts after timestamp
+            payload_raw = data[23:frame_total - 1]
+            status = None
         else:
-            # Try as response
-            msg_id = struct.unpack('>I', data[11:15])[0]
-            status = struct.unpack('>I', data[15:19])[0]
-            timestamp = struct.unpack('>Q', data[19:27])[0]
-            
-            payload_start = 27
-            payload_type = data[-1] if len(data) > payload_start else 0xFF
-            payload_end = len(data) - 1
-            
-            payload = data[payload_start:payload_end].decode('utf-8', errors='replace') if payload_end > payload_start else ""
-            
-            frame = cls(operator, payload, is_response=True)
-            frame.msg_id = msg_id
-            frame.status = status
-            frame.timestamp = timestamp
-            return frame
-    
+            # Response format: 4B status between ts and payload
+            status = struct.unpack('>I', data[23:27])[0]
+            payload_raw = data[27:frame_total - 1]
+
+        payload = payload_raw.decode('utf-8', errors='replace') if payload_raw else ""
+        frame = cls(operator, payload)
+        frame.msg_id = msg_id
+        frame.timestamp = timestamp
+        frame.status = status or 0
+        frame.version = version
+        return frame
+
+    @classmethod
+    def from_buffer(cls, data: bytes, offset: int = 0):
+        """Parse a frame from a buffer, returning (frame, next_offset)."""
+        if len(data) < offset + 10:
+            return None, offset
+        if data[offset:offset+4] != cls.TCCP_MAGIC:
+            return None, offset
+        body_len = struct.unpack('>I', data[offset+5:offset+9])[0]
+        frame_size = 9 + body_len
+        if len(data) < offset + frame_size:
+            return None, offset
+        return cls.decode(data[offset:offset+frame_size]), offset + frame_size
+
     def __repr__(self):
         op_name = next((k for k, v in TCCP_OP.items() if v == self.operator), f'0x{self.operator:04x}')
-        return f"TCCPFrame(op={op_name}, msg_id={self.msg_id}, payload={self.payload[:80]})"
+        return f"TCCPFrame(op={op_name}, msg_id={self.msg_id}, v={self.version}, payload={self.payload[:80]})"
 
 
 class TranCastProtocol:
     """
     Transsion Cast protocol client.
     
-    Connects to a Transsion device over WiFi Direct using the TCCP protocol.
+    Connects to a Transsion device over TCP using the TCCP protocol.
     
     Flow:
-        1. TCP connect to HandShake/TCCP port
-        2. Exchange TCCP handshake (authentication/pairing)
-        3. Start heartbeat
-        4. Create video/audio/UIBC servers
-        5. Stream screen, forward input
+        1. TCP connect to port 9452 (TCCP server)
+        2. Receive server's initial frames (device info, ports, heartbeat)
+        3. Send CONN_AUTH (0x700)
+        4. Maintain heartbeat loop
     
     Usage:
-        client = TranCastProtocol(host="192.168.49.1", handshake_port=37651)
+        client = TranCastProtocol(host="192.168.49.1", handshake_port=9452)
         await client.connect()
         await client.send_request(TCCP_OP['DEVICE_INFO'], '{}')
     """
@@ -358,23 +291,23 @@ class TranCastProtocol:
     def __init__(
         self,
         host: str,
-        handshake_port: int = PORT_HANDSHAKE_DEFAULT,
-        screencast_port: int = PORT_SCREENCAST,
+        handshake_port: int = 9452,
     ):
         self.host = host
         self.handshake_port = handshake_port
-        self.screencast_port = screencast_port
         self._reader: Optional[asyncio.StreamReader] = None
         self._writer: Optional[asyncio.StreamWriter] = None
         self._connected = False
         self._device_id = None
         self._req_id = 0
+        self._buf = b''
     
     # ── Connection Lifecycle ─────────────────────────────────────────────────
     
     async def connect(self) -> bool:
         """
         Establish TCCP connection to the device.
+        Flow: TCP connect → receive server init frames → send CONN_AUTH → heartbeat
         """
         try:
             logger.info(f"Connecting TCCP to {self.host}:{self.handshake_port}...")
@@ -383,22 +316,61 @@ class TranCastProtocol:
                 timeout=5.0,
             )
             self._connected = True
-            
-            if await self._handshake():
-                logger.info("TCCP handshake successful")
-                return True
-            else:
-                logger.error("TCCP handshake failed")
-                await self.disconnect()
-                return False
-        
+
+            # Server auto-sends frames on connect; collect them
+            self._buf = b''
+            await asyncio.sleep(0.3)
+            for _ in range(30):
+                try:
+                    chunk = await asyncio.wait_for(
+                        self._reader.read(4096), timeout=0.2)
+                    if not chunk:
+                        break
+                    self._buf += chunk
+                except asyncio.TimeoutError:
+                    if self._buf:
+                        break
+
+            if self._buf:
+                frames = self._parse_all_frames(self._buf)
+                for f in frames:
+                    logger.info(f"Server: 0x{f.op:04x} | {f.payload[:80]}")
+
+            # Send CONN_AUTH
+            auth_payload = json.dumps({
+                'deviceName': 'Mac',
+                'deviceType': 'pc',
+                'appVersion': '3.0.0',
+            })
+            frame = TCCPFrame(TCCP_OP['CONN_AUTH'], auth_payload)
+            self._writer.write(frame.encode(msg_id=self._next_id()))
+            await self._writer.drain()
+            logger.info("Sent CONN_AUTH (0x700)")
+
+            # Read response
+            await asyncio.sleep(0.5)
+            for _ in range(10):
+                try:
+                    chunk = await asyncio.wait_for(
+                        self._reader.read(4096), timeout=0.3)
+                    if not chunk:
+                        break
+                    self._buf += chunk
+                except asyncio.TimeoutError:
+                    break
+
+            logger.info(f"Buffered {len(self._buf)} bytes total")
+            return len(self._buf) > 0
+
         except (asyncio.TimeoutError, ConnectionRefusedError, OSError) as e:
             logger.error(f"Connection failed: {e}")
+            await self.disconnect()
             return False
     
     async def disconnect(self):
         """Close connection."""
         self._connected = False
+        self._buf = b''
         if self._writer:
             try:
                 self._writer.close()
@@ -407,128 +379,65 @@ class TranCastProtocol:
                 pass
             self._writer = None
             self._reader = None
+
+    def _next_id(self) -> int:
+        self._req_id += 1
+        return self._req_id
+
+    @staticmethod
+    def _parse_all_frames(data: bytes) -> list:
+        """Parse all complete TCCP frames from a buffer."""
+        frames = []
+        offset = 0
+        while offset < len(data) - 8:
+            f, offset = TCCPFrame.from_buffer(data, offset)
+            if f is None:
+                break
+            frames.append(f)
+        return frames
     
     # ── TCCP Protocol ────────────────────────────────────────────────────────
-    
-    async def _handshake(self) -> bool:
-        """
-        Perform TCCP handshake.
-        
-        The actual handshake is handled by the native libCastBaseLinkSDK.so.
-        Based on the decompiled code, the flow is:
-          1. Client sends CONN_AUTH (0x700) with device info JSON
-          2. Server responds with auth challenge
-          3. Client responds with pairing code
-          4. Server confirms connection
-        
-        For now, we try to observe the native protocol by sending a probe.
-        """
-        if not self._writer or not self._reader:
-            return False
-        
-        # Try sending empty bytes to observe server behavior
-        # The native lib expects specific framing
-        probe = b'\x00'
-        logger.debug(f"Sending probe: {probe.hex()}")
-        self._writer.write(probe)
-        await self._writer.drain()
-        
-        try:
-            response = await asyncio.wait_for(self._reader.read(4096), timeout=3.0)
-            logger.debug(f"Handshake response ({len(response)} bytes): {response.hex()}")
-            if len(response) > 0:
-                return self._parse_handshake_response(response)
-            return False
-        except asyncio.TimeoutError:
-            logger.warning("Handshake response timeout")
-            return False
-        except ConnectionResetError:
-            logger.warning("Connection reset during handshake")
-            return False
-    
-    def _parse_handshake_response(self, data: bytes) -> bool:
-        """
-        Parse handshake response.
-        
-        The native protocol uses TCCP framing:
-        [4-byte length][2-byte op][JSON payload]
-        """
-        if len(data) >= 6:
-            # Try to parse as TCCP frame
-            total_len = struct.unpack('>I', data[:4])[0]
-            operator = struct.unpack('>H', data[4:6])[0]
-            
-            op_name = next((k for k, v in TCCP_OP.items() if v == operator), f'0x{operator:04x}')
-            logger.info(f"Received TCCP response: op={op_name}, len={total_len}")
-            
-            # Accept any valid-looking frame as handshake success
-            if 0 < total_len < 65536:
-                return True
-        
-        # Helper: decode TCCP frame from buffer
-        # The native lib uses libevent's bufferevent, frames are NOT length-prefixed
-        # but are built by fillSendBuffer and written with bufferevent_write.
-        # The TCP stream contains raw TCCP frames concatenated.
-        if len(data) >= 24 and data[:4] == TCCPFrame.TCCP_MAGIC:
-            # Parse as TCCP frame
-            operator = struct.unpack('>H', data[9:11])[0]
-            op_name = next((k for k, v in TCCP_OP.items() if v == operator), f'0x{operator:04x}')
-            logger.info(f"Received TCCP frame: op={op_name}")
-            try:
-                frame = TCCPFrame.decode(data)
-                logger.info(f"Parsed: {frame}")
-                return True
-            except Exception as e:
-                logger.warning(f"Parse failed: {e}, but got valid TCCP data")
-                return True
-        
-        # Fallback: any response > 0 bytes could be a valid connection
     
     async def send_request(self, op: int, payload: str = "") -> bool:
         """Send a TCCP request."""
         if not self._connected or not self._writer:
             return False
-        
         try:
             frame = TCCPFrame(op, payload)
-            data = frame.encode()
+            data = frame.encode(msg_id=self._next_id())
             self._writer.write(data)
             await self._writer.drain()
-            logger.debug(f"Sent TCCP request: {frame}")
+            logger.debug(f"Sent TCCP 0x{op:04x}: {payload[:80]}")
             return True
         except Exception as e:
             logger.error(f"Failed to send request: {e}")
             return False
     
     async def recv_frame(self) -> Optional[TCCPFrame]:
-        """Receive one TCCP frame."""
-        if not self._connected or not self._reader:
+        """Receive one TCCP frame from the stream."""
+        if not self._reader:
             return None
-        
-        try:
-            # Read length prefix (4 bytes)
-            header = await asyncio.wait_for(self._reader.readexactly(4), timeout=5.0)
-            total_len = struct.unpack('>I', header)[0]
-            
-            if total_len < 2 or total_len > 65536:
-                logger.warning(f"Invalid frame length: {total_len}")
+        while self._connected and self._reader:
+            # Try to parse from buffer first
+            if len(self._buf) >= 10:
+                frame, used = TCCPFrame.from_buffer(self._buf, 0)
+                if frame:
+                    self._buf = self._buf[used:]
+                    return frame
+            # Read more
+            try:
+                chunk = await asyncio.wait_for(
+                    self._reader.read(4096), timeout=5.0)
+                if not chunk:
+                    await self.disconnect()
+                    return None
+                self._buf += chunk
+            except asyncio.TimeoutError:
                 return None
-            
-            # Read the rest
-            data = await asyncio.wait_for(
-                self._reader.readexactly(total_len), timeout=5.0
-            )
-            
-            operator = struct.unpack('>H', data[:2])[0]
-            payload = data[2:].decode('utf-8', errors='replace')
-            
-            return TCCPFrame(operator, payload)
-            
-        except asyncio.IncompleteReadError:
-            await self.disconnect()
-            return None
-        except (asyncio.TimeoutError, ConnectionResetError):
-            return None
+            except ConnectionResetError:
+                await self.disconnect()
+                return None
+        return None
     
     # ── High-Level API ──────────────────────────────────────────────────────
     
