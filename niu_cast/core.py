@@ -20,6 +20,7 @@ from PyQt5.QtGui import QFont, QPixmap, QImage, QMouseEvent, QPainter, QColor, Q
 
 from . import __version__
 from .adb_controller import ADBController
+from .app_manager import AppManagerWidget
 from .file_browser import FileBrowserWidget
 
 # ── Palette (Catppuccin Mocha inspired) ─────────────────────────────────────────
@@ -314,6 +315,10 @@ class NiuCastWindow(QMainWindow):
         files_layout.addWidget(self.file_browser)
         self.tabs.addTab(files_tab, "Files")
 
+        # ── Tab 3: Apps ──
+        self.app_manager = AppManagerWidget(self.adb)
+        self.tabs.addTab(self.app_manager, "Apps")
+
         root.addWidget(self.tabs, 1)
 
         # ── Status bar ──
@@ -367,6 +372,7 @@ class NiuCastWindow(QMainWindow):
         self.btn_disconnect.setVisible(True)
         self.dot.setToolTip(f"Connected: {self.adb.device_serial}")
         self.sb.showMessage(f"Connected: {self.adb.device_serial}")
+        self.app_manager.refresh()
 
     def _disconnect_device(self):
         self.adb.disconnect()
@@ -377,6 +383,8 @@ class NiuCastWindow(QMainWindow):
         self.btn_disconnect.setVisible(False)
         if self._streaming:
             self._toggle_mirror()
+        self.app_manager.list.clear()
+        self.app_manager.lbl_count.setText("No device connected")
         self.sb.showMessage("Disconnected")
 
     def _check_loop(self):

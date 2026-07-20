@@ -6,11 +6,13 @@ __version__ = "2.1.0"
 __author__ = "Niumination"
 
 from .adb_controller import ADBController
+from .app_manager import AppManagerWidget
 from .file_browser import FileBrowserWidget
 
 __all__ = [
     '__version__',
     '__author__',
     'ADBController',
+    'AppManagerWidget',
     'FileBrowserWidget',
 ]
