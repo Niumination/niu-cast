@@ -5,19 +5,18 @@ Routes to either the GUI (default) or CLI based on arguments.
 """
 import sys
 
-if __name__ == "__main__":
+
+def main():
+    """Main entry point for CLI."""
     if len(sys.argv) > 1:
         cmd = sys.argv[1]
         
         if cmd in ('auto-connect', 'connect', 'scan', 'discover', 'monitor'):
             from .auto_connect import main as auto_main
-            # Hapus subcommand dari argv
             sys.argv = [sys.argv[0]] + sys.argv[2:]
-            # Map niu-cast connect → auto_connect --monitor
             if cmd == 'monitor' and '--monitor' not in sys.argv:
                 sys.argv.insert(2, '--monitor')
             if cmd in ('connect', 'auto-connect') and '--monitor' not in sys.argv:
-                # Default behavior: auto-connect once
                 pass
             if cmd == 'discover':
                 if '--list-mdns' not in sys.argv:
@@ -47,14 +46,12 @@ if __name__ == "__main__":
             sys.exit(port_main())
         
         elif cmd == 'test':
-            # Run all integration tests
             from .video_stream import run_all_tests
             run_all_tests()
             sys.exit(0)
         
         elif cmd == 'server':
             from .tccp_server import main as server_main
-            # Hapus 'server' dari argv biar argparse gak bingung
             sys.argv = [sys.argv[0]] + sys.argv[2:]
             sys.exit(server_main())
         
@@ -109,3 +106,7 @@ if __name__ == "__main__":
         except ImportError:
             from .mini import main as cli_main
             sys.exit(cli_main())
+
+
+if __name__ == "__main__":
+    main()

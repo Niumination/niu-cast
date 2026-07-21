@@ -8,7 +8,8 @@ opencv-python>=4.8.0        # Video processing
 numpy>=1.24.0               # Numerical operations
 Pillow>=10.0.0              # Image processing
 
-# Optional for better performance
+# macOS app packaging (optional)
+py2app>=0.28.0
 # mssc>=6.1.0               # Fast screen capture
 # pywin32; platform == 'win32'  # Windows support
 

@@ -5,3 +5,6 @@ __pycache__/
 *.png
 *.mp4
 niu_cast.egg-info/
+build/
+dist/
+NiuCast.iconset/

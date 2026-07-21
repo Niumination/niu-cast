@@ -1,0 +1,12 @@
+#!/bin/bash
+# NIU CAST — CLI wrapper
+REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$REPO_DIR"
+
+PYTHON=""
+for py in "/usr/local/bin/python3" "/opt/homebrew/bin/python3" "$HOME/.hermes-portable/venv/bin/python3" "/usr/bin/python3"; do
+    [ -x "$py" ] && PYTHON="$py" && break
+done
+[ -z "$PYTHON" ] && PYTHON="$(which python3 2>/dev/null || which python 2>/dev/null)"
+
+exec "$PYTHON" -m niu_cast "$@"

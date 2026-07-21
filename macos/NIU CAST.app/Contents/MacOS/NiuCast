@@ -1,0 +1,70 @@
+#!/bin/bash
+#===============================================================================
+# NIU CAST — macOS .app Launcher
+# Menemukan dan menjalankan niu-cast dari repo lokal atau pip installation.
+#===============================================================================
+
+# Bundled Python environment (py2app style)
+BUNDLE_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+PYTHON="$BUNDLE_DIR/Contents/Resources/Python/bin/python3"
+
+if [ -x "$PYTHON" ]; then
+    # Running from py2app bundle
+    cd "$BUNDLE_DIR/Contents/Resources"
+    exec "$PYTHON" -m niu_cast "$@"
+fi
+
+# ── Cari repo niu-cast ────────────────────────────────────────────────────────
+
+REPO_CANDIDATES=(
+    # User's known location
+    "$HOME/Desktop/Niumination/projects/niu-cast"
+    # User config symlink
+    "$HOME/.niu-cast/repo"
+    # Common locations
+    "$HOME/niu-cast"
+    "$HOME/projects/niu-cast"
+    "$HOME/Documents/niu-cast"
+    # pip-installed location (will work if pip installed as editable)
+)
+
+for repo in "${REPO_CANDIDATES[@]}"; do
+    if [ -f "$repo/niu_cast/__main__.py" ]; then
+        REPO_DIR="$repo"
+        break
+    fi
+done
+
+# ── Cari Python 3 ─────────────────────────────────────────────────────────────
+
+PYTHON=""
+for py in \
+    "/usr/local/bin/python3" \
+    "/opt/homebrew/bin/python3" \
+    "$HOME/.hermes-portable/venv/bin/python3" \
+    "/usr/bin/python3"
+do
+    if [ -x "$py" ]; then
+        PYTHON="$py"
+        break
+    fi
+done
+
+if [ -z "$PYTHON" ]; then
+    PYTHON="$(which python3 2>/dev/null || which python 2>/dev/null)"
+fi
+
+if [ -z "$PYTHON" ]; then
+    osascript -e 'display dialog "Python 3 tidak ditemukan. Install Python 3 dulu." buttons {"OK"} default button 1 with title "NIU CAST Error"'
+    exit 1
+fi
+
+# ── Run ────────────────────────────────────────────────────────────────────────
+
+if [ -n "$REPO_DIR" ]; then
+    cd "$REPO_DIR"
+    exec "$PYTHON" -m niu_cast "$@"
+else
+    # Try as installed package
+    exec "$PYTHON" -m niu_cast "$@"
+fi
