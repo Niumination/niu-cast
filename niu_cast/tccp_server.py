@@ -18,15 +18,17 @@ Usage:
 """
 
 import asyncio
+import hashlib
 import json
 import logging
 import socket
 import sys
+import time
 from typing import Optional, Callable
 
 from .transsion_protocol import (
     PORT_TCCP, TCCPFrame,
-    SERVICE_TRANCAST,
+    SERVICE_TRANCAST, ALL_SERVICES,
 )
 
 logger = logging.getLogger(__name__)
@@ -57,8 +59,12 @@ async def register_mdns(host: str = None, port: int = PORT_TCCP,
                         service_type: str = SERVICE_TRANCAST) -> bool:
     """
     Register mDNS service biar HP bisa discover Mac.
-    Mirip kayak Joy Connect di Windows yang register _tranCast._tcp.
-
+    
+    Format yang dipake HP (dari reverse engineering s5.java):
+      - Service name HARUS mengandung "transConnectService" (case-sensitive)
+      - Service type harus match regex: .*_tran[^.]*\._tcp.*
+      - Harus punya attribute cmbSvc, cmdSvc, atau advData
+    
     Args:
         host: IP local (auto-detect kalo None)
         port: Port server
@@ -71,28 +77,50 @@ async def register_mdns(host: str = None, port: int = PORT_TCCP,
         import getpass
         name = f"NIU-CAST-{getpass.getuser()}"
 
+    # HP hanya process service name yang mengandung "transConnectService"
+    if "transConnectService" not in name:
+        import time
+        # Bikin unique ID biar gak clash sama HP sendiri
+        unique_id = hashlib.md5(name.encode()).hexdigest()[:8]
+        timestamp = time.strftime("%d%H%M%S")
+        name = f"transConnectService-{unique_id}-{timestamp}"
+
     try:
         from zeroconf import Zeroconf, ServiceInfo
 
         if not host:
             host = _get_local_ip()
 
+        # cmbSvc: JSON object with service port mappings
+        # HP nge-parse ini dari mDNS attributes
+        cmb_svc = {
+            'HandShake': port,
+            'ScreenCast': 8008,
+        }
+        
+        # advData: BLE-style advertisement data (minimal)
+        # HP butuh minimal attribute ini biar diproses
+        adv_data = ""  # Empty string is OK, HP just checks key exists
+        
         props = {
-            'cmbSvc': json.dumps({
-                'HandShake': port,
-                'ScreenCast': 8008,
-                'File': 10001,
-            }),
-            'advData': '',
+            'cmbSvc': json.dumps(cmb_svc),
+            'advData': adv_data,
         }
 
+        # Zeroconf expects:
+        #   type_ = "_tran._tcp.local." (with .local.)
+        #   name  = "{instance}.{type_}"  (full name)
+        #   server = "{instance}.local."
+        type_local = f"{service_type}.local."
+        instance_name = name  # just the instance part, without type
+        
         info = ServiceInfo(
-            type_=service_type,
-            name=f"{name}.{service_type}",
+            type_=type_local,
+            name=f"{instance_name}.{type_local}",
             addresses=[socket.inet_aton(host)],
             port=port,
             properties=props,
-            server=f"{name}.local.",
+            server=f"{instance_name}.local.",
         )
 
         loop = asyncio.get_event_loop()
@@ -124,6 +152,20 @@ async def unregister_mdns_all():
         except Exception as e:
             logger.debug(f"mDNS unregister error: {e}")
     _mdns_registrations.clear()
+
+
+async def register_all_mdns(host: str = None, port: int = PORT_TCCP,
+                            name: str = None):
+    """
+    Register semua service type Transsion biar HP bisa discover.
+    Mirip Joy Connect Windows yang register _tranCast, _tranFile, _tran, _tccp.
+    """
+    registered = []
+    for svc in ALL_SERVICES:
+        ok = await register_mdns(host=host, port=port, name=name, service_type=svc)
+        if ok:
+            registered.append(svc)
+    return registered
 
 
 # ── TCCP Server ────────────────────────────────────────────────────────────────
@@ -173,7 +215,7 @@ class TranCastServer:
         # Register mDNS — gagal gak masalah, server tetap jalan
         try:
             host_ip = _get_local_ip()
-            await register_mdns(host=host_ip, port=self._port, name=self._mdns_name)
+            await register_all_mdns(host=host_ip, port=self._port, name=self._mdns_name)
         except Exception as e:
             logger.warning(f"mDNS registration skipped: {e}")
 
@@ -213,11 +255,32 @@ class TranCastServer:
             await self._on_callback(self.on_connect, peer)
 
         try:
-            # Kirim 7 frame awal (sama kayak yang dikirim HP ke kita)
-            await self._send_initial_frames(writer)
-
-            # Loop baca frame dari HP
+            # Tunggu HP kirim data dulu (100ms timeout)
+            # HP mungkin kirim pertama sebagai inisiasi
             buf = b''
+            hp_spoke_first = False
+            try:
+                data = await asyncio.wait_for(reader.read(65536), timeout=0.1)
+                if data:
+                    buf += data
+                    hp_spoke_first = True
+                    logger.info(f"  HP spoke first: {len(data)} bytes")
+            except asyncio.TimeoutError:
+                pass
+
+            if hp_spoke_first:
+                # Parse frame dari HP
+                while len(buf) >= 23:
+                    frame, used = TCCPFrame.from_buffer(buf, 0)
+                    if frame is None:
+                        break
+                    buf = buf[used:]
+                    await self._handle_frame(frame, writer)
+            else:
+                # HP gak ngirim dulu — kirim initial frames (server speak first)
+                await self._send_initial_frames(writer)
+
+            # Loop baca frame dari HP (sisa + selanjutnya)
             while self._connected:
                 try:
                     data = await asyncio.wait_for(reader.read(65536), timeout=30.0)

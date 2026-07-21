@@ -8,7 +8,8 @@ __author__ = "Niumination"
 from .adb_controller import ADBController
 from .app_manager import AppManagerWidget
 from .file_browser import FileBrowserWidget
-from .tccp_server import TranCastServer, register_mdns, unregister_mdns_all
+from .tccp_server import TranCastServer, register_mdns, register_all_mdns, unregister_mdns_all
+from .server_8613 import TranCastServer8613
 
 __all__ = [
     '__version__',
@@ -17,6 +18,8 @@ __all__ = [
     'AppManagerWidget',
     'FileBrowserWidget',
     'TranCastServer',
+    'TranCastServer8613',
     'register_mdns',
+    'register_all_mdns',
     'unregister_mdns_all',
 ]

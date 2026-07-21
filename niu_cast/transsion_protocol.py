@@ -70,11 +70,12 @@ PORT_SCREENCAST = 8008      # ScreenCast/Video stream
 PORT_HANDSHAKE_DEFAULT = 9452  # Alias backward compat
 
 # Additional Transsion mDNS service types (discovered from Windows DNS queries)
-SERVICE_TRANCAST = "_tranCast._tcp.local."      # Main cast service
-SERVICE_TRANFILE = "_tranFile._tcp.local."       # File transfer service
-SERVICE_TRAN = "_tran._tcp.local."               # Base Transsion service
-SERVICE_TCCP = "_tccp._tcp.local."               # TCCP protocol service
+SERVICE_TRANCAST = "_tranCast._tcp"      # Main cast service
+SERVICE_TRANFILE = "_tranFile._tcp"       # File transfer service
+SERVICE_TRAN = "_tran._tcp"               # Base Transsion service
+SERVICE_TCCP = "_tccp._tcp"               # TCCP protocol service
 
+# All service types for registration
 ALL_SERVICES = [SERVICE_TRANCAST, SERVICE_TRANFILE, SERVICE_TRAN, SERVICE_TCCP]
 
 # All known service ports for iteration

@@ -22,7 +22,9 @@ Target: kontrol Infinix GT 30 Pro dari Mac tanpa USB debugging.
 | `transsion_protocol.py` | ~920 | TCCP protocol handler + UIBC builder + TranCastDiscoverer |
 | `video_stream.py` | ~540 | Video stream receiver + integration tests (tanpa device) |
 | `port_explorer.py` | ~260 | CLI tool untuk scan port TCCP tambahan |
-| `tccp_server.py` | ~380 | TCCP Server (seperti Joy Connect Windows — Mac listen, HP connect) |
+| `tccp_server.py` | ~440 | TCCP Server (port 9452 — mDNS + 7 frame handshake) |
+| `server_8613.py` | ~370 | TCCP Server port 8613 — Joy Connect QR (HTTP /ping + `%%%%` frame) 🆕 |
+| `tccp_qr.py` | ~330 | QR Code generator untuk Joy Connect scan 🆕 |
 | `auto_connect.py` | ~340 | Auto-connect wireless tanpa ADB (mDNS, tether, IPv6, scan) |
 | `wfd_bridge.py` | ~250 | WiFi Direct bridge (butuh ADB) |
 | `tetherd.py` | ~170 | USB Tether monitor daemon |
@@ -43,10 +45,20 @@ Target: kontrol Infinix GT 30 Pro dari Mac tanpa USB debugging.
 ### Usage
 
 ```bash
-# Jalanin server
-python3 -m niu_cast server              # default port 9452
-python3 -m niu_cast server --port 9452  # explicit
+# Jalanin server port 9452 (TCCP standard)
+python3 -m niu_cast server                  # default port 9452
+python3 -m niu_cast server --port 9452      # explicit
 python3 -m niu_cast server --name "Mac-Zaryu"  # custom nama
+
+# Jalanin server port 8613 (Joy Connect QR mode — frame format %%%%)
+python3 -m niu_cast joyconnect              # default port 8613
+python3 -m niu_cast joyconnect --port 8613  # explicit
+
+# Generate QR code (Joy Connect QR scan)
+python3 -m niu_cast qr --joyconnect         # mode Joy Connect (port 8613)
+python3 -m niu_cast qr --port 9452          # TCCP standard port
+python3 -m niu_cast qr --no-server          # hanya generate QR, tanpa server
+python3 -m niu_cast qr --terminal           # tampilkan QR ASCII di terminal
 ```
 
 ### mDNS Service yang didaftarkan
@@ -61,8 +73,10 @@ _tranCast._tcp.local.  →  port 9452
 
 | Class | Fungsi |
 |-------|--------|
-| `TranCastServer` | TCP server TCCP — listen 9452 + mDNS + handle incoming HP |
+| `TranCastServer` | TCP server TCCP port 9452 — mDNS + 7 frame handshake |
+| `TranCastServer8613` | TCP server TCCP port 8613 — Joy Connect QR (HTTP /ping + `%%%%` frame) 🆕 |
 | `register_mdns()` | Async: daftarin mDNS service |
+| `register_all_mdns()` | Async: daftarin semua service type Transsion |
 | `unregister_mdns_all()` | Async: cabut semua mDNS |
 
 ## TCCP Protocol (v3.x)
@@ -79,7 +93,7 @@ _tranCast._tcp.local.  →  port 9452
 | Port | Fungsi | Status | Sumber |
 |:----:|--------|:------:|--------|
 | 9452 | TCCP handshake — fixed | ✅ Handshake OK | `w4/l1.java: S=9452` |
-| 8613 | TCCP handshake alternatif | ⚪ Belum dicoba | `TCCPHandshakeSocketClient.MAIN_SOCKET_PORT` |
+| 8613 | TCCP handshake alternatif — Joy Connect QR | ✅ `server_8613.py` integrated | `TCCPHandshakeSocketClient.MAIN_SOCKET_PORT` |
 | 8008 | ScreenCast/Video | ⚪ Belum diexplore | field `port` di 0x0607 |
 | 9542 | Control channel | ⚪ Belum diexplore | field `controlPort` di 0x0607 |
 | 10001 | File transfer | ⚪ Belum diexplore | field `filePort` di 0x0607 |
@@ -144,7 +158,9 @@ Java class `TCCPPacket` confirms:
 | `TranCastMultiPort` | Manager untuk semua port TCCP (9452, 8008, 9542, 10001) |
 | `UIBCBuilder` | Bangun packet UIBC: touch, keyboard, mouse |
 | `TranCastDiscoverer` | mDNS discovery (_tranCast, _tranFile, _tran, _tccp) |
-| `TranCastServer` | TCP server TCCP — listen 9452 + mDNS + handle incoming HP |
+| `TranCastServer` | TCP server TCCP port 9452 — mDNS + 7 frame handshake |
+| `TranCastServer8613` | TCP server TCCP port 8613 — QR Joy Connect (`%%%%` frame + CRC8) 🆕 |
+| `TCCPHandler` (server_8613) | Handler protocol TCCP port 8613: HTTP /ping + TCCP binary 🆕 |
 
 ## Wireless Mode Strategy
 
@@ -168,6 +184,8 @@ Usage: `python3 -m niu_cast connect` (auto, sekali) atau `python3 -m niu_cast mo
 5. ✅ **v3.3** — Auto-connect tanpa ADB (auto_connect.py: mDNS, tether, IPv6, scan)
 6. ✅ **v3.4** — Video stream receiver + integration tests (video_stream.py)
 7. ✅ **v3.5** — TCCP Server mode (tccp_server.py: Joy Connect compatible)
-8. ⟳ **v3.6** — UIBC touch/keyboard live test (butuh ADB reconnect)
-9. ⟳ **Wireless discovery** — WiFi Direct via macOS AWDL/P2P
-10. ⟳ **Video streaming** — H.264/H.265 decode live render
+8. ✅ **v3.5.1** — QR Generator (`tccp_qr.py`) + Server 8613 (`server_8613.py`) integrated 🆕
+9. ⟳ **v3.6** — UIBC touch/keyboard live test (butuh ADB reconnect)
+10. ⟳ **Wireless discovery** — WiFi Direct via macOS AWDL/P2P
+11. ⟳ **Video streaming** — H.264/H.265 decode live render
+12. ❓ **QR scan → HP connect** — debug kenapa QR tidak diproses HP (hare session)

@@ -11,6 +11,8 @@ if __name__ == "__main__":
         
         if cmd in ('auto-connect', 'connect', 'scan', 'discover', 'monitor'):
             from .auto_connect import main as auto_main
+            # Hapus subcommand dari argv
+            sys.argv = [sys.argv[0]] + sys.argv[2:]
             # Map niu-cast connect → auto_connect --monitor
             if cmd == 'monitor' and '--monitor' not in sys.argv:
                 sys.argv.insert(2, '--monitor')
@@ -26,21 +28,22 @@ if __name__ == "__main__":
         
         elif cmd in ('wifi-direct', 'wfd', 'p2p'):
             from .wfd_bridge import main as wfd_main
-            # Rewrite sys.argv[1] from 'wifi-direct' to original arg
-            sys.argv[1] = '--wifi-direct' if cmd == 'wifi-direct' else cmd
+            sys.argv = [sys.argv[0]] + sys.argv[2:]
             sys.exit(wfd_main())
         
         elif cmd == 'tetherd':
             from .tetherd import main as tetherd_main
+            sys.argv = [sys.argv[0]] + sys.argv[2:]
             sys.exit(tetherd_main())
         
         elif cmd in ('video-stream', 'stream'):
             from .video_stream import main as video_main
+            sys.argv = [sys.argv[0]] + sys.argv[2:]
             sys.exit(video_main())
         
         elif cmd in ('port-explore', 'probe'):
             from .port_explorer import main as port_main
-            sys.argv[1] = '--adb'
+            sys.argv = [sys.argv[0]] + sys.argv[2:]
             sys.exit(port_main())
         
         elif cmd == 'test':
@@ -51,7 +54,19 @@ if __name__ == "__main__":
         
         elif cmd == 'server':
             from .tccp_server import main as server_main
+            # Hapus 'server' dari argv biar argparse gak bingung
+            sys.argv = [sys.argv[0]] + sys.argv[2:]
             sys.exit(server_main())
+        
+        elif cmd in ('server-8613', 'server8613', 'joyconnect'):
+            from .server_8613 import main as server_8613_main
+            sys.argv = [sys.argv[0]] + sys.argv[2:]
+            sys.exit(server_8613_main())
+        
+        elif cmd == 'qr':
+            from .tccp_qr import main as qr_main
+            sys.argv = [sys.argv[0]] + sys.argv[2:]
+            sys.exit(qr_main())
         
         else:
             from .mini import main as cli_main
