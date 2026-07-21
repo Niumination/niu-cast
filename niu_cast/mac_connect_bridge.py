@@ -423,12 +423,12 @@ class MacConnectBridge:
         else:
             logger.info("  Audio: enabled (Mac speakers)")
 
-        # Robust flags (from mac-connect)
+        # Robust flags (scrcpy v4.x compatible)
+        # Note: --forward-all-clicks was removed in scrcpy 4.x
         args += [
             '--stay-awake',
             '--window-title=Infinix GT 30 Pro',
             '--shortcut-mod=lalt,lsuper',
-            '--forward-all-clicks',
             '--power-off-on-close',
             '--prefer-text',
             '--show-touches',
