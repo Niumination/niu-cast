@@ -4,22 +4,28 @@ Komunikasi ADB untuk koneksi Android device.
 """
 
 import os
-import time
+import re
+import socket
 import subprocess
+import time
+from typing import Optional
 
 
 class ADBController:
     """ADB communication controller"""
 
-    def __init__(self):
-        self.adb_path = self._find_adb()
+    def __init__(self, adb_path: str = None):
+        self.adb_path = adb_path or self._find_adb()
         self.device_serial = None
         self.device_ip = None
 
-    def _find_adb(self):
+    @staticmethod
+    def _find_adb():
         paths = [
             '/usr/local/bin/adb',
+            '/opt/homebrew/bin/adb',
             '/opt/android-sdk/platform-tools/adb',
+            os.path.expanduser('~/Library/Android/sdk/platform-tools/adb'),
             'adb'
         ]
         for path in paths:
@@ -59,6 +65,8 @@ class ADBController:
         return False
 
     def disconnect(self):
+        """Putuskan koneksi ADB."""
+        self._run(['disconnect'], timeout=5)
         self.device_serial = None
 
     def shell(self, cmd, timeout=30):
@@ -99,7 +107,6 @@ class ADBController:
             info['width'], info['height'] = 1080, 2400
         rc, ip_out, _ = self.shell('ip route')
         if rc == 0:
-            import re
             m = re.search(r'wlan0.*?src (\d+\.\d+\.\d+\.\d+)', ip_out)
             if m:
                 self.device_ip = m.group(1)
@@ -150,3 +157,114 @@ class ADBController:
     def uninstall_app(self, package):
         rc, _, _ = self.shell(f'pm uninstall {package}', timeout=15)
         return rc == 0
+
+    # ── Enhanced Wireless Methods (dari mac-connect) ──────────────────────────────
+
+    def connect_wireless(self, ip: str) -> bool:
+        """
+        Connect ke device via ADB wireless TCP/IP.
+
+        Args:
+            ip: IP address HP (format: x.x.x.x)
+
+        Returns:
+            True jika berhasil.
+        """
+        # Disconnect dulu kalo ada
+        self._run(['disconnect'], timeout=5)
+
+        rc, out, _ = self._run(['connect', f'{ip}:5555'], timeout=10)
+        if 'connected to' in out or 'already connected' in out:
+            self.device_serial = f'{ip}:5555'
+            self.device_ip = ip
+            return True
+        return False
+
+    def disconnect_wireless(self):
+        """Putuskan koneksi ADB wireless."""
+        self._run(['disconnect'], timeout=5)
+        self.device_serial = None
+        self.device_ip = None
+
+    def setup_tcpip(self) -> bool:
+        """
+        Setup ADB TCP/IP mode via USB.
+        HP harus terhubung via USB dengan USB Debugging ON.
+
+        Returns:
+            True jika berhasil.
+        """
+        rc, _, err = self._run(['-d', 'tcpip', '5555'], timeout=10)
+        if rc == 0:
+            time.sleep(2)
+            return True
+        return False
+
+    def extract_ip_usb(self) -> Optional[str]:
+        """
+        Ekstrak IP address dari HP via USB.
+        Mencoba 3 metode: ip route, wlan0, DHCP property.
+
+        Returns:
+            IP address string atau None.
+        """
+        device_ip = None
+
+        # Method 1: ip route
+        rc, out, _ = self._run(['-d', 'shell', 'ip route'], timeout=5)
+        if rc == 0:
+            m = re.search(r'src\s+(\d+\.\d+\.\d+\.\d+)', out)
+            if m:
+                device_ip = m.group(1)
+
+        # Method 2: wlan0
+        if not device_ip:
+            rc, out, _ = self._run(['-d', 'shell', 'ip addr show wlan0'], timeout=5)
+            if rc == 0:
+                m = re.search(r'inet\s+(\d+\.\d+\.\d+\.\d+)', out)
+                if m:
+                    device_ip = m.group(1)
+
+        # Method 3: DHCP
+        if not device_ip:
+            rc, out, _ = self._run(['-d', 'shell', 'getprop dhcp.wlan0.ipaddress'], timeout=5)
+            if rc == 0 and out.strip():
+                device_ip = out.strip()
+
+        if device_ip:
+            self.device_ip = device_ip
+        return device_ip
+
+    def arp_discover(self) -> Optional[str]:
+        """
+        Scan ARP table untuk HP dengan ADB port 5555 terbuka.
+        Sama kaya mac-connect: test TCP connect ke port 5555.
+
+        Returns:
+            IP address atau None.
+        """
+        try:
+            result = subprocess.run(
+                ['arp', '-an'],
+                capture_output=True, text=True, timeout=5
+            )
+            if result.returncode != 0:
+                return None
+
+            ips = re.findall(r'(\d+\.\d+\.\d+\.\d+)', result.stdout)
+
+            for ip in ips:
+                if ip.startswith('127.'):
+                    continue
+                try:
+                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    sock.settimeout(0.5)
+                    r = sock.connect_ex((ip, 5555))
+                    sock.close()
+                    if r == 0:
+                        return ip
+                except Exception:
+                    continue
+            return None
+        except Exception:
+            return None

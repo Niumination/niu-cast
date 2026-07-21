@@ -68,6 +68,36 @@ if __name__ == "__main__":
             sys.argv = [sys.argv[0]] + sys.argv[2:]
             sys.exit(qr_main())
         
+        # ── Mac Connect commands ─────────────────────────────────────────────
+        elif cmd in ('mac-connect', 'mc'):
+            """Mac Connect Bridge — ADB wireless + scrcpy mirror."""
+            from .mac_connect_bridge import main as mac_main
+            sys.argv = [sys.argv[0]] + sys.argv[2:]
+            sys.exit(mac_main())
+        
+        elif cmd in ('setup-wireless', 'wireless-setup', 'usb-setup'):
+            """Setup wireless ADB via USB (once)."""
+            from .mac_connect_bridge import MacConnectBridge
+            bridge = MacConnectBridge()
+            success = bridge.setup_wireless()
+            sys.exit(0 if success else 1)
+        
+        elif cmd in ('wireless-connect', 'wifi-connect'):
+            """Connect to phone via ADB wireless."""
+            from .mac_connect_bridge import MacConnectBridge
+            bridge = MacConnectBridge()
+            success = bridge.connect_wireless()
+            sys.exit(0 if success else 1)
+        
+        elif cmd in ('mirror', 'scrcpy'):
+            """Launch scrcpy mirror with current profile."""
+            from .mac_connect_bridge import MacConnectBridge
+            bridge = MacConnectBridge()
+            success = bridge.launch_mirror()
+            sys.exit(0 if success else 1)
+        
+        # ── End Mac Connect ─────────────────────────────────────────────────
+        
         else:
             from .mini import main as cli_main
             sys.exit(cli_main())

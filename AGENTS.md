@@ -3,35 +3,91 @@
 **Lokasi:** `niu-cast/`
 **Stack:** Python 3.8+, PyQt5, ADB + TCP/IP
 **Remote:** `github.com/Niumination/niu-cast`
-**Versi:** v3.5.0 (TCCP Server — Joy Connect mode di Mac)
-**Last Push:** 20 Jul 2026
+**Versi:** v3.6.0 (Mac Connect Bridge — ADB wireless + scrcpy)
+**Last Push:** 21 Jul 2026
 
 ## Overview
 
 Android device manager via ADB + **TCCP (Transsion Cast Control Protocol)** reverse engineering.
 Target: kontrol Infinix GT 30 Pro dari Mac tanpa USB debugging.
 
+**v3.6.0** menggabungkan **mac-connect** (ADB wireless + scrcpy) sebagai metode koneksi
+PRIMER yang TERBUKTI bekerja, sambil tetap mempertahankan TCCP protocol sebagai alternatif.
+
 ## Modul
 
 | Modul | LOC | Fungsi |
 |-------|-----|--------|
-| `adb_controller.py` | 152 | Koneksi ADB, shell, push/pull, device info, screenshot |
-| `core.py` | 409 | GUI PyQt5 minimal — 2 tab (Mirror + Files) |
+| `adb_controller.py` | 270 | Koneksi ADB, shell, push/pull, device info, screenshot + wireless setup |
+| `core.py` | 730 | GUI PyQt5 — 4 tab (Screen + Files + Apps + Mac Connect) |
 | `mini.py` | 519 | CLI — device info, screenshot, record, control, APK install |
+| `mac_connect_bridge.py` | 585 | **🆕 Mac Connect Bridge** — ADB wireless + scrcpy mirror 🆕 |
 | `file_browser.py` | 597 | File explorer Android via ADB |
 | `transsion_protocol.py` | ~920 | TCCP protocol handler + UIBC builder + TranCastDiscoverer |
 | `video_stream.py` | ~540 | Video stream receiver + integration tests (tanpa device) |
 | `port_explorer.py` | ~260 | CLI tool untuk scan port TCCP tambahan |
 | `tccp_server.py` | ~440 | TCCP Server (port 9452 — mDNS + 7 frame handshake) |
-| `server_8613.py` | ~370 | TCCP Server port 8613 — Joy Connect QR (HTTP /ping + `%%%%` frame) 🆕 |
-| `tccp_qr.py` | ~330 | QR Code generator untuk Joy Connect scan 🆕 |
+| `server_8613.py` | ~370 | TCCP Server port 8613 — Joy Connect QR (HTTP /ping + `%%%%` frame) |
+| `tccp_qr.py` | ~330 | QR Code generator untuk Joy Connect scan |
 | `auto_connect.py` | ~340 | Auto-connect wireless tanpa ADB (mDNS, tether, IPv6, scan) |
 | `wfd_bridge.py` | ~250 | WiFi Direct bridge (butuh ADB) |
 | `tetherd.py` | ~170 | USB Tether monitor daemon |
 
+## Mac Connect Bridge (v3.6.0)
+
+**Pendekatan baru:** ADB wireless + scrcpy — metode yang TERBUKTI bekerja untuk
+Infinix GT 30 Pro, menggantikan Joy Connect/TCCP yang belum stabil.
+
+### Flow
+
+1. **Setup via USB** (sekali): Colok USB → `adb tcpip 5555` → ekstrak IP
+2. **Connect Wireless**: ARP scan otomatis → `adb connect IP:5555`
+3. **Mirror + Audio**: scrcpy dengan 3 profile performa
+
+### 3 Performance Profile
+
+| Profile | FPS | Bitrate | Use Case |
+|---------|:---:|:-------:|----------|
+| High    | 120 | 16 Mbps | GT 30 Pro 120Hz display |
+| Normal  | 60  | 8 Mbps  | Daily use, balance |
+| Eco     | 30  | 4 Mbps  | Battery saver |
+
+### IP Extraction (Multi-Method)
+
+1. `ip route` → extract src address
+2. `ip addr show wlan0` → inet address
+3. `getprop dhcp.wlan0.ipaddress` → DHCP lease
+
+### Usage
+
+```bash
+# CLI — sequence lengkap
+python3 -m niu_cast setup-wireless     # USB → tcpip 5555 (sekali)
+python3 -m niu_cast wireless-connect   # ARP scan + connect
+python3 -m niu_cast mirror             # scrcpy mirror
+
+# CLI — all-in-one
+python3 -m niu_cast mac-connect setup    # setup wireless
+python3 -m niu_cast mac-connect connect  # connect + mirror
+python3 -m niu_cast mac-connect mirror   # launch mirror
+python3 -m niu_cast mac-connect status   # status
+
+# GUI — Mac Connect tab
+python3 -m niu_cast                      # buka GUI, pilih tab Mac Connect
+```
+
+### Config Persistence
+
+- File: `~/.niu-cast/mac-connect.json`
+- Fields: `phone_ip`, `profile`, `audio`
+- Auto-save setiap perubahan
+
 ## TCCP Server — Joy Connect Mode
 
-**Paradigma baru:** Kita yang jadi server, HP yang connect ke kita (mirip Joy Connect di Windows).
+**Paradigma lama:** Kita yang jadi server, HP yang connect ke kita (mirip Joy Connect di Windows).
+**Status:** ⚠️ Masih experimental — QR scan & mDNS belum bekerja stabil.
+
+[remainder of TCCP Server section unchanged]
 
 ### Flow
 
@@ -184,8 +240,14 @@ Usage: `python3 -m niu_cast connect` (auto, sekali) atau `python3 -m niu_cast mo
 5. ✅ **v3.3** — Auto-connect tanpa ADB (auto_connect.py: mDNS, tether, IPv6, scan)
 6. ✅ **v3.4** — Video stream receiver + integration tests (video_stream.py)
 7. ✅ **v3.5** — TCCP Server mode (tccp_server.py: Joy Connect compatible)
-8. ✅ **v3.5.1** — QR Generator (`tccp_qr.py`) + Server 8613 (`server_8613.py`) integrated 🆕
-9. ⟳ **v3.6** — UIBC touch/keyboard live test (butuh ADB reconnect)
-10. ⟳ **Wireless discovery** — WiFi Direct via macOS AWDL/P2P
-11. ⟳ **Video streaming** — H.264/H.265 decode live render
-12. ❓ **QR scan → HP connect** — debug kenapa QR tidak diproses HP (hare session)
+8. ✅ **v3.5.1** — QR Generator (`tccp_qr.py`) + Server 8613 (`server_8613.py`) integrated
+9. ✅ **v3.6.0** — **Mac Connect Bridge** (`mac_connect_bridge.py`) — ADB wireless + scrcpy merge from mac-connect ✅
+    - 3 Performance Profile (120/60/30 FPS)
+    - Audio forwarding toggle
+    - ARP-based IP auto-discovery
+    - GUI Mac Connect tab
+    - CLI commands: `setup-wireless`, `wireless-connect`, `mirror`, `mac-connect`
+10. ⟳ **v3.7** — UIBC touch/keyboard live test via ADB
+11. ⟳ **Wireless discovery** — WiFi Direct via macOS AWDL/P2P
+12. ⟳ **Video streaming** — H.264/H.265 decode live render
+13. ⟳ **OpenCore Config Parser** — Hackintosh integration dari mac-connect

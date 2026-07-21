@@ -22,6 +22,7 @@ from . import __version__
 from .adb_controller import ADBController
 from .app_manager import AppManagerWidget
 from .file_browser import FileBrowserWidget
+from .mac_connect_bridge import MacConnectBridge
 
 # ── Palette (Catppuccin Mocha inspired) ─────────────────────────────────────────
 
@@ -319,6 +320,113 @@ class NiuCastWindow(QMainWindow):
         self.app_manager = AppManagerWidget(self.adb)
         self.tabs.addTab(self.app_manager, "Apps")
 
+        # ── Tab 4: Mac Connect ──
+        mac_tab = QWidget()
+        mac_layout = QVBoxLayout(mac_tab)
+        mac_layout.setContentsMargins(16, 12, 16, 12)
+        mac_layout.setSpacing(10)
+
+        # Header
+        mac_title = QLabel("Mac Connect — ADB Wireless + scrcpy")
+        mac_title.setStyleSheet(f"font-size: 14px; font-weight: 700; color: {TEXT};")
+        mac_layout.addWidget(mac_title)
+
+        mac_desc = QLabel(
+            "Hubungkan Infinix GT 30 Pro via ADB Wireless. "
+            "Metode ini TERBUKTI bekerja.\n"
+            "Pertama: Setup via USB sekali. Selanjutnya: Connect Wireless + Mirror."
+        )
+        mac_desc.setStyleSheet(f"color: {SUB}; font-size: 11px;")
+        mac_desc.setWordWrap(True)
+        mac_layout.addWidget(mac_desc)
+
+        # Status frame
+        mac_status_frame = QFrame()
+        mac_status_frame.setObjectName("mac_status")
+        mac_status_frame.setStyleSheet(
+            f"QFrame#mac_status {{ background: {SURFACE}; "
+            f"border: 1px solid {BORDER}; border-radius: 8px; }}"
+        )
+        mac_status_layout = QVBoxLayout(mac_status_frame)
+        mac_status_layout.setContentsMargins(12, 8, 12, 8)
+        mac_status_layout.setSpacing(4)
+
+        self.mac_lbl_status = QLabel("○ Not connected")
+        self.mac_lbl_status.setStyleSheet(f"color: {DIM}; font-size: 12px; font-weight: 600;")
+        mac_status_layout.addWidget(self.mac_lbl_status)
+
+        self.mac_lbl_ip = QLabel("IP: -")
+        self.mac_lbl_ip.setStyleSheet(f"color: {SUB}; font-size: 11px;")
+        mac_status_layout.addWidget(self.mac_lbl_ip)
+
+        self.mac_lbl_device = QLabel("Device: -")
+        self.mac_lbl_device.setStyleSheet(f"color: {SUB}; font-size: 11px;")
+        mac_status_layout.addWidget(self.mac_lbl_device)
+
+        self.mac_lbl_profile = QLabel("Profile: High (120 FPS)")
+        self.mac_lbl_profile.setStyleSheet(f"color: {SUB}; font-size: 11px;")
+        mac_status_layout.addWidget(self.mac_lbl_profile)
+
+        self.mac_lbl_audio = QLabel("Audio: Enabled")
+        self.mac_lbl_audio.setStyleSheet(f"color: {SUB}; font-size: 11px;")
+        mac_status_layout.addWidget(self.mac_lbl_audio)
+
+        mac_layout.addWidget(mac_status_frame)
+
+        # Action buttons
+        mac_actions = QHBoxLayout()
+        mac_actions.setSpacing(8)
+
+        self.mac_btn_setup = QPushButton("❶ Setup via USB")
+        self.mac_btn_setup.setObjectName("primary")
+        self.mac_btn_setup.setToolTip("USB → adb tcpip 5555 (perlu kabel, sekali saja)")
+        self.mac_btn_setup.clicked.connect(self._mac_setup)
+        mac_actions.addWidget(self.mac_btn_setup)
+
+        self.mac_btn_connect = QPushButton("❷ Connect Wireless")
+        self.mac_btn_connect.setToolTip("ARP scan + ADB connect")
+        self.mac_btn_connect.clicked.connect(self._mac_connect)
+        mac_actions.addWidget(self.mac_btn_connect)
+
+        self.mac_btn_mirror = QPushButton("❸ Mirror + Audio")
+        self.mac_btn_mirror.setToolTip("Jalankan scrcpy dengan profile terpilih")
+        self.mac_btn_mirror.clicked.connect(self._mac_mirror)
+        mac_actions.addWidget(self.mac_btn_mirror)
+
+        self.mac_btn_disconnect = QPushButton("Disconnect")
+        self.mac_btn_disconnect.setObjectName("danger")
+        self.mac_btn_disconnect.clicked.connect(self._mac_disconnect)
+        mac_actions.addWidget(self.mac_btn_disconnect)
+
+        mac_layout.addLayout(mac_actions)
+
+        # Settings
+        mac_settings = QHBoxLayout()
+        mac_settings.setSpacing(8)
+
+        self.mac_btn_profile = QPushButton("Profile: High")
+        self.mac_btn_profile.setToolTip("Cycle: High (120fps) → Normal (60fps) → Eco (30fps)")
+        self.mac_btn_profile.clicked.connect(self._mac_cycle_profile)
+        mac_settings.addWidget(self.mac_btn_profile)
+
+        self.mac_btn_audio = QPushButton("Audio: ON")
+        self.mac_btn_audio.setToolTip("Toggle audio forwarding")
+        self.mac_btn_audio.clicked.connect(self._mac_toggle_audio)
+        mac_settings.addWidget(self.mac_btn_audio)
+
+        self.mac_btn_refresh = QPushButton("↻ Refresh Status")
+        self.mac_btn_refresh.clicked.connect(self._mac_refresh)
+        mac_settings.addWidget(self.mac_btn_refresh)
+
+        mac_settings.addStretch()
+        mac_layout.addLayout(mac_settings)
+
+        mac_layout.addStretch()
+        self.tabs.addTab(mac_tab, "Mac Connect")
+
+        self._mac_bridge = MacConnectBridge()
+        self._mac_refresh()
+
         root.addWidget(self.tabs, 1)
 
         # ── Status bar ──
@@ -505,6 +613,122 @@ class NiuCastWindow(QMainWindow):
             subprocess.run(['open', path])
         else:
             QMessageBox.critical(self, "Error", "Failed to capture")
+
+    # ── Mac Connect Callbacks ──────────────────────────────────────────────────
+
+    def _mac_refresh(self):
+        """Refresh Mac Connect status display."""
+        status = self._mac_bridge.get_status()
+        if status['connected']:
+            self.mac_lbl_status.setText("● Connected")
+            self.mac_lbl_status.setStyleSheet(f"color: {GREEN}; font-size: 12px; font-weight: 600;")
+        else:
+            self.mac_lbl_status.setText("○ Not connected")
+            self.mac_lbl_status.setStyleSheet(f"color: {DIM}; font-size: 12px; font-weight: 600;")
+        self.mac_lbl_ip.setText(f"IP: {status['phone_ip'] or '-'}")
+        self.mac_lbl_device.setText(f"Device: {status['phone_model'] or '-'}")
+        profile_names = {'high': 'High (120 FPS)', 'normal': 'Normal (60 FPS)', 'eco': 'Eco (30 FPS)'}
+        self.mac_lbl_profile.setText(f"Profile: {profile_names.get(status['profile'], status['profile'])}")
+        self.mac_lbl_audio.setText(f"Audio: {'Enabled' if status['audio'] else 'Disabled'}")
+        self.mac_btn_profile.setText(f"Profile: {status['profile'].title()}")
+        self.mac_btn_audio.setText(f"Audio: {'ON' if status['audio'] else 'OFF'}")
+        self.mac_btn_setup.setEnabled(not status['connected'])
+        self.mac_btn_connect.setEnabled(not status['connected'])
+        self.mac_btn_mirror.setEnabled(status['connected'])
+        self.mac_btn_disconnect.setEnabled(status['connected'])
+
+    def _mac_setup(self):
+        """Setup wireless via USB."""
+        self.sb.showMessage("Mac Connect: Setting up wireless ADB via USB...")
+        # Jalankan di thread supaya gak freeze GUI
+        from PyQt5.QtCore import QTimer
+        QTimer.singleShot(100, self._do_mac_setup)
+
+    def _do_mac_setup(self):
+        """Actual setup work (non-blocking via QTimer chain)."""
+        self.mac_btn_setup.setEnabled(False)
+        self.mac_btn_setup.setText("⏳ Waiting for USB...")
+        success = self._mac_bridge.setup_wireless()
+        if success:
+            QMessageBox.information(self, "Mac Connect",
+                "✓ Wireless ADB setup berhasil!\n\n"
+                "USB bisa dicabut. Sekarang klik 'Connect Wireless' "
+                "untuk terhubung tanpa kabel.")
+            self.sb.showMessage("Mac Connect: Setup berhasil!")
+        else:
+            QMessageBox.warning(self, "Mac Connect",
+                "✗ Setup gagal.\n\n"
+                "Pastikan:\n"
+                "1. HP terhubung via USB\n"
+                "2. USB Debugging ON (Developer Options)\n"
+                "3. Kabel data (bukan charge-only)")
+            self.sb.showMessage("Mac Connect: Setup gagal")
+        self.mac_btn_setup.setText("❶ Setup via USB")
+        self.mac_btn_setup.setEnabled(True)
+        self._mac_refresh()
+
+    def _mac_connect(self):
+        """Connect wireless via ADB."""
+        self.sb.showMessage("Mac Connect: Scanning ARP + connecting...")
+        from PyQt5.QtCore import QTimer
+        QTimer.singleShot(100, self._do_mac_connect)
+
+    def _do_mac_connect(self):
+        """Actual connect work."""
+        self.mac_btn_connect.setEnabled(False)
+        self.mac_btn_connect.setText("⏳ Scanning...")
+        success = self._mac_bridge.connect_wireless()
+        if success:
+            QMessageBox.information(self, "Mac Connect",
+                "✓ Berhasil terhubung ke HP Infinix!\n\n"
+                "Sekarang klik 'Mirror + Audio' untuk mulai mirroring.")
+            self.sb.showMessage("Mac Connect: Connected!")
+        else:
+            QMessageBox.warning(self, "Mac Connect",
+                "✗ Gagal connect.\n\n"
+                "Pastikan:\n"
+                "1. HP dan Mac di WiFi yang SAMA\n"
+                "2. Wireless Debugging sudah di-setup (via USB sekali)\n"
+                "3. HP tidak sleep/mati")
+            self.sb.showMessage("Mac Connect: Connection failed")
+        self.mac_btn_connect.setText("❷ Connect Wireless")
+        self.mac_btn_connect.setEnabled(True)
+        self._mac_refresh()
+
+    def _mac_mirror(self):
+        """Launch scrcpy mirror."""
+        self.sb.showMessage("Mac Connect: Launching scrcpy...")
+        from PyQt5.QtCore import QTimer
+        QTimer.singleShot(100, self._do_mac_mirror)
+
+    def _do_mac_mirror(self):
+        """Actual mirror work."""
+        self.mac_btn_mirror.setEnabled(False)
+        success = self._mac_bridge.launch_mirror()
+        if success:
+            self.sb.showMessage("Mac Connect: Mirror selesai")
+        else:
+            self.sb.showMessage("Mac Connect: Mirror gagal")
+        self.mac_btn_mirror.setEnabled(True)
+
+    def _mac_cycle_profile(self):
+        """Cycle performance profile."""
+        self._mac_bridge.cycle_profile()
+        self._mac_refresh()
+        self.sb.showMessage(f"Mac Connect: Profile → {self._mac_bridge.performance_profile}")
+
+    def _mac_toggle_audio(self):
+        """Toggle audio forwarding."""
+        self._mac_bridge.toggle_audio()
+        self._mac_refresh()
+        status = "enabled" if self._mac_bridge.forward_audio else "disabled"
+        self.sb.showMessage(f"Mac Connect: Audio {status}")
+
+    def _mac_disconnect(self):
+        """Disconnect wireless ADB."""
+        self._mac_bridge.disconnect()
+        self._mac_refresh()
+        self.sb.showMessage("Mac Connect: Disconnected")
 
     def closeEvent(self, event):
         self._stream_timer.stop()
