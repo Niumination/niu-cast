@@ -231,6 +231,50 @@ Tanpa ADB, auto_connect.py mencoba 4 metode berurutan:
 
 Usage: `python3 -m niu_cast connect` (auto, sekali) atau `python3 -m niu_cast monitor` (loop)
 
+---
+
+## macOS Native Installation (v3.6.0+)
+
+NIU CAST sekarang bisa diinstall sebagai aplikasi macOS native dengan CLI terintegrasi.
+
+### Quick Install
+
+```bash
+cd /Users/zaryu/Desktop/Niumination/projects/niu-cast
+./mac_install.sh
+```
+
+Ini akan:
+1. Install **NIU CAST.app** ke `/Applications` — bisa dibuka dari Launchpad
+2. Install **`niu-cast`** CLI ke PATH (`~/.local/bin/niu-cast`)
+3. Buat symlink repo di `~/.niu-cast/repo` untuk update mudah
+
+### Setelah Install
+
+- **Buka app:** Cari "NIU CAST" di Launchpad / Applications
+- **CLI:** `niu-cast mc status`, `niu-cast mirror`, dll
+- **Update:** `cd niu-cast && git pull && ./mac_install.sh`
+
+### Standalone Build (py2app)
+
+Untuk distribusi tanpa dependensi Python:
+
+```bash
+./mac_install.sh --py2app
+```
+
+Build memakan waktu 2-5 menit, bundle ~150-200 MB.
+
+### Uninstall
+
+```bash
+./mac_install.sh --uninstall
+```
+
+Config (`~/.niu-cast/`) tidak dihapus.
+
+---
+
 ## Roadmap
 
 1. ✅ **v2.0** — Refactor, buang bloat
@@ -247,6 +291,8 @@ Usage: `python3 -m niu_cast connect` (auto, sekali) atau `python3 -m niu_cast mo
     - ARP-based IP auto-discovery
     - GUI Mac Connect tab
     - CLI commands: `setup-wireless`, `wireless-connect`, `mirror`, `mac-connect`
+    - **macOS Native App** (.app bundle + mac_install.sh + py2app) 🆕
+    - **scrcpy v4.1 fix** (removed deprecated `--forward-all-clicks`)
 10. ⟳ **v3.7** — UIBC touch/keyboard live test via ADB
 11. ⟳ **Wireless discovery** — WiFi Direct via macOS AWDL/P2P
 12. ⟳ **Video streaming** — H.264/H.265 decode live render
