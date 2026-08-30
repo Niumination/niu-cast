@@ -35,6 +35,117 @@ PRIMER yang TERBUKTI bekerja, sambil tetap mempertahankan TCCP protocol sebagai 
 
 ## Mac Connect Bridge (v3.6.0)
 
+## VNC Mode (v3.7 planned) — macOS Screen Sharing Native Support
+
+**Status:** 🔄 Proof of Concept ready — planned for v3.7
+**Target:** Enable Android screen mirror via macOS native Screen Sharing.app
+**Port:** 5901 (VNC standard)
+
+
+
+### Proof of Concept Test Results (30 Aug 2026)
+
+✅ **VNC Server Basic Test PASSED:**
+- Server starts on port 5902
+- RFB handshake successful (client receives "RFB 003.008")
+- Modular architecture ready for ADB integration
+- Basic client handling implemented
+
+⚠️ **Pending ADB Integration:**
+- Real screen capture from Android device needed
+- Input event forwarding not implemented
+- Performance optimization required
+
+📋 **Test Procedure:**
+```bash
+# Run test script
+python3 test_vnc_handshake.py
+
+# Expected output:
+# ✅ VNCAdapter class loaded successfully
+# ✅ Server responded: RFB 003.008
+# ✅ VNC handshake successful
+```
+
+🔜 **Next Steps:** Integrate ADB screen capture, test with actual Android device.
+
+### Architecture
+
+```
+Android → [ADB Screen Capture] → [VNC Server on port 5901] → WiFi → [macOS Screen Sharing.app]
+                                  ↑
+                            RFB/VNC protocol
+```
+
+### Flow
+
+1. **Setup**: Same as Mac Connect Bridge (ADB wireless setup)
+2. **VNC Server**: Start VNC adapter that captures screen via ADB
+3. **Connect**: macOS Screen Sharing.app → connect to `vnc://localhost:5901`
+4. **Control**: Mouse/keyboard events sent back via ADB
+
+### Implementation Modules
+
+| Module | LOC (est) | Function |
+|--------|-----------|----------|
+| `vnc_adapter.py` | 300 | VNC server implementation (RFB protocol) |
+| `vnc_controller.py` | 200 | Integrate with ADB for screen capture + input |
+| `vnc_cli.py` | 150 | CLI commands for VNC mode |
+| `vnc_gui.py` | 250 | GUI tab for VNC settings |
+
+### CLI Commands (planned)
+
+```bash
+# VNC mode
+python3 -m niu_cast vnc-setup      # Wireless setup + VNC config
+python3 -m niu_cast vnc-start       # Start VNC server
+python3 -m niu_cast vnc-stop        # Stop VNC server
+python3 -m niu_cast vnc-status      # Check VNC status
+
+# All-in-one
+python3 -m niu_cast vnc             # Setup + start VNC server
+```
+
+### GUI Integration
+
+- New tab "VNC" in PyQt5 GUI
+- Settings: Port (5901), Frame rate (1-30 FPS), Quality (1-3)
+- Status: Connected clients, FPS, resolution
+
+### Performance Comparison
+
+| Aspect | scrcpy Mode | VNC Mode |
+|--------|-------------|----------|
+| Latency | ✅ ~16ms | ⚠️ ~100ms |
+| FPS | ✅ Up to 120 | ⚠️ ~30 max |
+| Audio | ✅ Supported | ❌ Not supported |
+| Native macOS | ❌ Requires scrcpy | ✅ Screen Sharing.app |
+| Multi-client | ❌ Single client | ✅ Multiple clients |
+| Cross-platform | ✅ scrcpy on all platforms | ✅ Any VNC client |
+
+### Roadmap to v3.7
+
+1. **Phase 1** (PoC): Basic VNC server with static screen
+2. **Phase 2**: ADB integration for real screen capture
+3. **Phase 3**: Input forwarding (mouse/keyboard)
+4. **Phase 4**: GUI integration + performance tuning
+5. **Phase 5**: Release as optional mode in v3.7
+
+### Current PoC Status
+
+✅ `vnc_adapter.py` created — basic RFB handshake
+✅ `vnc_integration.py` — wireless setup integration
+🔜 ADB screen capture → VNC frame conversion
+🔜 Input event handling
+🔜 Performance optimization
+
+### Notes
+
+- VNC mode uses more bandwidth than scrcpy (raw/RFB vs H.264)
+- Recommended for compatibility, not performance
+- Use scrcpy mode for daily use, VNC mode for multi-client or macOS native
+
+
 **Pendekatan baru:** ADB wireless + scrcpy — metode yang TERBUKTI bekerja untuk
 Infinix GT 30 Pro, menggantikan Joy Connect/TCCP yang belum stabil.
 
