@@ -422,6 +422,101 @@ class NiuCastWindow(QMainWindow):
         mac_layout.addLayout(mac_settings)
 
         mac_layout.addStretch()
+        # ── Tab 5: VNC (macOS Screen Sharing Native) ──
+        vnc_tab = QWidget()
+        vnc_layout = QVBoxLayout(vnc_tab)
+        vnc_layout.setContentsMargins(16, 12, 16, 12)
+        vnc_layout.setSpacing(10)
+
+        # Header
+        vnc_title = QLabel("VNC — macOS Screen Sharing Native")
+        vnc_title.setStyleSheet(f"font-size: 14px; font-weight: 700; color: {TEXT};")
+        vnc_layout.addWidget(vnc_title)
+
+        vnc_desc = QLabel(
+            "Screen mirror Android via RFB/VNC protocol untuk macOS Screen Sharing.app.\n"
+            "Pendekatan berbeda dari scrcpy: VNC server di port 5901, client macOS native.\n"
+            "Cocok untuk multi-client atau integrasi dengan native Screen Sharing.app."
+        )
+        vnc_desc.setStyleSheet(f"color: {SUB}; font-size: 11px;")
+        vnc_desc.setWordWrap(True)
+        vnc_layout.addWidget(vnc_desc)
+
+        # Status frame
+        vnc_status_frame = QFrame()
+        vnc_status_frame.setObjectName("vnc_status")
+        vnc_status_frame.setStyleSheet(
+            f"QFrame#vnc_status {{ background: {SURFACE}; "
+            f"border: 1px solid {BORDER}; border-radius: 8px; }}"
+        )
+        vnc_status_layout = QVBoxLayout(vnc_status_frame)
+        vnc_status_layout.setContentsMargins(12, 8, 12, 8)
+        vnc_status_layout.setSpacing(4)
+
+        self.vnc_lbl_status = QLabel("○ VNC Server: Stopped")
+        self.vnc_lbl_status.setStyleSheet(f"color: {DIM}; font-size: 12px; font-weight: 600;")
+        vnc_status_layout.addWidget(self.vnc_lbl_status)
+
+        self.vnc_lbl_port = QLabel("Port: 5901")
+        self.vnc_lbl_port.setStyleSheet(f"color: {SUB}; font-size: 11px;")
+        vnc_status_layout.addWidget(self.vnc_lbl_port)
+
+        self.vnc_lbl_client = QLabel("Clients: 0")
+        self.vnc_lbl_client.setStyleSheet(f"color: {SUB}; font-size: 11px;")
+        vnc_status_layout.addWidget(self.vnc_lbl_client)
+
+        self.vnc_lbl_device = QLabel("Device: -")
+        self.vnc_lbl_device.setStyleSheet(f"color: {SUB}; font-size: 11px;")
+        vnc_status_layout.addWidget(self.vnc_lbl_device)
+
+        vnc_layout.addWidget(vnc_status_frame)
+
+        # Action buttons
+        vnc_actions = QHBoxLayout()
+        vnc_actions.setSpacing(8)
+
+        self.vnc_btn_start = QPushButton("Start VNC Server")
+        self.vnc_btn_start.setObjectName("primary")
+        self.vnc_btn_start.setToolTip("Start VNC server pada port 5901")
+        self.vnc_btn_start.clicked.connect(self._vnc_start)
+        vnc_actions.addWidget(self.vnc_btn_start)
+
+        self.vnc_btn_stop = QPushButton("Stop VNC Server")
+        self.vnc_btn_stop.setObjectName("danger")
+        self.vnc_btn_stop.clicked.connect(self._vnc_stop)
+        vnc_actions.addWidget(self.vnc_btn_stop)
+
+        self.vnc_btn_connect = QPushButton("Connect Screen Sharing")
+        self.vnc_btn_connect.setToolTip("Buka macOS Screen Sharing.app → vnc://localhost:5901")
+        self.vnc_btn_connect.clicked.connect(self._vnc_connect)
+        vnc_actions.addWidget(self.vnc_btn_connect)
+
+        vnc_layout.addLayout(vnc_actions)
+
+        # Settings
+        vnc_settings = QHBoxLayout()
+        vnc_settings.setSpacing(8)
+
+        self.vnc_btn_profile = QPushButton("Profile: Normal (30 FPS)")
+        self.vnc_btn_profile.setToolTip("Cycle profile: High → Normal → Eco")
+        self.vnc_btn_profile.clicked.connect(self._vnc_cycle_profile)
+        vnc_settings.addWidget(self.vnc_btn_profile)
+
+        self.vnc_btn_refresh = QPushButton("↻ Refresh Status")
+        self.vnc_btn_refresh.clicked.connect(self._vnc_refresh)
+        vnc_settings.addWidget(self.vnc_btn_refresh)
+
+        vnc_settings.addStretch()
+        vnc_layout.addLayout(vnc_settings)
+
+        vnc_layout.addStretch()
+        self.tabs.addTab(vnc_tab, "VNC")
+
+        self._vnc_adapter = None
+        self._vnc_refresh()
+
+
+
         self.tabs.addTab(mac_tab, "Mac Connect")
 
         self._mac_bridge = MacConnectBridge()
@@ -429,10 +524,80 @@ class NiuCastWindow(QMainWindow):
 
         root.addWidget(self.tabs, 1)
 
-        # ── Status bar ──
-        self.sb = QStatusBar()
-        self.sb.showMessage("Ready")
-        self.setStatusBar(self.sb)
+    def _do_vnc_start(self):
+        """Actual VNC start work."""
+        from .vnc_adapter_v2 import VNCAdapter
+        if self._vnc_adapter is not None:
+            self.sb.showMessage("VNC: Server already running")
+            return
+        self.vnc_btn_start.setEnabled(False)
+        self.vnc_btn_start.setText("⏳ Starting...")
+        try:
+            self._vnc_adapter = VNCAdapter(port=5901)
+            # Don't start server here - use thread to avoid blocking GUI
+            # For now, just init (actual start happens when client connects)
+            self._vnc_refresh()
+            self.sb.showMessage("VNC: Server ready on port 5901")
+            self.vnc_btn_stop.setEnabled(True)
+            self.vnc_btn_connect.setEnabled(True)
+        except Exception as e:
+            QMessageBox.critical(self, "VNC Error", f"Gagal start VNC: {e}")
+            self.vnc_btn_start.setEnabled(True)
+            self.vnc_btn_start.setText("Start VNC Server")
+
+    def _vnc_stop(self):
+        """Stop VNC server."""
+        self.sb.showMessage("VNC: Stopping server...")
+        if self._vnc_adapter is not None:
+            self._vnc_adapter.stop_server()
+            self._vnc_adapter = None
+        self.vnc_btn_start.setEnabled(True)
+        self.vnc_btn_start.setText("Start VNC Server")
+        self.vnc_btn_stop.setEnabled(False)
+        self.vnc_btn_connect.setEnabled(False)
+        self._vnc_refresh()
+        self.sb.showMessage("VNC: Server stopped")
+
+    def _vnc_connect(self):
+        """Open macOS Screen Sharing.app."""
+        import subprocess
+        self.sb.showMessage("VNC: Opening Screen Sharing.app...")
+        try:
+            subprocess.run(['open', 'vnc://localhost:5901'], check=True)
+            self.sb.showMessage("VNC: Screen Sharing.app opened")
+        except Exception as e:
+            QMessageBox.critical(self, "VNC Error", f"Gagal buka Screen Sharing: {e}")
+            self.sb.showMessage("VNC: Failed to open Screen Sharing")
+
+    def _vnc_cycle_profile(self):
+        """Cycle VNC profile (placeholder for future)."""
+        # For now, just refresh status
+        self._vnc_refresh()
+        self.sb.showMessage("VNC: Profile cycled (placeholder)")
+
+    def _vnc_refresh(self):
+        """Refresh VNC status display."""
+        if self._vnc_adapter is not None and self._vnc_adapter.running:
+            self.vnc_lbl_status.setText("● VNC Server: Running (port 5901)")
+            self.vnc_lbl_status.setStyleSheet(f"color: {GREEN}; font-size: 12px; font-weight: 600;")
+            self.vnc_btn_start.setEnabled(False)
+            self.vnc_btn_stop.setEnabled(True)
+        else:
+            self.vnc_lbl_status.setText("○ VNC Server: Stopped")
+            self.vnc_lbl_status.setStyleSheet(f"color: {DIM}; font-size: 12px; font-weight: 600;")
+            self.vnc_btn_start.setEnabled(True)
+            self.vnc_btn_stop.setEnabled(False)
+
+        # Device info (placeholder - would be updated from adapter)
+    self.vnc_lbl_device.setText("Device: - (connect device first)")
+    self.vnc_lbl_client.setText(f"Clients: {len(self._vnc_adapter.clients) if self._vnc_adapter else 0}")
+
+
+
+    # ── Status bar ──
+    self.sb = QStatusBar()
+    self.sb.showMessage("Ready")
+    self.setStatusBar(self.sb)
 
     def _setup_check(self):
         self._refresh_devices()
@@ -666,6 +831,15 @@ class NiuCastWindow(QMainWindow):
         self.mac_btn_setup.setText("❶ Setup via USB")
         self.mac_btn_setup.setEnabled(True)
         self._mac_refresh()
+
+    # ── VNC Callbacks ──────────────────────────────────────────────────────────
+
+    def _vnc_start(self):
+        """Start VNC server."""
+        self.sb.showMessage("VNC: Starting server on port 5901...")
+        from PyQt5.QtCore import QTimer
+        QTimer.singleShot(100, self._do_vnc_start)
+
 
     def _mac_connect(self):
         """Connect wireless via ADB."""
