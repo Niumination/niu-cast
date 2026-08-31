@@ -173,6 +173,33 @@ class VNCAdapter:
             print(f"RFB encode error: {e}")
             return False
     
+
+    def _rfb_keycode_to_android(self, rfb_keycode: int) -> Optional[int]:
+        # Map common RFB keycodes to Android keycode for input forwarding
+        # Reference: https://github.com/rfb/rfbproto/blob/master/rfbproto.rfb
+        rfb_to_android = {
+            1: 7, 2: 8, 3: 19, 4: 20, 5: 21, 6: 22, 7: 13, 8: 12,
+            9: 15, 10: 14, 11: 92, 12: 93, 13: 67, 14: 66, 15: 4,
+            16: 29, 17: 30, 18: 31, 19: 32, 20: 33, 21: 34, 22: 35,
+            23: 36, 24: 37, 25: 38, 26: 39, 27: 40, 28: 41, 29: 42,
+            30: 43, 31: 44, 32: 45, 33: 46, 34: 47, 35: 48, 36: 49,
+            37: 50, 38: 51, 39: 52, 40: 53, 41: 54, 42: 7, 43: 8,
+            44: 9, 45: 10, 46: 11, 47: 12, 48: 13, 49: 14, 50: 15,
+            51: 16, 65: 97, 66: 98, 67: 99, 68: 100, 69: 101, 70: 102,
+            71: 103, 72: 104, 73: 105, 74: 106, 75: 107, 76: 108,
+            77: 109, 78: 110, 79: 111, 80: 112, 81: 113, 82: 114,
+            83: 115, 84: 116, 85: 117, 86: 118, 87: 119, 88: 120,
+            89: 121, 90: 122, 91: 66, 92: 7, 93: 8, 94: 9, 95: 10,
+            127: 67
+        }
+        
+        if rfb_keycode in rfb_to_android:
+            return rfb_to_android[rfb_keycode]
+        
+        if 0x20 <= rfb_keycode <= 0x7E:
+            return rfb_keycode
+        
+        return None
     def send_black_frame(self, client_socket):
         """Send a black frame update."""
         try:
@@ -252,11 +279,34 @@ class VNCAdapter:
                         if not msg_type:
                             break
                             
-                        # Handle client events
+                        # Handle client events (RFB protocol)
                         if msg_type[0] == 3:  # KeyEvent
-                            client_socket.recv(7)  # Skip key event data
-                        elif msg_type[0] == 5:  # PointerEvent
-                            client_socket.recv(5)  # Skip pointer event data
+                            # RFB KeyEvent: 1 byte (down/up) + 4 bytes (keycode)
+                            key_event_data = client_socket.recv(4)
+                            if len(key_event_data) >= 4:
+                                # keycode in big-endian
+                                keycode = struct.unpack('!I', key_event_data[:4])[0]
+                                # RFB keycode mapping ke Android keycode
+                                android_keycode = self._rfb_keycode_to_android(keycode)
+                                if android_keycode is not None:
+                                    if self.adb and self.device_serial:
+                                        self.adb.send_keyevent(android_keycode)
+                        elif msg_type[0] == 4 or msg_type[0] == 5:  # PointerEvent
+                            # RFB PtrEvent: 1 byte (button mask) + 2 bytes (x) + 2 bytes (y)
+                            pointer_data = client_socket.recv(5)
+                            if len(pointer_data) >= 5:
+                                button_mask = pointer_data[0]
+                                px = struct.unpack('!H', pointer_data[1:3])[0]
+                                py = struct.unpack('!H', pointer_data[3:5])[0]
+                                # Map button mask ke ADB tap
+                                # Button1 (left click) = 0x40, no button = 0x00
+                                if (button_mask & 0x40) or button_mask == 0x40:
+                                    if self.adb and self.device_serial:
+                                        self.adb.send_tap(px, py)
+                                # Mouse move without button: no action in ADB
+                        elif msg_type[0] == 6:  # ClientCutText
+                            # Skip cut text data
+                            pass
                     
                     # Send framebuffer update periodically
                     current_time = time.time()
