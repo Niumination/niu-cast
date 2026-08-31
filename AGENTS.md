@@ -3,13 +3,19 @@
 **Lokasi:** `niu-cast/`
 **Stack:** Python 3.8+, PyQt5, ADB + TCP/IP
 **Remote:** `github.com/Niumination/niu-cast`
-**Versi:** v3.6.0 (Mac Connect Bridge — ADB wireless + scrcpy)
-**Last Push:** 21 Jul 2026
+**Versi:** v3.7.0 (VNC Mode + Mac Connect Bridge — ADB wireless + scrcpy)
+**Last Push:** 31 Aug 2026
 
 ## Overview
 
-Android device manager via ADB + **TCCP (Transsion Cast Control Protocol)** reverse engineering.
+Android device manager via ADB + **VNC (macOS Screen Sharing Native)** + **TCCP (Transsion Cast Control Protocol)** reverse engineering.
 Target: kontrol Infinix GT 30 Pro dari Mac tanpa USB debugging.
+
+**v3.7.0** menambahkan **VNC Mode** untuk macOS native Screen Sharing.app:
+- RFB/VNC server di port 5901
+- Input event forwarding (mouse/keyboard)
+- CLI commands (`--vnc-start`, `--vnc-stop`, `--vnc-status`)
+- GUI tab dengan status monitoring
 
 **v3.6.0** menggabungkan **mac-connect** (ADB wireless + scrcpy) sebagai metode koneksi
 PRIMER yang TERBUKTI bekerja, sambil tetap mempertahankan TCCP protocol sebagai alternatif.
@@ -28,6 +34,9 @@ PRIMER yang TERBUKTI bekerja, sambil tetap mempertahankan TCCP protocol sebagai 
 | `port_explorer.py` | ~260 | CLI tool untuk scan port TCCP tambahan |
 | `tccp_server.py` | ~440 | TCCP Server (port 9452 — mDNS + 7 frame handshake) |
 | `server_8613.py` | ~370 | TCCP Server port 8613 — Joy Connect QR (HTTP /ping + `%%%%` frame) |
+| `vnc_adapter_v2.py` | ~720 | **🆕 VNC Server v2** — RFB server + ADB capture + input forwarding 🆕 |
+| `vnc_adapter.py` | ~300 | VNC server implementation (RFB protocol) |
+| `vnc_integration.py` | ~120 | Wireless setup integration untuk VNC mode |
 | `tccp_qr.py` | ~330 | QR Code generator untuk Joy Connect scan |
 | `auto_connect.py` | ~340 | Auto-connect wireless tanpa ADB (mDNS, tether, IPv6, scan) |
 | `wfd_bridge.py` | ~250 | WiFi Direct bridge (butuh ADB) |
@@ -35,9 +44,9 @@ PRIMER yang TERBUKTI bekerja, sambil tetap mempertahankan TCCP protocol sebagai 
 
 ## Mac Connect Bridge (v3.6.0)
 
-## VNC Mode (v3.7 planned) — macOS Screen Sharing Native Support
+## VNC Mode (v3.7 done) — macOS Screen Sharing Native Support
 
-**Status:** 🔄 Proof of Concept ready — planned for v3.7
+**Status:** ✅ V3.7 — PoC di-release, test dengan device fisik diperlukan
 **Target:** Enable Android screen mirror via macOS native Screen Sharing.app
 **Port:** 5901 (VNC standard)
 
