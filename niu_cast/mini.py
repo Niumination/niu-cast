@@ -546,6 +546,9 @@ Examples:
   %(prog)s --tether           Connect via USB tether (no ADB/WiFi Direct)
   %(prog)s --tetherd          Persistent tether monitor daemon
   %(prog)s --apk-extract      Extract PC Connect APK for RE analysis
+  %(prog)s --vnc-start        Start VNC server on port 5901
+  %(prog)s --vnc-stop         Stop VNC server
+  %(prog)s --vnc-status       Check VNC server status
         """
     )
     
@@ -569,6 +572,12 @@ Examples:
                         help='Extract Transsion PC Connect APK from connected device')
     parser.add_argument('--wifi-direct', action='store_true',
                         help='Show phone WiFi Direct state via ADB (P2P debugging)')
+    parser.add_argument('--vnc-start', action='store_true',
+                        help='Start VNC server on port 5901')
+    parser.add_argument('--vnc-stop', action='store_true',
+                        help='Stop VNC server')
+    parser.add_argument('--vnc-status', action='store_true',
+                        help='Check VNC server status')
     parser.add_argument('--version', action='store_true', help='Show version')
     
     args = parser.parse_args()
@@ -599,6 +608,20 @@ Examples:
         from .wfd_bridge import show_full_state
         result = show_full_state()
         return 0 if result else 1
+
+    if args.vnc_start:
+        from .mini import _vnc_start_server
+        _vnc_start_server()
+        return 0
+
+    if args.vnc_stop:
+        from .mini import _vnc_stop_server
+        print_error("VNC stop: Not implemented yet (no persistent adapter stored)")
+        return 0
+
+    if args.vnc_status:
+        from .mini import _vnc_status
+        return _vnc_status()
 
     adb = ADB()
     
@@ -684,3 +707,33 @@ def show_menu(adb):
 
 if __name__ == '__main__':
     sys.exit(main())
+
+
+# ── VNC CLI Commands ─────────────────────────────────────────────────────────
+
+def _vnc_start_server(port=5901):
+    """Start VNC server on specified port."""
+    try:
+        from .vnc_adapter_v2 import VNCAdapter
+        adapter = VNCAdapter(port=port)
+        adapter.start_server()
+        print_success(f"VNC server started on port {port}")
+        return adapter
+    except Exception as e:
+        print_error(f"Failed to start VNC server: {e}")
+        return None
+
+
+def _vnc_stop_server(adapter):
+    """Stop VNC server."""
+    if adapter:
+        adapter.stop_server()
+        print_success("VNC server stopped")
+    else:
+        print_error("No VNC server running")
+
+
+def _vnc_status():
+    """Check VNC server status."""
+    print_info("VNC status: Not implemented (placeholder)")
+    return 0
