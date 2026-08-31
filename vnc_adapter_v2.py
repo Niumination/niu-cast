@@ -10,9 +10,11 @@ import time
 import select
 from typing import Optional
 import subprocess
+import io
 import json
 import os
 import sys
+
 
 # Add niu_cast to path
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'niu_cast'))
@@ -101,36 +103,43 @@ class VNCAdapter:
         return None
     
     def capture_screen_adb(self):
-        """Capture Android screen via ADB and return raw RGB data."""
+        """Capture Android screen via ADB and return raw RGB data (bytes)."""
         if not self.adb or not self.device_serial:
             print("No ADB device connected")
             return None
             
         try:
-            # Use screencap command and save to file
-            temp_file = "/tmp/android_screencap.png"
-            
-            # Capture screen
+            # Capture screen via ADB
             result = subprocess.run(
                 [self.adb_path, "-s", self.device_serial, "shell", "screencap", "-p"],
                 capture_output=True, timeout=5
             )
             
-            if result.returncode == 0:
-                # Save to temp file
-                with open(temp_file, "wb") as f:
-                    f.write(result.stdout)
-                
-                # Return PNG data
-                return result.stdout
-                
+            if result.returncode == 0 and result.stdout:
+                # Decode PNG to RGB raw data using PIL
+                try:
+                    img = Image.open(io.BytesIO(result.stdout))
+                    # Convert to RGB if needed
+                    if img.mode != 'RGB':
+                        img = img.convert('RGB')
+                    width, height = img.size
+                    # Update screen dimensions
+                    self.screen_width = width
+                    self.screen_height = height
+                    # Return raw RGB bytes (RGBX for RFB)
+                    raw_data = img.tobytes('raw', 'RGBX')
+                    return raw_data
+                except Exception as e:
+                    print(f"PIL decode error: {e}")
+                    return result.stdout  # Fallback to PNG
+                    
         except Exception as e:
             print(f"Screen capture error: {e}")
             
         return None
     
     def encode_rfb_frame(self, client_socket, screen_data: Optional[bytes]):
-        """Encode screen data to RFB protocol frame."""
+        """Encode screen data to RFB protocol frame (Raw encoding)."""
         if not screen_data:
             return self.send_black_frame(client_socket)
             
@@ -140,22 +149,23 @@ class VNCAdapter:
             padding = 0
             num_rectangles = 1
             
-            # Rectangle header
+            # Rectangle header (x, y, w, h, encoding_type)
             x = 0
             y = 0
             w = self.screen_width
             h = self.screen_height
-            encoding_type = 0  # Raw encoding
+            encoding_type = 0  # Raw encoding (type 0)
             
-            # Build message
-            msg = struct.pack('!BBH', message_type, padding, num_rectangles)
-            msg += struct.pack('!HHHHi', x, y, w, h, encoding_type)
+            # Send FramebufferUpdate header (3 bytes: type + padding + num_rects)
+            fb_header = struct.pack('!BBH', message_type, padding, num_rectangles)
+            client_socket.sendall(fb_header)
             
-            # Send message
-            client_socket.send(msg)
+            # Send Rectangle header (12 bytes: x, y, w, h, encoding_type)
+            rect_header = struct.pack('!HHHHi', x, y, w, h, encoding_type)
+            client_socket.sendall(rect_header)
             
-            # For PoC, just send minimal data
-            # In full implementation: client_socket.send(screen_data)
+            # Send Pixel data (RGBX format) — sendAll to ensure complete transfer
+            client_socket.sendall(screen_data)
             
             return True
             
@@ -333,6 +343,7 @@ class VNCAdapter:
 def main():
     """Main entry point for VNCAdapter v2."""
     import sys
+
     
     print("=== VNCAdapter v2 dengan ADB Integration ===")
     print("Android Screen Mirror via VNC Protocol")
