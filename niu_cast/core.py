@@ -8,6 +8,7 @@ import sys
 import os
 import subprocess
 import tempfile
+import threading
 from datetime import datetime
 
 from PyQt5.QtWidgets import (
@@ -525,7 +526,7 @@ class NiuCastWindow(QMainWindow):
         root.addWidget(self.tabs, 1)
 
     def _do_vnc_start(self):
-        """Actual VNC start work."""
+        """Actual VNC start work — runs server in daemon thread."""
         from .vnc_adapter_v2 import VNCAdapter
         if self._vnc_adapter is not None:
             self.sb.showMessage("VNC: Server already running")
@@ -534,10 +535,14 @@ class NiuCastWindow(QMainWindow):
         self.vnc_btn_start.setText("⏳ Starting...")
         try:
             self._vnc_adapter = VNCAdapter(port=5901)
-            # Don't start server here - use thread to avoid blocking GUI
-            # For now, just init (actual start happens when client connects)
+            # Run server in daemon thread so GUI stays responsive
+            self._vnc_thread = threading.Thread(
+                target=self._vnc_adapter.start_server,
+                daemon=True
+            )
+            self._vnc_thread.start()
             self._vnc_refresh()
-            self.sb.showMessage("VNC: Server ready on port 5901")
+            self.sb.showMessage("VNC: Server started on port 5901")
             self.vnc_btn_stop.setEnabled(True)
             self.vnc_btn_connect.setEnabled(True)
         except Exception as e:
@@ -550,6 +555,8 @@ class NiuCastWindow(QMainWindow):
         self.sb.showMessage("VNC: Stopping server...")
         if self._vnc_adapter is not None:
             self._vnc_adapter.stop_server()
+            if hasattr(self, '_vnc_thread') and self._vnc_thread.is_alive():
+                self._vnc_thread.join(timeout=2)
             self._vnc_adapter = None
         self.vnc_btn_start.setEnabled(True)
         self.vnc_btn_start.setText("Start VNC Server")
@@ -906,6 +913,11 @@ class NiuCastWindow(QMainWindow):
 
     def closeEvent(self, event):
         self._stream_timer.stop()
+        # Cleanup VNC server thread on exit
+        if hasattr(self, '_vnc_adapter') and self._vnc_adapter is not None:
+            self._vnc_adapter.stop_server()
+            if hasattr(self, '_vnc_thread') and self._vnc_thread.is_alive():
+                self._vnc_thread.join(timeout=2)
         event.accept()
 
 
