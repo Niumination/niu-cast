@@ -1,6 +1,7 @@
 import SwiftUI
 import MetalKit
 import MirrorEngine
+import SharedModels
 
 struct MirrorWindow: View {
     let device: ADBDevice
@@ -20,9 +21,22 @@ struct MirrorWindow: View {
             .padding()
             .background(.ultraThinMaterial)
             
-            // Video surface
-            VideoSurfaceView(engine: viewModel.engine)
+            // Video surface with event capture
+            ZStack {
+                VideoSurfaceView(engine: viewModel.engine)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                
+                // Transparent event capture overlay
+                MirrorEventView(
+                    onMouseEvent: { event in
+                        viewModel.handleMouseEvent(event)
+                    },
+                    onKeyboardEvent: { event in
+                        viewModel.handleKeyboardEvent(event)
+                    }
+                )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         }
         .onAppear {
             viewModel.startSession(device: device)
@@ -56,6 +70,8 @@ class MirrorViewModel: ObservableObject {
     
     var engine: MirrorEngine?
     private var coordinator: FusionEngine?
+    private var keyboard = UHIDKeyboard()
+    private var clipboard = ClipboardBridge()
     
     func startSession(device: ADBDevice) {
         Task {
@@ -64,6 +80,11 @@ class MirrorViewModel: ObservableObject {
                 coordinator = FusionEngine()
                 try await coordinator?.startSession(serial: device.serial)
                 isConnected = true
+                
+                // Start clipboard sync
+                clipboard.startMonitoring { [weak self] text in
+                    self?.clipboard.pushToAndroid(text, serial: device.serial)
+                }
             } catch {
                 self.error = error.localizedDescription
             }
@@ -72,8 +93,17 @@ class MirrorViewModel: ObservableObject {
     
     func stopSession() {
         Task {
+            clipboard.stopMonitoring()
             try? await coordinator?.stopSession()
             isConnected = false
         }
+    }
+    
+    func handleMouseEvent(_ event: MouseEvent) {
+        // TODO: Send to Android via scrcpy control socket
+    }
+    
+    func handleKeyboardEvent(_ event: KeyboardEvent) {
+        // TODO: Send to Android via UHID
     }
 }
