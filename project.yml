@@ -1,0 +1,79 @@
+name: niu-cast
+options:
+  bundleIdPrefix: com.niumination.niu-cast
+  deploymentTarget:
+    macOS: "15.0"
+  createIntermediateGroups: true
+  
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_IDENTITY: "-"
+    CODE_SIGNING_REQUIRED: "NO"
+    CODE_SIGNING_ALLOWED: "NO"
+    ENABLE_USER_SCRIPT_SANDBOXING: "NO"
+
+targets:
+  niu-cast:
+    type: application
+    platform: macOS
+    sources:
+      - path: App
+      - path: Packages/Sources
+    resources:
+      - path: App/Resources
+        optional: true
+    info:
+      path: App/Supporting Files/Info.plist
+      properties:
+        CFBundleName: niu-cast
+        CFBundleDisplayName: NIU CAST
+        CFBundleShortVersionString: "4.0.0"
+        CFBundleVersion: "1"
+        LSMinimumSystemVersion: "15.0"
+        NSPrincipalClass: NSApplication
+        NSMainNibFile: ""
+        CFBundleExecutable: niu-cast
+        CFBundlePackageType: APPL
+        CFBundleIdentifier: com.niumination.niu-cast
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+        NSLocalNetworkUsageDescription: "NIU CAST needs local network access to discover and connect to Android devices."
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.niumination.niu-cast
+        PRODUCT_NAME: niu-cast
+        TARGETED_DEVICE_PLATFORM_NAME: macosx
+        GENERATE_INFOPLIST_FILE: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        CODE_SIGN_ENTITLEMENTS: ""
+        SUPPORTS_MACCATALYST: "NO"
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: "NO"
+
+  niu-cast-tests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - Tests
+    dependencies:
+      - target: niu-cast
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.niumination.niu-cast.tests
+        TEST_TARGET_NAME: niu-cast
+        GENERATE_INFOPLIST_FILE: YES
+
+schemes:
+  niu-cast:
+    build:
+      targets:
+        niu-cast: all
+        niu-cast-tests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - niu-cast-tests

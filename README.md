@@ -1,328 +1,101 @@
-# <img src="https://raw.githubusercontent.com/niumination/niu-cast/main/.assets/icon.svg" width="40" /> NIU CAST
+# niu-cast v4.0 — Android to macOS Mirror
 
-<div align="center">
+NIU CAST is a macOS native app for managing and mirroring Android devices via ADB and scrcpy.
 
-**⚡ Gaming Edition v1.1.1 • Universal Android ADB Tool & Screen Mirroring ⚡**
+## Requirements
 
-*Inspired by Genshin Impact, Xarena, and Cyberpunk aesthetics*
+| Requirement | Minimum |
+|---|---|
+| macOS | 15.0 (Sequoia) |
+| Xcode | 16.0+ |
+| Swift | 6.0+ |
+| Android | 7.0+ (mirror), 11+ (wireless pairing) |
 
-![Version](https://img.shields.io/badge/version-1.1.1-blue)
-![Python](https://img.shields.io/badge/python-3.8+-green)
-![Platform](https://img.shields.io/badge/platform-macOS%20|%20Linux%20|%20Windows-orange)
+## Build
 
-</div>
-
----
-
-## 🎮 Overview
-
-**NiuCast** adalah toolkit Android universal berbasis ADB dengan desain gaming-inspired dan fitur lengkap pengelolaan device Android via USB/Wireless.
-
-**Fitur Unggulan:**
-
-- 📱 **Real-time Screen Mirroring** — Display layar Android di komputer
-- 🎮 **Game Mode** — Optimasi device untuk gaming
-- 📊 **Performance Monitor** — CPU temp, battery, RAM real-time
-- 🎨 **Theme Switcher** — 6 tema gaming (Cyberpunk, Genshin, Valorant, dll)
-- 🚀 **Game Launcher** — Launch 12 game populer langsung dari NiuCast
-- ⌨️ **Keyboard Shortcuts** — Hotkey navigasi tanpa sentuh
-- 📷 **Screenshot & Recording** — Dokumentasi layar instan
-- 🔗 **Wireless ADB** — Via USB tethering atau WiFi
-- 📦 **APK Installation** — Install APK langsung
-- ⚡ **Batch Automation** — Script YAML/JSON/Text
-
----
-
-## ✨ Features
-
-### 🎮 Gaming Edition (v1.1.1)
-
-| Feature | Description |
-|---------|-------------|
-| 🎮 **Game Mode** | Optimasi otomatis: mati animasi, boost GPU, kill background apps, max brightness |
-| 📊 **Perf Monitor** | Live monitoring CPU temp, battery temp, RAM usage via status bar |
-| 🎨 **Theme Switcher** | 6 tema: Cyberpunk, Genshin, Xarena, Valorant, LoL, Minecraft |
-| 🚀 **Game Launcher** | Launch 12 game populer + auto-detect game terinstall |
-| ⌨️ **Keyboard Shortcuts** | Ctrl+H (Home), Ctrl+B (Back), Ctrl+S (Screenshot), Ctrl+R (Record), dll |
-
-### 🔧 Core Features
-
-| Feature | Description |
-|---------|-------------|
-| 📱 Live Stream | Real-time ~60 FPS screen mirroring |
-| 🖱️ Touch Input | Click/swipe on mirror → device response |
-| 📷 Screenshot | One-click capture with instant preview |
-| 🎥 Recording | Screen record hingga 180 detik |
-| 📦 APK Install | Drag & drop atau file picker |
-| 🔗 Wireless | ADB over TCP/IP via USB atau WiFi |
-
----
-
-## 📱 Android → Mac Connection
-
-### USB (Recommended for first use)
+### Prerequisites
 
 ```bash
-# 1. Install ADB
-brew install android-platform-tools
-
-# 2. Enable USB Debugging on Android
-#    Settings → About Phone → Tap "Build Number" 7x
-#    Settings → Developer Options → USB Debugging → ON
-
-# 3. Connect device via USB cable, authorize on phone
-
-# 4. Verify
-adb devices
-# Should show: <serial>   device
-
-# 5. Run NiuCast
-python3 -m niu_cast.core
+brew install xcodegen
+brew install scrcpy  # optional — for screen mirroring
 ```
 
-### Wireless (USB Tethering / WiFi)
+### Generate Xcode Project
 
 ```bash
-# 1. Connect USB first, then enable TCP/IP mode
-adb tcpip 5555
-
-# 2. Get device IP (from WiFi settings on Android)
-#    Or via ADB:
-adb shell ip route | awk '{print $9}'
-
-# 3. Disconnect USB, connect via WiFi
-adb connect 192.168.1.100:5555
-
-# 4. Verify
-adb devices
-# Should show: 192.168.1.100:5555   device
-
-# 5. Run NiuCast — now fully wireless
-python3 -m niu_cast.core
-```
-
-### Entry Points (from `setup.py`)
-
-| Command | Description |
-|---------|-------------|
-| `python3 -m niu_cast.core` | Full GUI (PyQt5) |
-| `python3 -m niu_cast.mini` | CLI interactive menu |
-| `python3 -m niu_cast.mini --screenshot` | Quick screenshot |
-| `python3 -m niu_cast.mini --game-mode on` | Enable Game Mode |
-| `python3 -m niu_cast.mini --monitor 10` | Monitor 10 detik |
-| `niu-cast` | GUI (if installed via pip) |
-| `niu-mini` | CLI (if installed via pip) |
-
----
-
-## 🚀 Quick Start
-
-### 1. Prerequisites
-
-```bash
-# Android Debug Bridge
-# macOS:
-brew install android-platform-tools
-
-# Linux:
-sudo apt install adb   # atau: sudo pacman -S android-tools
-```
-
-### 2. Install NiuCast
-
-```bash
-git clone https://github.com/niumination/niu-cast.git
 cd niu-cast
-
-# Virtual environment
-python3 -m venv .venv
-source .venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-# atau langsung:
-pip install numpy opencv-python Pillow PyQt5
+xcodegen generate
 ```
 
-### 3. Device Setup (Android)
+### Build & Run
 
-```
-1. Settings → About Phone → Tap "Build Number" 7x
-2. Settings → Developer Options → USB Debugging → ON
-3. Connect USB cable → Authorize on device
-```
+Open the generated project in Xcode:
 
-### 4. Run
-
-**GUI Mode (Recommended):**
 ```bash
-source .venv/bin/activate
-python3 -m niu_cast.core
+open niu-cast.xcodeproj
 ```
 
-**CLI Mode:**
+Press `Cmd+R` to build and run.
+
+Or build from command line (requires Xcode.app):
+
 ```bash
-# Info device
-python3 -m niu_cast.mini --info
-
-# Screenshot
-python3 -m niu_cast.mini --screenshot
-
-# Game Mode
-python3 -m niu_cast.mini --game-mode on
-python3 -m niu_cast.mini --game-mode off
-
-# Performance Monitor
-python3 -m niu_cast.mini --monitor 10
-
-# Interactive menu
-python3 -m niu_cast.mini
+xcodebuild -project niu-cast.xcodeproj -scheme niu-cast build
 ```
 
----
-
-## 🎮 CLI Menu
-
-```
- 1) Device Information
- 2) Screenshot
- 3) Screen Record
- 4) Interactive Control
- 5) Install APK
- 6) Wireless Setup
- 7) Live Preview
- 8) 🎮 Game Mode (on/off)
- 9) 📊 Performance Monitor
- 0) Exit
-```
-
-### CLI Flags
-
-| Flag | Description |
-|------|-------------|
-| `--info` | Show device info |
-| `--screenshot` | Take screenshot |
-| `--record [sec]` | Record screen (default 30s) |
-| `--control` | Interactive control mode |
-| `--wireless` | Enable ADB over TCP/IP |
-| `--preview` | Live screen preview |
-| `--install APK` | Install APK file |
-| `--game-mode {on,off}` | Enable/disable game optimizations |
-| `--monitor [sec]` | Monitor performance (default 10s) |
-| `--device SERIAL` | Specify device serial |
-
----
-
-## ⌨️ Keyboard Shortcuts
-
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl+H` / `Cmd+H` | Home |
-| `Ctrl+B` / `Cmd+B` | Back |
-| `Ctrl+R` / `Cmd+R` | Recent apps |
-| `Ctrl+P` / `Cmd+P` | Power menu |
-| `Ctrl+Up` / `Cmd+Up` | Volume Up |
-| `Ctrl+Down` / `Cmd+Down` | Volume Down |
-| `Ctrl+M` / `Cmd+M` | Mute |
-| `Ctrl+S` / `Cmd+S` | Screenshot |
-| `Ctrl+Shift+R` / `Cmd+Shift+R` | Start/stop recording |
-| `Ctrl+Q` / `Cmd+Q` | Exit |
-
----
-
-## 🎨 Themes
-
-| Theme | Description |
-|-------|-------------|
-| `cyberpunk` | Neon cyan + magenta, dark grid background (default) |
-| `genshin` | Teal + gold, star motifs, warm glow |
-| `xarena` | Red accents, dark carbon, bold gaming |
-| `valorant` | Red + white, minimal sharp edges |
-| `lol` | Blue + gold, dark purple undertones |
-| `minecraft` | Green + brown, pixel-style |
-
-Switch via GUI dropdown di bottom bar.
-
----
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 niu-cast/
-├── niu_cast/
-│   ├── __init__.py           # Package init (v1.1.1)
-│   ├── core.py               # GUI — PyQt5 gaming theme + all integrations
-│   ├── mini.py               # CLI — interactive + flags
-│   ├── game_mode.py          # GameMode, PerformanceMonitor, GameLauncher
-│   ├── shortcuts.py          # KeyboardShortcuts (15 hotkeys)
-│   ├── theme_manager.py      # ThemeManager (6 themes)
-│   └── batch.py              # Batch automation (YAML/JSON/Text)
-├── .assets/
-│   └── icon.svg              # NiuCast icon
-├── CHANGELOG.md
-├── requirements.txt
-├── setup.py
-└── README.md
+├── project.yml                    ← XcodeGen config
+├── niu-cast.xcodeproj             ← Generated by xcodegen
+├── App/
+│   ├── niu_castApp.swift          ← @main entry
+│   ├── Scenes/                    ← SwiftUI views
+│   ├── ViewModels/                ← MVVM view models
+│   └── Supporting Files/
+├── Packages/
+│   └── Sources/
+│       ├── ADBKit/               ← ADB communication
+│       ├── ScrcpyClient/         ← scrcpy server management
+│       ├── MirrorEngine/         ← VideoToolbox + Metal render
+│       ├── FusionEngine/         ← Session orchestration
+│       ├── DeviceDiscovery/      ← mDNS auto-detect
+│       ├── TCCPKit/              ← Joy Connect protocol
+│       └── SharedModels/         ← Shared data models
+└── Scripts/
+    ├── build.sh
+    └── bootstrap.sh              ← fetch scrcpy-server.jar + adb
 ```
 
----
+## Usage
 
-## 🔧 Configuration
+### USB Connection
 
-### Game Mode
+1. Enable USB Debugging on your Android device:
+   - Settings → About Phone → Tap "Build Number" 7 times
+   - Settings → Developer Options → Enable "USB Debugging"
+2. Connect via USB cable
+3. Tap "Allow" on the device when prompted
+4. The device should appear in the NIU CAST device list
 
-Game Mode mengoptimasi device untuk gaming:
-- Disable animations (window, transition, animator)
-- Set GPU renderer ke OpenGL
-- Kill background apps
-- Set brightness maksimum
-- Force GPU rendering
+### Wi-Fi Pairing (Android 11+)
 
-### Wireless ADB
+1. In NIU CAST, click "Pair over Wi-Fi"
+2. On your Android device: Developer Options → Wireless Debugging → "Pair with pairing code"
+3. Enter the pairing code and port shown on your device
+4. After pairing, connect to the new port shown in Wireless Debugging
 
-```bash
-# Via USB — enable TCP
-adb tcpip 5555
+### Mirroring
 
-# Connect via IP
-adb connect <device_ip>:5555
+1. Select a connected device
+2. Click "Mirror" to start screen mirroring
+3. Desktop Mode available for Samsung DeX and Android 14+ freeform displays
 
-# Lepas USB — device tetap terhubung via WiFi/data
-```
+## Architecture
 
----
+See [BLUEPRINT.md](./BLUEPRINT.md) for full architecture documentation.
 
-## 🐛 Troubleshooting
+## License
 
-| Problem | Solution |
-|---------|----------|
-| Device not found | Enable USB Debugging, authorize PC, ganti kabel |
-| Black screen mirror | Wake device, unlock screen |
-| Wireless fail | `adb tcpip 5555` via USB dulu, lalu `adb connect IP` |
-| Game Mode error | Pastikan device terhubung & ADB authorized |
-| ADB not found | `brew install android-platform-tools` atau `sudo apt install adb` |
-
----
-
-## 📝 License
-
-MIT License — See [LICENSE](LICENSE) for details.
-
----
-
-## 🙏 Acknowledgments
-
-- **scrcpy** — Inspiration for screen mirroring concept
-- **Genshin Impact** — UI design inspiration
-- **Xarena** — Gaming aesthetics reference
-- **Cyberpunk 2077** — Color palette inspiration
-
----
-
-<div align="center">
-
-**Made with ❤️ by Niumination**
-
-*Universal Android ADB Tool & Screen Mirroring*
-
-</div>
+MIT License

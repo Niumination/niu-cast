@@ -1,0 +1,522 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1DBA4127E807C72174CE25F4 /* FusionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50F9BC14ED8F6E02ED82EE2 /* FusionEngine.swift */; };
+		2364406C6D24913043594614 /* DeviceDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95A8DC90F36C2ECFF8D801CD /* DeviceDiscovery.swift */; };
+		44EB55AB4018BB44B0B22FBC /* ADBDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC48F27C236DD49E7180D0A /* ADBDevice.swift */; };
+		56967859F238419E0E36A44B /* ADBKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 402262A7A878CEBD21FF4A0F /* ADBKit.swift */; };
+		6427327DB97FE023F842A11F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6EF4FD75462694639D928FB /* SettingsView.swift */; };
+		90331550039CEBF17DDDAE21 /* ScrcpyClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44BE9E43B4164DC84F1608CF /* ScrcpyClient.swift */; };
+		97F37C3E82EA5CB193F7167B /* MirrorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3388EF56225204663371D0 /* MirrorEngine.swift */; };
+		C61D3D93FAB00F7D920EF4FE /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53EE335C0138347DC3D04162 /* MainView.swift */; };
+		EBC4C43EA6F12FFEB915D179 /* niu_castApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5868C16E6C7E10FCC5D99856 /* niu_castApp.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B0D3E81D45FF214490DD600C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D7CDF9119076D389BE5B09B7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6BCE214845B5ECCC6F2EC5EF;
+			remoteInfo = "niu-cast";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		1390E4E2597FE971DABC99A8 /* niu-cast-tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "niu-cast-tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3DC022A5E8264EF3A6CBA486 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		402262A7A878CEBD21FF4A0F /* ADBKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ADBKit.swift; sourceTree = "<group>"; };
+		44BE9E43B4164DC84F1608CF /* ScrcpyClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrcpyClient.swift; sourceTree = "<group>"; };
+		53EE335C0138347DC3D04162 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		5868C16E6C7E10FCC5D99856 /* niu_castApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = niu_castApp.swift; sourceTree = "<group>"; };
+		95A8DC90F36C2ECFF8D801CD /* DeviceDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDiscovery.swift; sourceTree = "<group>"; };
+		A6EF4FD75462694639D928FB /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A7FD7BEAE2BC7680CF03F3BE /* niu-cast.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "niu-cast.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		BBC48F27C236DD49E7180D0A /* ADBDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ADBDevice.swift; sourceTree = "<group>"; };
+		C50F9BC14ED8F6E02ED82EE2 /* FusionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FusionEngine.swift; sourceTree = "<group>"; };
+		DC3388EF56225204663371D0 /* MirrorEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MirrorEngine.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		1C4CB5A076B555DEDD8478FD /* ScrcpyClient */ = {
+			isa = PBXGroup;
+			children = (
+				44BE9E43B4164DC84F1608CF /* ScrcpyClient.swift */,
+			);
+			path = ScrcpyClient;
+			sourceTree = "<group>";
+		};
+		22F22C40D4F2CA4E94223C44 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				C9E8CB01BF7A4C09957402A1 /* Sources */,
+			);
+			path = Packages;
+			sourceTree = "<group>";
+		};
+		40B00C056B9A85F8806AEE10 = {
+			isa = PBXGroup;
+			children = (
+				830F84BEEA82C351841A1CEF /* App */,
+				22F22C40D4F2CA4E94223C44 /* Packages */,
+				7EA28D584E4FFA8436631D53 /* Tests */,
+				483C14144DC4CC479A7729F3 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		44DD046D7F782C9F0851BE0A /* ADBKit */ = {
+			isa = PBXGroup;
+			children = (
+				402262A7A878CEBD21FF4A0F /* ADBKit.swift */,
+			);
+			path = ADBKit;
+			sourceTree = "<group>";
+		};
+		483C14144DC4CC479A7729F3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1390E4E2597FE971DABC99A8 /* niu-cast-tests.xctest */,
+				A7FD7BEAE2BC7680CF03F3BE /* niu-cast.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		5A6E972612A5ADFEDAC1DF07 /* MirrorEngine */ = {
+			isa = PBXGroup;
+			children = (
+				DC3388EF56225204663371D0 /* MirrorEngine.swift */,
+			);
+			path = MirrorEngine;
+			sourceTree = "<group>";
+		};
+		641E5E62BEB9E19BDD14B65C /* SharedModels */ = {
+			isa = PBXGroup;
+			children = (
+				BBC48F27C236DD49E7180D0A /* ADBDevice.swift */,
+			);
+			path = SharedModels;
+			sourceTree = "<group>";
+		};
+		6F3C562277C69288F3AF2B9A /* Scenes */ = {
+			isa = PBXGroup;
+			children = (
+				53EE335C0138347DC3D04162 /* MainView.swift */,
+				A6EF4FD75462694639D928FB /* SettingsView.swift */,
+			);
+			path = Scenes;
+			sourceTree = "<group>";
+		};
+		75CB3BE10B68E0D636270560 /* FusionEngine */ = {
+			isa = PBXGroup;
+			children = (
+				C50F9BC14ED8F6E02ED82EE2 /* FusionEngine.swift */,
+			);
+			path = FusionEngine;
+			sourceTree = "<group>";
+		};
+		7EA28D584E4FFA8436631D53 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		830F84BEEA82C351841A1CEF /* App */ = {
+			isa = PBXGroup;
+			children = (
+				5868C16E6C7E10FCC5D99856 /* niu_castApp.swift */,
+				6F3C562277C69288F3AF2B9A /* Scenes */,
+				A1209043EB3DC71E9B68BC6F /* Supporting Files */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		A1209043EB3DC71E9B68BC6F /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				3DC022A5E8264EF3A6CBA486 /* Info.plist */,
+			);
+			path = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		C9E8CB01BF7A4C09957402A1 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				44DD046D7F782C9F0851BE0A /* ADBKit */,
+				F2D8269A4083F6083DF6AF9B /* DeviceDiscovery */,
+				75CB3BE10B68E0D636270560 /* FusionEngine */,
+				5A6E972612A5ADFEDAC1DF07 /* MirrorEngine */,
+				1C4CB5A076B555DEDD8478FD /* ScrcpyClient */,
+				641E5E62BEB9E19BDD14B65C /* SharedModels */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		F2D8269A4083F6083DF6AF9B /* DeviceDiscovery */ = {
+			isa = PBXGroup;
+			children = (
+				95A8DC90F36C2ECFF8D801CD /* DeviceDiscovery.swift */,
+			);
+			path = DeviceDiscovery;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0A6E5EA0E460EAA079B798B0 /* niu-cast-tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DF3203ADDF0379B193B0DBBE /* Build configuration list for PBXNativeTarget "niu-cast-tests" */;
+			buildPhases = (
+				072AF479116DED70749A36EB /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				625E3A1DE98BFFF6AB925132 /* PBXTargetDependency */,
+			);
+			name = "niu-cast-tests";
+			packageProductDependencies = (
+			);
+			productName = "niu-cast-tests";
+			productReference = 1390E4E2597FE971DABC99A8 /* niu-cast-tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		6BCE214845B5ECCC6F2EC5EF /* niu-cast */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 65F071669BBD631FD62D9D07 /* Build configuration list for PBXNativeTarget "niu-cast" */;
+			buildPhases = (
+				B30A4113510281FD4311AADF /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "niu-cast";
+			packageProductDependencies = (
+			);
+			productName = "niu-cast";
+			productReference = A7FD7BEAE2BC7680CF03F3BE /* niu-cast.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D7CDF9119076D389BE5B09B7 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					0A6E5EA0E460EAA079B798B0 = {
+						DevelopmentTeam = "";
+						TestTargetID = 6BCE214845B5ECCC6F2EC5EF;
+					};
+					6BCE214845B5ECCC6F2EC5EF = {
+						DevelopmentTeam = "";
+					};
+				};
+			};
+			buildConfigurationList = 68B93818611F6535B7BC57C5 /* Build configuration list for PBXProject "niu-cast" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 40B00C056B9A85F8806AEE10;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 483C14144DC4CC479A7729F3 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6BCE214845B5ECCC6F2EC5EF /* niu-cast */,
+				0A6E5EA0E460EAA079B798B0 /* niu-cast-tests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		072AF479116DED70749A36EB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B30A4113510281FD4311AADF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				44EB55AB4018BB44B0B22FBC /* ADBDevice.swift in Sources */,
+				56967859F238419E0E36A44B /* ADBKit.swift in Sources */,
+				2364406C6D24913043594614 /* DeviceDiscovery.swift in Sources */,
+				1DBA4127E807C72174CE25F4 /* FusionEngine.swift in Sources */,
+				C61D3D93FAB00F7D920EF4FE /* MainView.swift in Sources */,
+				97F37C3E82EA5CB193F7167B /* MirrorEngine.swift in Sources */,
+				90331550039CEBF17DDDAE21 /* ScrcpyClient.swift in Sources */,
+				6427327DB97FE023F842A11F /* SettingsView.swift in Sources */,
+				EBC4C43EA6F12FFEB915D179 /* niu_castApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		625E3A1DE98BFFF6AB925132 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6BCE214845B5ECCC6F2EC5EF /* niu-cast */;
+			targetProxy = B0D3E81D45FF214490DD600C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0A67A869F43D81D40520895C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		5D177ED166BB303309889680 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.niumination.niu-cast.tests";
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/niu-cast.app/Contents/MacOS/niu-cast";
+				TEST_TARGET_NAME = "niu-cast";
+			};
+			name = Release;
+		};
+		6D74BFB3B88D2FBCCA360699 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		9D899A672EC39A44A3116F66 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.niumination.niu-cast.tests";
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/niu-cast.app/Contents/MacOS/niu-cast";
+				TEST_TARGET_NAME = "niu-cast";
+			};
+			name = Debug;
+		};
+		B51C65F14CE73CCD1D427075 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "App/Supporting Files/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.niumination.niu-cast";
+				PRODUCT_NAME = "niu-cast";
+				SDKROOT = macosx;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_PLATFORM_NAME = macosx;
+			};
+			name = Release;
+		};
+		FFF8204EED72F1AEDC100D1E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "App/Supporting Files/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.niumination.niu-cast";
+				PRODUCT_NAME = "niu-cast";
+				SDKROOT = macosx;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_PLATFORM_NAME = macosx;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		65F071669BBD631FD62D9D07 /* Build configuration list for PBXNativeTarget "niu-cast" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FFF8204EED72F1AEDC100D1E /* Debug */,
+				B51C65F14CE73CCD1D427075 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		68B93818611F6535B7BC57C5 /* Build configuration list for PBXProject "niu-cast" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0A67A869F43D81D40520895C /* Debug */,
+				6D74BFB3B88D2FBCCA360699 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		DF3203ADDF0379B193B0DBBE /* Build configuration list for PBXNativeTarget "niu-cast-tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9D899A672EC39A44A3116F66 /* Debug */,
+				5D177ED166BB303309889680 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D7CDF9119076D389BE5B09B7 /* Project object */;
+}
