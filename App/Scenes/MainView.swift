@@ -2,10 +2,14 @@ import SwiftUI
 import SharedModels
 import ADBKit
 import FusionEngine
+import DeviceDiscovery
 
 struct MainView: View {
     @StateObject private var viewModel = DeviceListViewModel()
+    @StateObject private var discovery = DeviceDiscovery()
     @State private var selectedDevice: ADBDevice?
+    @State private var showingPairing = false
+    @State private var showingFiles = false
     @State private var showingMirror = false
     
     var body: some View {
@@ -20,6 +24,18 @@ struct MainView: View {
                             .tag(device)
                     }
                 }
+                
+                // Discovered devices section
+                if !discovery.discoveredDevices.isEmpty {
+                    Section("Discovered") {
+                        ForEach(discovery.discoveredDevices) { device in
+                            DiscoveredDeviceRow(device: device) {
+                                // Connect to discovered device
+                                connectToDiscovered(device)
+                            }
+                        }
+                    }
+                }
             }
             .navigationTitle("NIU CAST")
             .toolbar {
@@ -30,7 +46,7 @@ struct MainView: View {
                 }
                 ToolbarItem {
                     Button("Pair Wi-Fi") {
-                        // TODO: Show pairing sheet
+                        showingPairing = true
                     }
                 }
             }
@@ -45,6 +61,21 @@ struct MainView: View {
         }
         .onAppear {
             viewModel.start()
+            discovery.startBrowsing()
+        }
+        .onDisappear {
+            discovery.stopBrowsing()
+        }
+        .sheet(isPresented: $showingPairing) {
+            PairingSheet()
+        }
+    }
+    
+    private func connectToDiscovered(_ device: DeviceDiscovery.DiscoveredDevice) {
+        Task {
+            let adb = ADBKit()
+            _ = try? await adb.connect(host: device.ipAddress, port: device.port)
+            viewModel.refresh()
         }
     }
 }
@@ -65,6 +96,31 @@ struct DeviceRow: View {
             }
             Spacer()
             StatusDot(state: device.state)
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+struct DiscoveredDeviceRow: View {
+    let device: DeviceDiscovery.DiscoveredDevice
+    let onConnect: () -> Void
+    
+    var body: some View {
+        HStack {
+            Image(systemName: "wifi")
+                .font(.title2)
+            VStack(alignment: .leading) {
+                Text(device.name)
+                    .font(.headline)
+                Text("\(device.ipAddress):\(device.port)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            Button("Connect") {
+                onConnect()
+            }
+            .buttonStyle(.bordered)
         }
         .padding(.vertical, 4)
     }
@@ -92,6 +148,7 @@ struct DeviceDetail: View {
     let device: ADBDevice
     let onDismiss: () -> Void
     @StateObject private var coordinator = SessionCoordinator()
+    @State private var showingFiles = false
     
     var body: some View {
         VStack(spacing: 20) {
@@ -106,16 +163,23 @@ struct DeviceDetail: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
             
-            if coordinator.isMirroring {
-                Button("Stop Mirroring") {
-                    coordinator.stop()
+            HStack(spacing: 16) {
+                if coordinator.isMirroring {
+                    Button("Stop Mirroring") {
+                        coordinator.stop()
+                    }
+                    .buttonStyle(.borderedProminent)
+                } else {
+                    Button("Start Mirroring") {
+                        coordinator.start(device: device)
+                    }
+                    .buttonStyle(.borderedProminent)
                 }
-                .buttonStyle(.borderedProminent)
-            } else {
-                Button("Start Mirroring") {
-                    coordinator.start(device: device)
+                
+                Button("Files") {
+                    showingFiles = true
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.bordered)
             }
             
             if let error = coordinator.error {
@@ -128,6 +192,9 @@ struct DeviceDetail: View {
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .sheet(isPresented: $showingFiles) {
+            FilesWindow(device: device)
+        }
     }
 }
 
