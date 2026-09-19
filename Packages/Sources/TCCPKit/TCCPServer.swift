@@ -31,7 +31,9 @@ public actor TCCPServer {
         }
         
         listener?.newConnectionHandler = { [weak self] connection in
-            self?.handleConnection(connection)
+            Task {
+                await self?.handleConnection(connection)
+            }
         }
         
         listener?.start(queue: .global())
@@ -79,18 +81,28 @@ public actor TCCPServer {
     }
     
     private func receiveFrames(from connection: NWConnection) {
-        connection.receive(minimumIncompleteLength: 24, maximumLength: 65536) { [weak self] data, _, isComplete, error in
+        connection.receive(minimumIncompleteLength: 24, maximumLength: 65536) { data, _, isComplete, error in
             if let data = data, !data.isEmpty {
-                self?.handleReceivedData(data, from: connection)
+                Task {
+                    await self.handleReceivedData(data, from: connection)
+                }
             }
             
             if isComplete {
                 print("TCCP client disconnected: \(connection.endpoint)")
-                self?.connections.removeAll { $0 === connection }
+                Task {
+                    await self.removeConnection(connection)
+                }
             } else if error == nil {
-                self?.receiveFrames(from: connection)
+                Task {
+                    await self.receiveFrames(from: connection)
+                }
             }
         }
+    }
+    
+    private func removeConnection(_ connection: NWConnection) {
+        connections.removeAll { $0 === connection }
     }
     
     private func handleReceivedData(_ data: Data, from connection: NWConnection) {
@@ -103,14 +115,12 @@ public actor TCCPServer {
         
         switch frame.operatorCode {
         case .connAuth:
-            // Send AUTH_OK
             let response = TCCPFrame.authOk(messageId: messageIdCounter)
             messageIdCounter += 1
             let responseData = response.encode()
             connection.send(content: responseData, completion: .contentProcessed { _ in })
             
         case .heartbeat:
-            // Echo heartbeat back
             let response = TCCPFrame.heartbeat(messageId: messageIdCounter)
             messageIdCounter += 1
             let responseData = response.encode()

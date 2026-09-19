@@ -1,7 +1,8 @@
 import Foundation
+import SharedModels
 
 /// Core ADB (Android Debug Bridge) operations
-public struct ADBKit {
+public struct ADBKit: @unchecked Sendable {
     public let adbPath: String
     
     public init(adbPath: String = "/usr/local/bin/adb") {

@@ -1,0 +1,3 @@
+module DeviceDiscovery {
+    header "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/DeviceDiscovery.build/include/DeviceDiscovery-Swift.h"
+}

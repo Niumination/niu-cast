@@ -1,0 +1,12 @@
+{
+  "": {
+    "swift-dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/FusionEngine.build/primary.swiftdeps"
+  },
+  "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/Sources/FusionEngine/FusionEngine.swift": {
+    "dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/FusionEngine.build/FusionEngine.d",
+    "object": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/FusionEngine.build/FusionEngine.swift.o",
+    "swiftmodule": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/FusionEngine.build/FusionEngine~partial.swiftmodule",
+    "swift-dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/FusionEngine.build/FusionEngine.swiftdeps",
+    "diagnostics": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/FusionEngine.build/FusionEngine.dia"
+  }
+}

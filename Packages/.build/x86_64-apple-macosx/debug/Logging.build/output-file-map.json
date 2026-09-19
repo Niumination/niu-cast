@@ -1,0 +1,82 @@
+{
+  "": {
+    "swift-dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/primary.swiftdeps"
+  },
+  "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/checkouts/swift-log/Sources/Logging/Handlers/MultiplexLogHandler.swift": {
+    "dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/MultiplexLogHandler.d",
+    "object": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/MultiplexLogHandler.swift.o",
+    "swiftmodule": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/MultiplexLogHandler~partial.swiftmodule",
+    "swift-dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/MultiplexLogHandler.swiftdeps",
+    "diagnostics": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/MultiplexLogHandler.dia"
+  },
+  "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/checkouts/swift-log/Sources/Logging/Handlers/StreamLogHandler.swift": {
+    "dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/StreamLogHandler.d",
+    "object": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/StreamLogHandler.swift.o",
+    "swiftmodule": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/StreamLogHandler~partial.swiftmodule",
+    "swift-dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/StreamLogHandler.swiftdeps",
+    "diagnostics": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/StreamLogHandler.dia"
+  },
+  "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/checkouts/swift-log/Sources/Logging/Handlers/SwiftLogNoOpLogHandler.swift": {
+    "dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/SwiftLogNoOpLogHandler.d",
+    "object": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/SwiftLogNoOpLogHandler.swift.o",
+    "swiftmodule": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/SwiftLogNoOpLogHandler~partial.swiftmodule",
+    "swift-dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/SwiftLogNoOpLogHandler.swiftdeps",
+    "diagnostics": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/SwiftLogNoOpLogHandler.dia"
+  },
+  "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/checkouts/swift-log/Sources/Logging/Locks.swift": {
+    "dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/Locks.d",
+    "object": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/Locks.swift.o",
+    "swiftmodule": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/Locks~partial.swiftmodule",
+    "swift-dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/Locks.swiftdeps",
+    "diagnostics": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/Locks.dia"
+  },
+  "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/checkouts/swift-log/Sources/Logging/LogEvent.swift": {
+    "dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/LogEvent.d",
+    "object": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/LogEvent.swift.o",
+    "swiftmodule": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/LogEvent~partial.swiftmodule",
+    "swift-dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/LogEvent.swiftdeps",
+    "diagnostics": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/LogEvent.dia"
+  },
+  "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/checkouts/swift-log/Sources/Logging/LogHandler.swift": {
+    "dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/LogHandler.d",
+    "object": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/LogHandler.swift.o",
+    "swiftmodule": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/LogHandler~partial.swiftmodule",
+    "swift-dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/LogHandler.swiftdeps",
+    "diagnostics": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/LogHandler.dia"
+  },
+  "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/checkouts/swift-log/Sources/Logging/Logger+Attributes.swift": {
+    "dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/Logger+Attributes.d",
+    "object": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/Logger+Attributes.swift.o",
+    "swiftmodule": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/Logger+Attributes~partial.swiftmodule",
+    "swift-dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/Logger+Attributes.swiftdeps",
+    "diagnostics": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/Logger+Attributes.dia"
+  },
+  "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/checkouts/swift-log/Sources/Logging/Logger+With.swift": {
+    "dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/Logger+With.d",
+    "object": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/Logger+With.swift.o",
+    "swiftmodule": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/Logger+With~partial.swiftmodule",
+    "swift-dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/Logger+With.swiftdeps",
+    "diagnostics": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/Logger+With.dia"
+  },
+  "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/checkouts/swift-log/Sources/Logging/Logger.swift": {
+    "dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/Logger.d",
+    "object": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/Logger.swift.o",
+    "swiftmodule": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/Logger~partial.swiftmodule",
+    "swift-dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/Logger.swiftdeps",
+    "diagnostics": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/Logger.dia"
+  },
+  "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/checkouts/swift-log/Sources/Logging/LoggingSystem.swift": {
+    "dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/LoggingSystem.d",
+    "object": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/LoggingSystem.swift.o",
+    "swiftmodule": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/LoggingSystem~partial.swiftmodule",
+    "swift-dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/LoggingSystem.swiftdeps",
+    "diagnostics": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/LoggingSystem.dia"
+  },
+  "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/checkouts/swift-log/Sources/Logging/MetadataProvider.swift": {
+    "dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/MetadataProvider.d",
+    "object": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/MetadataProvider.swift.o",
+    "swiftmodule": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/MetadataProvider~partial.swiftmodule",
+    "swift-dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/MetadataProvider.swiftdeps",
+    "diagnostics": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/Logging.build/MetadataProvider.dia"
+  }
+}

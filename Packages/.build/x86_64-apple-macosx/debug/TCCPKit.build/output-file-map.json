@@ -1,0 +1,26 @@
+{
+  "": {
+    "swift-dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/TCCPKit.build/primary.swiftdeps"
+  },
+  "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/Sources/TCCPKit/TCCPModels.swift": {
+    "dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/TCCPKit.build/TCCPModels.d",
+    "object": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/TCCPKit.build/TCCPModels.swift.o",
+    "swiftmodule": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/TCCPKit.build/TCCPModels~partial.swiftmodule",
+    "swift-dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/TCCPKit.build/TCCPModels.swiftdeps",
+    "diagnostics": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/TCCPKit.build/TCCPModels.dia"
+  },
+  "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/Sources/TCCPKit/TCCPQRGenerator.swift": {
+    "dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/TCCPKit.build/TCCPQRGenerator.d",
+    "object": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/TCCPKit.build/TCCPQRGenerator.swift.o",
+    "swiftmodule": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/TCCPKit.build/TCCPQRGenerator~partial.swiftmodule",
+    "swift-dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/TCCPKit.build/TCCPQRGenerator.swiftdeps",
+    "diagnostics": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/TCCPKit.build/TCCPQRGenerator.dia"
+  },
+  "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/Sources/TCCPKit/TCCPServer.swift": {
+    "dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/TCCPKit.build/TCCPServer.d",
+    "object": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/TCCPKit.build/TCCPServer.swift.o",
+    "swiftmodule": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/TCCPKit.build/TCCPServer~partial.swiftmodule",
+    "swift-dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/TCCPKit.build/TCCPServer.swiftdeps",
+    "diagnostics": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/TCCPKit.build/TCCPServer.dia"
+  }
+}

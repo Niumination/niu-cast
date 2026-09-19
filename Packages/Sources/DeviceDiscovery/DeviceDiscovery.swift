@@ -2,7 +2,7 @@ import Foundation
 import Network
 
 /// mDNS/Bonjour device discovery
-public class DeviceDiscovery: ObservableObject {
+public class DeviceDiscovery: ObservableObject, @unchecked Sendable {
     @Published public var discoveredDevices: [DiscoveredDevice] = []
     
     private var browser: NWBrowser?
@@ -78,7 +78,7 @@ public class DeviceDiscovery: ObservableObject {
     // MARK: - Private
     
     private func handleBrowseResults(_ results: Set<NWBrowser.Result>, changes: Set<NWBrowser.Result.Change>) {
-        DispatchQueue.main.async {
+        Task { @MainActor in
             for result in results {
                 switch result.endpoint {
                 case .service(let name, let type, let domain, _):
@@ -102,7 +102,7 @@ public class DeviceDiscovery: ObservableObject {
                 if let endpoint = connection.currentPath?.remoteEndpoint,
                    case .hostPort(let host, let port) = endpoint {
                     let ipAddress = host.debugDescription
-                    DispatchQueue.main.async {
+                    Task { @MainActor in
                         self?.addDiscoveredDevice(
                             name: name,
                             ipAddress: ipAddress,

@@ -8,3 +8,5 @@ niu_cast.egg-info/
 build/
 dist/
 NiuCast.iconset/
+.build/
+Package.resolved

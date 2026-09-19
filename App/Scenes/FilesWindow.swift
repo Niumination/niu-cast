@@ -1,6 +1,6 @@
 import SwiftUI
 import SharedModels
-import FilesViewModel
+import SharedModels
 
 struct FilesWindow: View {
     let device: ADBDevice

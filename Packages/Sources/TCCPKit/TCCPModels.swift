@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Protocol Constants
 
-public enum TCCPPort: Int {
+public enum TCCPPort: Int, Sendable {
     case tccp = 9452
     case tccpFallback = 8613
     case control = 9542
@@ -63,13 +63,10 @@ public enum TCCPOperatorCode: UInt16 {
     case appLaunch = 0x0626
     case appForceStop = 0x0627
     
-    // Initial handshake frames
-    case initControl = 0x0606
-    case initDeviceInfo = 0x0404
-    case initAuth = 0x0607
-    case initData = 0x062a
-    case initStatus = 0x0615
-    case initScene = 0x0403
+    // Screen cast data
+    case screencastData = 0x062a
+    
+    // Heartbeat
     case heartbeat = 0x0900
     
     // Auth
@@ -77,7 +74,7 @@ public enum TCCPOperatorCode: UInt16 {
     case authOk = 0x0701
 }
 
-public enum TCCPServiceType: String {
+public enum TCCPServiceType: String, Sendable {
     case tranCast = "_tranCast._tcp"
     case tranFile = "_tranFile._tcp"
     case tran = "_tran._tcp"
@@ -179,7 +176,7 @@ public extension TCCPFrame {
     static func initControl(messageId: UInt32 = 1) -> TCCPFrame {
         let json = #"{"port":12000}"#
         return TCCPFrame(
-            operatorCode: .initControl,
+            operatorCode: .fileList,  // 0x0606
             messageId: messageId,
             timestamp: UInt64(Date().timeIntervalSince1970 * 1000),
             payload: json.data(using: .utf8) ?? Data()
@@ -190,7 +187,7 @@ public extension TCCPFrame {
     static func initDeviceInfo(messageId: UInt32 = 2) -> TCCPFrame {
         let json = #"{"a":"xos"}"#
         return TCCPFrame(
-            operatorCode: .initDeviceInfo,
+            operatorCode: .castClose,  // 0x0404
             messageId: messageId,
             timestamp: UInt64(Date().timeIntervalSince1970 * 1000),
             payload: json.data(using: .utf8) ?? Data()
@@ -201,7 +198,7 @@ public extension TCCPFrame {
     static func initAuth(messageId: UInt32 = 3) -> TCCPFrame {
         let json = #"{"controlPort":9542,"filePort":10001,"port":8008,"supportVersions":[1,2,3]}"#
         return TCCPFrame(
-            operatorCode: .initAuth,
+            operatorCode: .fileRename,  // 0x0607
             messageId: messageId,
             timestamp: UInt64(Date().timeIntervalSince1970 * 1000),
             payload: json.data(using: .utf8) ?? Data()
@@ -212,7 +209,7 @@ public extension TCCPFrame {
     static func initData(messageId: UInt32 = 4) -> TCCPFrame {
         let json = #"{"data":50314,"type":0}"#
         return TCCPFrame(
-            operatorCode: .initData,
+            operatorCode: .screencastData,  // 0x062a
             messageId: messageId,
             timestamp: UInt64(Date().timeIntervalSince1970 * 1000),
             payload: json.data(using: .utf8) ?? Data()
@@ -223,7 +220,7 @@ public extension TCCPFrame {
     static func initStatus(messageId: UInt32 = 5) -> TCCPFrame {
         let json = #"{"count":3}"#
         return TCCPFrame(
-            operatorCode: .initStatus,
+            operatorCode: .deviceVolume,  // 0x0615
             messageId: messageId,
             timestamp: UInt64(Date().timeIntervalSince1970 * 1000),
             payload: json.data(using: .utf8) ?? Data()
@@ -234,7 +231,7 @@ public extension TCCPFrame {
     static func initScene(messageId: UInt32 = 6) -> TCCPFrame {
         let json = #"{"scene":0,"videoPort":0}"#
         return TCCPFrame(
-            operatorCode: .initScene,
+            operatorCode: .castRotate,  // 0x0403
             messageId: messageId,
             timestamp: UInt64(Date().timeIntervalSince1970 * 1000),
             payload: json.data(using: .utf8) ?? Data()

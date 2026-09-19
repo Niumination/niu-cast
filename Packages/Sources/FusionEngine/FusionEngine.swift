@@ -36,9 +36,7 @@ public actor FusionEngine {
         try await scrcpy.connectControlSocket(port: 27184)
         
         // Initialize mirror engine
-        if let mirrorEngine = MirrorEngine() {
-            engine = mirrorEngine
-        }
+        engine = MirrorEngine()
         
         isRunning = true
     }

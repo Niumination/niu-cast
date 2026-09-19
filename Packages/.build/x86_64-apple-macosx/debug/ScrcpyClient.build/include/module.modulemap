@@ -1,0 +1,3 @@
+module ScrcpyClient {
+    header "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/ScrcpyClient.build/include/ScrcpyClient-Swift.h"
+}

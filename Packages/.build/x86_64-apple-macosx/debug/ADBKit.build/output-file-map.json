@@ -1,0 +1,19 @@
+{
+  "": {
+    "swift-dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/ADBKit.build/primary.swiftdeps"
+  },
+  "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/Sources/ADBKit/ADBKit.swift": {
+    "dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/ADBKit.build/ADBKit.d",
+    "object": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/ADBKit.build/ADBKit.swift.o",
+    "swiftmodule": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/ADBKit.build/ADBKit~partial.swiftmodule",
+    "swift-dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/ADBKit.build/ADBKit.swiftdeps",
+    "diagnostics": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/ADBKit.build/ADBKit.dia"
+  },
+  "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/Sources/ADBKit/FilesViewModel.swift": {
+    "dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/ADBKit.build/FilesViewModel.d",
+    "object": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/ADBKit.build/FilesViewModel.swift.o",
+    "swiftmodule": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/ADBKit.build/FilesViewModel~partial.swiftmodule",
+    "swift-dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/ADBKit.build/FilesViewModel.swiftdeps",
+    "diagnostics": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/ADBKit.build/FilesViewModel.dia"
+  }
+}

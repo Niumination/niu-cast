@@ -1,0 +1,12 @@
+{
+  "": {
+    "swift-dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/DeviceDiscovery.build/primary.swiftdeps"
+  },
+  "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/Sources/DeviceDiscovery/DeviceDiscovery.swift": {
+    "dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/DeviceDiscovery.build/DeviceDiscovery.d",
+    "object": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/DeviceDiscovery.build/DeviceDiscovery.swift.o",
+    "swiftmodule": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/DeviceDiscovery.build/DeviceDiscovery~partial.swiftmodule",
+    "swift-dependencies": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/DeviceDiscovery.build/DeviceDiscovery.swiftdeps",
+    "diagnostics": "/Users/zaryu/Desktop/Niumination/services/niu-cast/Packages/.build/x86_64-apple-macosx/debug/DeviceDiscovery.build/DeviceDiscovery.dia"
+  }
+}
